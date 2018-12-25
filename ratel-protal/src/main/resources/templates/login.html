@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"></meta>
+  	<!-- 引入jquery -->
+	<script th:src="@{/plugins/jquery/jquery-3.3.1.js}"></script>
+	<!-- 引入vue -->
+	<script th:src="@{/plugins/vue/vue-2.5.17.js}"></script>
+	<!-- 引入echarts -->
+	<script th:src="@{/plugins/echarts/echarts.min.js}"></script>
+	<script th:src="@{/plugins/echarts/map/js/world.js}"></script>
+	<!-- elemrnt组件引入 -->
+  	<!-- 引入样式 -->
+	<!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+	<link rel="stylesheet" href="/plugins/element/index.css">
+	<!-- 引入组件库 -->
+	<script th:src="@{/plugins/element/index.js}"></script>
+	<!-- 公用库 -->
+	<script th:src="@{/common/common.js}"></script>
+	<script th:src="@{/common/formValid.js}"></script>
+	<!-- 引入页面js-->
+	<script th:src="@{/js/index/index.js}"></script> 
+	<style>
+	    .whiteLabel .el-form-item__label{
+	        color: white;
+	    }
+	    .whiteForm{
+	    	margin-right: 10px;
+	    }
+	    a:hover{
+			text-decoration:underline;  /*鼠标放上去有下划线*/
+			cursor:pointer;/*鼠标放上去有手掌*/
+		}
+</style>
+</head>
+<body>
+	<div id="firstId">
+		<!-- 首页主区域 -->
+		<el-row>
+			<!-- 首页echarts图片加载区 -->
+			<el-col :span="18">
+		  		<div id="center"></div>
+		  	</el-col>
+		  	<!-- 登陆区 -->
+		  	<el-col :span="6" id="loginDiv" style="background-color:#000000;">
+		  		<el-row id="emptyHeight"></el-row>
+		  		<el-form class="whiteForm" ref="form" :rules="rules" :model="form" label-width="80px">
+				  	<el-form-item label="账号：" prop="name" class="whiteLabel">
+				    	<el-input v-model="form.name" :disabled="islanding" 
+				    	placeholder="请输入账号" clearable prefix-icon="el-icon-search"></el-input>
+				  	</el-form-item>
+				  	<el-form-item label="密码："prop="password" class="whiteLabel">
+				    	<el-input type="password" v-model="form.password" :disabled="islanding" 
+				    	placeholder="请输入密码" clearable prefix-icon="el-icon-search"></el-input>
+				  	</el-form-item>
+				  	<el-row type="flex" class="row-bg" justify="end">
+					  	<el-col :span="6">
+					  		<a @click="dialogVisible = true" target="_blank" style="color:#E6A23C;font-family: 楷体;">忘记密码?</a>
+					  	</el-col>
+					</el-row>
+					<el-row type="flex" class="row-bg" justify="center">
+					  	<el-col :span="24">
+					  		<el-form-item>
+						    	<el-button size="small" type="primary" round @click="login('form')" :disabled="islanding" :loading="islanding">登录</el-button>
+						    	<el-button size="small" round @click="resetForm('form')" :disabled="islanding">重置</el-button>
+						  	</el-form-item>
+					  	</el-col>
+					</el-row>
+				</el-form>
+		  	</el-col>
+		</el-row>
+		<el-dialog
+		  	title="重置密码" :visible.sync="dialogVisible" width="40%" :before-close="handleClose">
+		  	<el-form :inline="true" ref="emailForm" :rules="emailRules" :model="emailForm">
+			  	<el-form-item label="邮箱：" prop="email">
+			    	<el-input v-model="emailForm.email"
+			    	placeholder="请输入邮箱" clearable prefix-icon="el-icon-message" :disabled="isReset"></el-input>
+			  	</el-form-item>
+			  	<el-form-item>
+			    	<el-button @click="sendSecurityCode();" size="small" type="info" round :disabled="isReset || isSendCode">{{securityBtnValue}}</el-button>
+			  	</el-form-item>
+			  	<el-form-item label="验证：" prop="securityCode">
+			    	<el-input  v-model="emailForm.securityCode"
+			    	placeholder="请输入验证码" clearable prefix-icon="el-icon-search" :disabled="isReset || !hasSecurityCode"></el-input>
+			  	</el-form-item>
+			</el-form>
+		  	<span slot="footer" class="dialog-footer">
+		    	<el-button size="small" round @click="closeResetDiv('emailForm');" :disabled="isReset">取 消</el-button>
+		    	<el-button size="small" round type="primary" @click="resetPwd('emailForm')" :disabled="isReset" :loading="islanding">确 定</el-button>
+		  	</span>
+		</el-dialog>
+	</div>
+</body>
+  <script>
+  		/* 页面加载时触发事件 */
+		window.onload=function(){ 
+      		vm.init();
+  		}
+		var vm=new Vue({
+			el:'#firstId',
+			data() {
+				return {
+					/*
+					 * 这下面是重用户登录表单数据
+					*/
+					form: {
+						name:'',
+						password:''
+					},
+					rules:{
+						name: [
+			            	{ required: true, message: '请输入账号', trigger: 'blur' },
+			            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+			          	],
+			          	password: [
+			            	{ required: true, message: '请输入密码', trigger: 'change' },
+			            	{ validator: checkEmpty, trigger: 'blur' }
+			          ]	,
+					},
+					islanding:false,//是否正在登陆，正在登陆时，输入框和按钮都不可用
+					emptyHeight:'200px',
+					/*
+					 * 这下面是重置密码对话框的数据
+					*/
+					securityBtnValue:'获取验证码',
+					isSendCode:false,//发送验证码按钮是否可用
+					dialogVisible: false,//是否展示修改密码对话框
+					isReset:false,//是否正在重置密码，输入框和按钮都不可用
+					hasSecurityCode:false,//是否已生成验证码，判断验证码输入框是否可用
+					emailForm: {
+						email:'',
+						securityCode:''
+					},
+					emailRules:{
+						email:[
+							{ required: true, message: '请输入邮箱', trigger: 'blur' },
+			            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+						],
+						securityCode:[
+							{ required: true, message: '请输入验证码', trigger: 'blur' },
+							{ validator: checkEmpty, trigger: 'blur' }
+						]
+					}
+				}
+			},
+			methods:{
+				init:function(){
+					vm.boxheight();//根据页面高度设置首页图片echarts的高度
+					vm.createWelcomeEcharts();
+				},
+				createWelcomeEcharts:function(){
+					//首页图片echarts
+					createWelcomeEcharts('center');
+				},
+				boxheight:function(){
+			        //DIV高度为浏览器窗口高度
+			        document.getElementById("center").style.height= (getWinHeight()-20) +"px";
+			        document.getElementById("loginDiv").style.height= (getWinHeight()-20) +"px";
+			        //占位div
+			        var emptyHeight=(getWinHeight()-20)/2-82;
+			        if(emptyHeight<200){
+			        	emptyHeight=200;
+			        }
+			        document.getElementById("emptyHeight").style.height= emptyHeight +"px";
+				},
+				//登录
+				login:function(formName){
+					var that=this;
+					var data={};
+					data.account=vm.form.name;
+					data.password=vm.form.password;
+					var json=JSON.stringify(data); 
+					this.$refs[formName].validate((valid) => {
+			          	if (valid) {
+			          		vm.islanding=true;
+			          		$.ajax({
+			  		          	url: '/users/login?timestamp='+new Date().getTime(),
+			  		          	type: 'POST',
+			  		          	data:json,
+			  		          	dataType : 'json', 
+			  		          	contentType: 'application/json; charset=utf-8',
+			  		          	success: function (res) {
+			  		        	  	vm.islanding=false;
+			  		        	  	if(res.rspCode=="000000"){
+			  		        	  		window.location.href="/ratel/protal";
+			  		        	  	}else{
+			  		        	  		that.$notify.error({
+					  		        	  	title: '登录失败',
+					  		        	  	message: res.rspMsg,
+					  		        	  	position: 'bottom-right'
+					  		        	});
+			  		        	  	}
+			  		          	}
+			  		    	});
+			          	}
+			        });
+				},
+				//重置登录form
+				resetForm:function(formName){
+					this.$refs[formName].resetFields();
+					vm.islanding=false;
+				},
+				//点x关闭重置密码对话框
+				handleClose(done) {
+			        this.$confirm('确认关闭？').then(_ => {
+			            done();
+			            this.$refs['emailForm'].resetFields();
+			        }).catch(_ => {});
+			    },
+			    //点取消关闭重置密码对话框
+			    closeResetDiv:function(formName){
+			    	this.$refs[formName].resetFields();
+			    	vm.dialogVisible = false;
+			    },
+			    //重置密码请求
+			    resetPwd:function(formName){
+			    	var data={};
+			    	data.account=vm.emailForm.email;
+			    	data.securityCode=vm.emailForm.securityCode;
+			    	var json=JSON.stringify(data);
+			    	var that=this;
+			    	this.$refs[formName].validate((valid) => {
+			          	if (valid) {
+			          		vm.isReset=true;
+			          		$.ajax({
+			  		          	url: '/users/reset?timestamp='+new Date().getTime(),
+			  		          	type: 'POST',
+			  		          	data:json,
+			  		          	dataType : 'json', 
+			  		          	contentType: 'application/json; charset=utf-8',
+			  		          	success: function (res) {
+			  		          		vm.isReset=false;
+			  		        	  	if(res.rspCode=="000000"){
+			  		        	  		vm.dialogVisible = false;
+			  		        	  		that.$refs[formName].resetFields();
+			  		        	  		that.$notify.success({
+					  		        	  	title: '重置密码',
+					  		        	  	message: '操作成功,密码已发送至邮箱，请查收!',
+					  		        	  	position: 'bottom-right'
+					  		        	}); 
+			  		        	  	}else{
+			  		        	  		that.$notify.error({
+					  		        	  	title: '重置密码',
+					  		        	  	message: res.rspMsg,
+					  		        	  	position: 'bottom-right'
+					  		        	});
+			  		        	  	} 
+			  		          	}
+			  		    	});
+			          	}
+			        });
+			    },
+			    //发送验证码
+			    sendSecurityCode:function(){
+			    	var email=vm.emailForm.email.trim();
+			    	if(!email || email.trim==""){
+			    		this.$notify.error({
+               	          	title: '获取验证码',
+               	          	message: '邮箱不能为空',
+               	         	position: 'bottom-right'
+               	        });
+			    		return false;
+			    	}
+			    	if (emailReg.test(email)) {
+			    		vm.sendAjax2SecurityCode(email);
+                 	}else{
+                 		this.$notify.error({
+               	          	title: '获取验证码',
+               	          	message: '请输入正确的邮箱地址',
+               	         	position: 'bottom-right'
+               	        });
+                 		return false;
+                 	}
+			    },
+			    //发送验证码请求
+			    sendAjax2SecurityCode:function(email){
+			    	var that=this;
+			    	vm.isSendCode=true;
+		    		//发送验证码请求
+		    		$.ajax({
+	  		          	url: '/users/securityCode?timestamp='+new Date().getTime(),
+	  		          	type: 'GET',
+	  		          	data:{
+	  		          		'account':email
+	  		          	},
+	  		          	dataType : 'json', 
+	  		          	contentType: 'application/json; charset=utf-8',
+	  		          	success: function (res) {
+	  		          		vm.isReset=false;
+	  		        	  	if(res.rspCode=="000000"){
+	  		        	  		vm.countDown(60);
+	  		        	  		vm.hasSecurityCode=true;
+	  		        	  	}else{
+	  		        	  		vm.isSendCode=false;
+	  		        	  		that.$notify.error({
+			  		        	  	title: '获取验证码',
+			  		        	  	message: res.rspMsg,
+			  		        	  	position: 'bottom-right'
+			  		        	});
+	  		        	  	} 
+	  		          	}
+	  		    	});
+			    },
+			    //验证码发送倒计时
+			    countDown:function(time){
+			    	vm.securityBtnValue=time+'s后可重新获取验证码';
+			    	if(--time>0){       
+			    		setTimeout("vm.countDown("+time+")",1000);    
+					}else{         
+						vm.isSendCode=false;
+						vm.securityBtnValue="获取验证码"; 
+					} 
+			    }
+			}
+		})
+  </script>
+</html>

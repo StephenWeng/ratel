@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>智能化工厂</title>
+		<style>
+			.errorBtn{
+				margin:0 auto;display:block;
+			}
+		</style>
+	</head>
+</html>
+<div class="row wrapper">
+	<img class="errorBtn" th:src="@{/img/error/error.jpg}"></img>
+	<button style="background:#33ABD4;" class="btn btn-sm btn-default btn-info errorBtn" type="button" onClick="toMain();">
+		<span style="color:white;"><span id="jumpTo">10</span>秒后系统会自动跳转至首页，也可点击此处直接跳转</span>
+	</button>
+</div>
+
+<script>
+/*<![CDATA[*/
+	/* countDown(10,"/wikin-protal/home");
+	
+	function toMain(){
+		window.location.href="/wikin-protal/home";
+	}
+	
+	function countDown(secs,surl){           
+		var jumpTo = document.getElementById('jumpTo');  
+		jumpTo.innerHTML=secs;    
+		if(--secs>0){       
+			setTimeout("countDown("+secs+",'"+surl+"')",1000);       
+		}else{         
+			location.href=surl;       
+		    -ma  
+		}       
+	 }  */
+/*]]>*/
+</script>

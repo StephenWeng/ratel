@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"></meta>
+  	<!-- 引入jquery -->
+	<script th:src="@{/plugins/jquery/jquery-3.3.1.js}"></script>
+	<!-- 引入vue -->
+	<script th:src="@{/plugins/vue/vue-2.5.17.js}"></script>
+	<!-- elemrnt组件引入 -->
+  	<!-- 引入样式 -->
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<!-- 引入组件库 -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<!-- 公用库 -->
+	<script th:src="@{/common/common.js}"></script>
+</head>
+<body>
+	<div id="protal">
+		<el-container>
+		  	<el-header>Header</el-header>
+		  	<el-main>Main</el-main>
+		  	<el-footer>Footer</el-footer>
+		</el-container>
+	</div>
+</body>
+  <script>
+  		/* 页面加载时触发事件 */
+		window.onload=function(){ 
+      		vm.init();
+  		}
+		var vm=new Vue({
+			el:'#protal',
+			data() {
+				return {
+					
+				}
+			},
+			methods:{
+				init:function(){
+					
+				}
+			}
+		})
+  </script>
+</html>
