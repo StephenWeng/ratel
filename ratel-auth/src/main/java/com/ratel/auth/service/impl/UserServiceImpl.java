@@ -2,10 +2,12 @@ package com.ratel.auth.service.impl;
 
 import java.util.Date;
 
-import org.apache.tomcat.util.bcel.Const;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ import com.ratel.auth.repository.UserRepository;
 import com.ratel.auth.service.IEmailService;
 import com.ratel.auth.service.IUserService;
 import com.ratel.auth.utils.JwtTokenUtil;
+import com.ratel.common.constant.CommonConst;
 import com.ratel.common.domain.Encrypt;
 import com.ratel.common.response.ResponseData;
 import com.ratel.common.response.ResponseMsg;
@@ -43,6 +46,9 @@ public class UserServiceImpl implements IUserService {
 
 	@Autowired
 	private IEmailService emailService;
+
+	@Value("${jwt.expiration}")
+	private int expiration;// cookie存在时长
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
@@ -114,7 +120,7 @@ public class UserServiceImpl implements IUserService {
 	 * @return
 	 */
 	@Override
-	public ResponseData login(User user) {
+	public ResponseData login(User user, HttpServletResponse response) {
 		try {
 			// 邮箱后半段转小写
 			String account = email2Lower(user.getAccount());
@@ -130,9 +136,9 @@ public class UserServiceImpl implements IUserService {
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + user.getAccount() + "登录时，密码错误");
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "密码错误！");
 			}
-			// 生成jwt令牌，存入cookie TODO
+			// 生成jwt令牌，存入cookie
 			String token = jwtTokenUtil.generateToken(userDo);
-			CookieUtil.addCookie(res, Const.COOKIE_KEY_TENANT, token, 0);
+			CookieUtil.addCookie(response, CommonConst.COOKIE_KEY_JWT_TOKEN, token, expiration * 1000);
 			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + user.getAccount() + "登录成功");
 			return new ResponseData(ResponseMsg.SUCCESS, userDo);
 		} catch (Exception e) {

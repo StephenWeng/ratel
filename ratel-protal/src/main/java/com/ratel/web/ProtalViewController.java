@@ -32,7 +32,7 @@ public class ProtalViewController extends BaseController {
 	 * @return ModelAndView
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET, name = "登录页")
-	public ModelAndView toIndex() {
+	public ModelAndView toLogin() {
 		ModelAndView mav = new ModelAndView("login");
 		mav.addObject("appName", appName);
 		return mav;

@@ -53,8 +53,7 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 根据用户账号查询用户,不模糊
 	 * @date 2018年12月22日 上午11:08:23
-	 * @param account
-	 *            用户账号
+	 * @param account 用户账号
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
@@ -69,14 +68,13 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 用户登录
 	 * @date 2018年12月22日 上午11:09:06
-	 * @param user
-	 *            包含用户账号和密码
+	 * @param user 包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData login(@RequestBody User user) {
-		return userService.login(user);
+		return userService.login(user, this.response());
 	}
 
 	/**
@@ -84,8 +82,7 @@ public class UserController extends BaseController {
 	 * @author :技术部-文章
 	 * @Description 向用户邮箱发送重置密码的验证码
 	 * @date 2018年12月23日 下午7:18:55
-	 * @param account
-	 *            用户账号
+	 * @param account 用户账号
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody
@@ -99,8 +96,7 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 重置密码，将密码发送至用户邮箱
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user
-	 *            包含用户账号和密码
+	 * @param user 包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody

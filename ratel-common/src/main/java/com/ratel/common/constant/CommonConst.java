@@ -23,6 +23,11 @@ import org.springframework.stereotype.Component;
 public class CommonConst {
 
 	/**
+	 * cookie中存令牌的KEY
+	 */
+	public static final String COOKIE_KEY_JWT_TOKEN = "jwtToken";
+
+	/**
 	 * 计数 ClassName: INT_NUMBER <br/>
 	 * Function: 内部类，数字类型计数 <br/>
 	 * date: 2018年2月11日 上午10:37:10 <br/>
