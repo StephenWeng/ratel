@@ -1,0 +1,4 @@
+qone.driver=com.mysql.jdbc.Driver
+qone.url=jdbc:mysql://10.114.72.55:3306/pm
+qone.username=root
+qone.password=cpb123

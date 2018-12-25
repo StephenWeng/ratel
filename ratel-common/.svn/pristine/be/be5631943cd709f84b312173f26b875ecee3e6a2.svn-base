@@ -1,0 +1,150 @@
+/**
+ * @项目名:wikin-common
+ * @文件名:BpmNodeConfigVo.java
+ * @包名:com.dqgb.common.vo.bpmBusiness
+ * @描述 BpmNodeConfigVo.java
+ * @修改人 wenzhang
+ * @修改时间:2018年5月22日下午3:29:58
+ * @修改内容:新增
+ * @版权:Copyright 2009-2017 版权所有：大庆金桥信息技术工程有限公司
+ *
+*/
+
+package com.dqgb.common.vo.bpmBusiness;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * ClassName:BpmNodeConfigVo <br/>
+ * Function: 流程图节点设置. <br/>
+ * Date: 2018年5月22日 下午3:29:58 <br/>
+ * 
+ * @author wenzhang
+ * @version
+ * @since JDK 1.8
+ * @see
+ */
+public class BpmNodeConfigVo {
+
+	private String nodeId;// 流程图节点主键id
+
+	private String nodeName;// 流程图节点名称
+
+	private String noticeType;// 流程图节点通知类型 0：短信；1：站内信；2：邮件，以,相连
+
+	private Integer isNotice;// 流程图节点是否通知 0 不通知，1 通知
+
+	private Integer nodeRejectType;// 流程图节点驳回类型 0：驳回到发起节点；1： 驳回到其他节点
+
+	private String nodeRejectId;// 流程图节点驳回节点id
+
+	private String nodeButtons;// 流程图节点按钮搭配 0 同意，1 拒绝，2 驳回，3 启动，已，相连
+
+	private Date createTime;// 流程图节点设置事件
+
+	private String nodeFormUrl;// 流程图节点表单地址
+
+	private String nodeSid;// 流程图节点SID，引擎绘制的流程图节点id
+
+	private BpmNodePersonVo nodePerson;// 流程节点人员配置
+
+	private List<String> nodeVariableNames;// 流程节点变量名称
+
+	public String getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(String nodeId) {
+		this.nodeId = nodeId;
+	}
+
+	public String getNodeName() {
+		return nodeName;
+	}
+
+	public void setNodeName(String nodeName) {
+		this.nodeName = nodeName;
+	}
+
+	public String getNoticeType() {
+		return noticeType;
+	}
+
+	public void setNoticeType(String noticeType) {
+		this.noticeType = noticeType;
+	}
+
+	public Integer getIsNotice() {
+		return isNotice;
+	}
+
+	public void setIsNotice(Integer isNotice) {
+		this.isNotice = isNotice;
+	}
+
+	public Integer getNodeRejectType() {
+		return nodeRejectType;
+	}
+
+	public void setNodeRejectType(Integer nodeRejectType) {
+		this.nodeRejectType = nodeRejectType;
+	}
+
+	public String getNodeRejectId() {
+		return nodeRejectId;
+	}
+
+	public void setNodeRejectId(String nodeRejectId) {
+		this.nodeRejectId = nodeRejectId;
+	}
+
+	public String getNodeButtons() {
+		return nodeButtons;
+	}
+
+	public void setNodeButtons(String nodeButtons) {
+		this.nodeButtons = nodeButtons;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getNodeFormUrl() {
+		return nodeFormUrl;
+	}
+
+	public void setNodeFormUrl(String nodeFormUrl) {
+		this.nodeFormUrl = nodeFormUrl;
+	}
+
+	public String getNodeSid() {
+		return nodeSid;
+	}
+
+	public void setNodeSid(String nodeSid) {
+		this.nodeSid = nodeSid;
+	}
+
+	public BpmNodePersonVo getNodePerson() {
+		return nodePerson;
+	}
+
+	public void setNodePerson(BpmNodePersonVo nodePerson) {
+		this.nodePerson = nodePerson;
+	}
+
+	public List<String> getNodeVariableNames() {
+		return nodeVariableNames;
+	}
+
+	public void setNodeVariableNames(List<String> nodeVariableNames) {
+		this.nodeVariableNames = nodeVariableNames;
+	}
+
+}

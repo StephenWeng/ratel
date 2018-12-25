@@ -1,0 +1,180 @@
+/**
+ * @项目名:wikin-bpm
+ * @文件名:BusinessEventVo.java
+ * @包名:com.dqgb.bpm.Vo
+ * @描述 BusinessEventVo.java
+ * @修改人 wenzhang
+ * @修改时间:2018年5月22日上午11:13:56
+ * @修改内容:新增
+ * @版权:Copyright 2009-2017 版权所有：大庆金桥信息技术工程有限公司
+ *
+*/
+
+package com.dqgb.common.vo.bpmBusiness;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * ClassName:BusinessEventVo <br/>
+ * Function: 传递给业务方进行前置后置事件对象. <br/>
+ * Date: 2018年5月22日 上午11:13:56 <br/>
+ * 
+ * @author wenzhang
+ * @version
+ * @since JDK 1.8
+ * @see
+ */
+public class BusinessEventVo {
+
+	private String modelId;// 流程模板id
+
+	private String modelName;// 流程模板名称
+
+	private String modelKey;// 流程模板编码
+
+	private String modelDescription;// 流程模板描述
+
+	private Date createTime;// 流程模板创建时间
+
+	private String createUser;// 流程模板创建人
+
+	private Date modifyTime;// 流程模板修改时间
+
+	private String modifyUser;// 流程模板修改人
+
+	private Integer modelVersion;// 流程模板版本
+
+	private String modelJson;// 流程模板JSON
+
+	private String modelType;// 流程模板类别
+
+	private String modelStatus;// 流程模板状态 0 已发布，1 未发布
+
+	private String formUrl;// 流程模板表单地址
+
+	private List<BpmNodeConfigVo> nodeConfigs;// 流程图节点设置
+
+	private BpmInstanceVo bpmInstance;// 流程实例对象
+
+	public String getModelId() {
+		return modelId;
+	}
+
+	public void setModelId(String modelId) {
+		this.modelId = modelId;
+	}
+
+	public String getModelName() {
+		return modelName;
+	}
+
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
+	}
+
+	public String getModelKey() {
+		return modelKey;
+	}
+
+	public void setModelKey(String modelKey) {
+		this.modelKey = modelKey;
+	}
+
+	public String getModelDescription() {
+		return modelDescription;
+	}
+
+	public void setModelDescription(String modelDescription) {
+		this.modelDescription = modelDescription;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
+	}
+
+	public Date getModifyTime() {
+		return modifyTime;
+	}
+
+	public void setModifyTime(Date modifyTime) {
+		this.modifyTime = modifyTime;
+	}
+
+	public String getModifyUser() {
+		return modifyUser;
+	}
+
+	public void setModifyUser(String modifyUser) {
+		this.modifyUser = modifyUser;
+	}
+
+	public Integer getModelVersion() {
+		return modelVersion;
+	}
+
+	public void setModelVersion(Integer modelVersion) {
+		this.modelVersion = modelVersion;
+	}
+
+	public String getModelJson() {
+		return modelJson;
+	}
+
+	public void setModelJson(String modelJson) {
+		this.modelJson = modelJson;
+	}
+
+	public String getModelType() {
+		return modelType;
+	}
+
+	public void setModelType(String modelType) {
+		this.modelType = modelType;
+	}
+
+	public String getModelStatus() {
+		return modelStatus;
+	}
+
+	public void setModelStatus(String modelStatus) {
+		this.modelStatus = modelStatus;
+	}
+
+	public String getFormUrl() {
+		return formUrl;
+	}
+
+	public void setFormUrl(String formUrl) {
+		this.formUrl = formUrl;
+	}
+
+	public List<BpmNodeConfigVo> getNodeConfigs() {
+		return nodeConfigs;
+	}
+
+	public void setNodeConfigs(List<BpmNodeConfigVo> nodeConfigs) {
+		this.nodeConfigs = nodeConfigs;
+	}
+
+	public BpmInstanceVo getBpmInstance() {
+		return bpmInstance;
+	}
+
+	public void setBpmInstance(BpmInstanceVo bpmInstance) {
+		this.bpmInstance = bpmInstance;
+	}
+
+}
