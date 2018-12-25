@@ -46,7 +46,7 @@ public class JwtTokenUtil implements Serializable {
 	 * @date:2018年2月9日 上午9:08:57
 	 * @Title:generateToken
 	 * @param userDetails 用户对象
-	 * @return token
+	 * @return token token
 	 * @since JDK 1.8
 	 */
 	public String generateToken(User userDetails) {
