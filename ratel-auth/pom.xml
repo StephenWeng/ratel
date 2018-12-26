@@ -11,12 +11,4 @@
 		<artifactId>parent</artifactId>
 		<version>0.1-SNAPSHOT</version>
 	</parent>
-	<dependencies>
-		<!--  jwt -->
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt</artifactId>
-		    <version>0.7.0</version>
-		</dependency>
-	</dependencies>
 </project>

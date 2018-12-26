@@ -36,7 +36,7 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 /**  
 * @描述 
 * @文件名:MyWebmvcConfiguration.java
-* @版权:Copyright 2018 版权所有：平头哥
+* @版权:Copyright 2018 版权所有：平头哥 
 * @描述:MyWebmvcConfiguration.java
 * @修改人:Stephen
 * @修改时间:2018年12月20日 下午5:25:54
