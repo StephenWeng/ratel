@@ -10,12 +10,9 @@
 	    .whiteForm{
 	    	margin-right: 10px;
 	    }
-	    a:hover{
-			text-decoration:underline;  /*鼠标放上去有下划线*/
-			cursor:pointer;/*鼠标放上去有手掌*/
-		}
 	</style>
 </head>
+<link rel="stylesheet" th:href="@{/css/protal.css}"></link>
 <body>
 	<div id="firstId">
 		<!-- 首页主区域 -->
@@ -137,10 +134,10 @@
 				},
 				boxheight:function(){
 			        //DIV高度为浏览器窗口高度
-			        document.getElementById("center").style.height= (getWinHeight()-20) +"px";
-			        document.getElementById("loginDiv").style.height= (getWinHeight()-20) +"px";
+			        document.getElementById("center").style.height= (getWinHeight()) +"px";
+			        document.getElementById("loginDiv").style.height= (getWinHeight()) +"px";
 			        //占位div
-			        var emptyHeight=(getWinHeight()-20)/2-82;
+			        var emptyHeight=(getWinHeight())/2-82;
 			        if(emptyHeight<200){
 			        	emptyHeight=200;
 			        }

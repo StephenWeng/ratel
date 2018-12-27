@@ -1,9 +1,22 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-        <div th:fragment="content" >
-            <!-- 自己的内容 -->
-            <div>
-	    Copyright 2018 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;版权所有：勇往直前的平头哥&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;技术支持：平头哥
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<div th:fragment="content" id="bottom">
+		<div style="font-family: '楷体'">
+    		Copyright 2018 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    		版权所有：勇往直前的平头哥&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    		技术支持：<a @click="bottomDialogVisible = true" target="_blank" >平头哥</a>
+		</div>
+		<el-dialog title="联系方式" :visible.sync="bottomDialogVisible" width="40%" :before-close="bottomHandleClose">
+		  	<el-collapse accordion>
+			  	<el-collapse-item title="邮箱地址：">
+			    	<div>403558048@qq.com</div>
+			  	</el-collapse-item>
+			  	<el-collapse-item title="电话号码：">
+			    	<div>18782945613</div>
+			  	</el-collapse-item>
+			  	<el-collapse-item title="家庭地址：">
+			    	<div>不告诉你</div>
+			  	</el-collapse-item>
+			</el-collapse>
+		</el-dialog>
 	</div>
-        </div>
-        </html>
+</html>

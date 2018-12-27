@@ -1,10 +1,28 @@
-.el-header, .el-footer {
-    background-color: #1D8CE1;
-    color: #333;
-    text-align: center;
-    line-height: 40px;
-    height:40px !important;
-  }
+body{
+	margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+a:hover{
+	text-decoration:underline;  /*鼠标放上去有下划线*/
+	cursor:pointer;/*鼠标放上去有手掌*/
+}
+.el-header{
+  	background-color: #1D8CE1;
+  	color: #333;
+  	text-align: center;
+  	line-height: 40px;
+  	height:40px !important;
+}
+
+.el-footer {
+  	background-color: #1D8CE1;
+  	color: #333;
+  	text-align: center;
+  	line-height: 30px;
+  	height:30px !important;
+}
   
   .el-aside {
     background-color: #545c64;
@@ -38,3 +56,4 @@
 	active-text-color:#ffd04b;
 	border-right-width: 0px;
   }
+  

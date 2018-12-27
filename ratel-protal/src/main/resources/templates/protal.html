@@ -10,15 +10,14 @@
 			<!-- 页头 -->
 		  	<el-header>
 		  		<el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-					<el-radio-button :label="false" @click="openMenu();">展开</el-radio-button>
-					<el-radio-button :label="true" @click="closeMenu();">收起</el-radio-button>
+					<el-radio-button :label="false">开</el-radio-button>
+					<el-radio-button :label="true">收起</el-radio-button>
 				</el-radio-group>
 			</el-header>
 		  	<el-container>
 		  		<!-- 左侧菜单项 -->
 		    	<el-aside id="aside" width="200px;">
 		    		<el-row class="tac">
-		    			
 						<el-menu default-active="1-2" :collapse="isCollapse">
 					      	<el-submenu index="1">
 					        	<template slot="title">
@@ -47,8 +46,39 @@
 		    	<el-container>
 		      		<el-main id='main'>
 		      		
-		      		Main
-		      			<el-button size="small" round @click="chang();">取 消</el-button>
+		      				<el-table style="width: 100%;" :data="userList.slice((currentPage-1)*pagesize,currentPage*pagesize)"  >
+                        <el-table-column type="index" width="50">    
+                        </el-table-column>
+                        <el-table-column label="日期" prop="date" width="180">    
+                        </el-table-column>
+                        <el-table-column label="用户姓名" prop="name" width="180">    
+                        </el-table-column>
+                        <el-table-column label="邮箱" prop="email" width="180">    
+                        </el-table-column>
+                        <el-table-column label="地址" prop="address" width="200">    
+                        </el-table-column>    
+                    </el-table>
+                        <el-pagination
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="currentPage"
+                            :page-sizes="[5, 10, 20, 40]" 
+                            :page-size="pagesize"      
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="userList.length">   
+                    </el-pagination>
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
+		      		
 		      		</el-main>
 		      		<!-- 页脚 -->
 		      		<el-footer>
@@ -66,30 +96,56 @@
 			el:'#protal',
 			data() {
 				return {
+					bottomDialogVisible: false,//底部平头哥联系方式弹出框
 					isCollapse: true,
-					activeMenu:'1-2'//当前激活的菜单
+					activeMenu:'1-2',//当前激活的菜单
+					currentPage:1, //初始页
+	                pagesize:10,    //    每页的数据
+	                userList: []
 				}
 			},
 			methods:{
 				init:function(){
-					vm.setProtalHeight();
+					vm.handleUserList
 				},
-				setProtalHeight:function(){
-					//页面初始化时，设置高度
-					document.getElementById("aside").style.height= (getWinHeight()-(40+20)) +"px";
-					document.getElementById("main").style.height= (getWinHeight()-(40*2+20)) +"px";
-				},
-				openMenu:function(){
-					document.getElementById("aside").style.width="200px";
-				},
-				closeMenu:function(){
-					document.getElementById("aside").style.width="64px";
-				}
+				handleUserList() {
+		            this.$http.get('http://localhost:8080/userList').then(res => {  //这是从本地请求的数据接口，
+		                this.userList = res.body;
+		            })
+		        }
+				// 初始页currentPage、初始每页数据数pagesize和数据data
+		        handleSizeChange: function (size) {
+		                this.pagesize = size;
+		                console.log(this.pagesize)  //每页下拉显示数据
+		        },
+		        handleCurrentChange: function(currentPage){
+		                this.currentPage = currentPage;
+		                console.log(this.currentPage)  //点击第几页
+		        },
+				//底部平头哥弹出框关闭事件
+				bottomHandleClose(done) {
+					done();
+			    }
 			}
 		})
 		/* 页面加载时触发事件 */
 		window.onload=function(){ 
       		vm.init();
+      		//页面初始化时，设置高度
+      		setAsideHeight();
   		}
+		
+		window.onresize = function(){
+			//页面改变窗口时，设置高度
+			setAsideHeight();
+		}
+		
+		/**
+		* 修改页面主体高度
+		*/
+		function setAsideHeight(){
+			document.getElementById("aside").style.height= (getWinHeight()-(40)) +"px";
+			document.getElementById("main").style.height= (getWinHeight()-(40+30)) +"px";
+		}
   </script>
 </html>
