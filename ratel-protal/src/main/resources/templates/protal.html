@@ -5,7 +5,7 @@
 <head th:include="common/header :: head"></head>
 <link rel="stylesheet" th:href="@{/css/protal.css}"></link>
 <body>
-	<div>
+	<div id="protal">
 		<el-container>
 			<!-- 页头 -->
 		  	<el-header></el-header>
@@ -57,7 +57,7 @@
 </body>
   	<script>
 	var vm=new Vue({
-		el:'#aside',
+		el:'#protal',
 		data() {
 			return {
 				bottomDialogVisible: false,//底部平头哥联系方式弹出框
