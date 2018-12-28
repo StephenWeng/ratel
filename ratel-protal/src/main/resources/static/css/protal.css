@@ -3,6 +3,7 @@ body{
     margin-right: 0px !important;
     margin-top: 0px !important;
     margin-bottom: 0px !important;
+    overflow: hidden;
 }
 a:hover{
 	text-decoration:underline;  /*鼠标放上去有下划线*/

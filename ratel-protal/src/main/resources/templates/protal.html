@@ -8,14 +8,35 @@
 	<div id="protal">
 		<el-container>
 			<!-- 页头 -->
-		  	<el-header></el-header>
+		  	<el-header>
+		  		<el-row>
+				  	<el-col :span="12">
+				  		<el-row type="flex" class="row-bg" justify="end">
+						  	<el-col :span="24">平头哥图标</el-col>
+						</el-row>
+				  	</el-col>
+				  	<el-col :span="12">
+				  		<el-row type="flex" class="row-bg" justify="end">
+				  			<el-col :span="18">用户</el-col>
+						  	<el-col :span="6">
+						  		<el-dropdown size="mini" split-button type="primary">操作
+								  	<el-dropdown-menu slot="dropdown">
+								    	<el-dropdown-item @click="userInformationVisible = true">个人信息</el-dropdown-item>
+								    	<el-dropdown-item @click="logout()">注销</el-dropdown-item>
+								  	</el-dropdown-menu>
+								</el-dropdown>
+						  	</el-col>
+						</el-row>
+				  	</el-col>
+				</el-row>
+		  	</el-header>
 		  	<el-container>
 		  		<!-- 左侧菜单项 -->
 		    	<el-aside id="aside" width="200px;">
-		    		<el-radio-group v-model="isCollapse">
-						<el-radio-button :label="false">展开</el-radio-button>
-						<el-radio-button :label="true">收起</el-radio-button>
-					</el-radio-group>
+		    		<el-switch v-model="isCollapse" 
+		    			on-value="true" off-value="false"
+					    active-color="#B7B9BC" inactive-color="#409EFF">
+					</el-switch>
 		    		<el-row class="tac">
 						<el-menu default-active="1-2" :collapse="isCollapse">
 					      	<el-submenu index="1">
@@ -56,6 +77,12 @@
 		    	</el-container>
 		  	</el-container>
 		</el-container>
+		
+		
+		<!-- 个人信息弹出框 -->
+		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="40%" :before-close="userInformationHandleClose">
+		  	
+		</el-dialog>
 	</div> 
 </body>
   	<script>
@@ -63,14 +90,24 @@
 		el:'#protal',
 		data() {
 			return {
+				userInformationVisible:false,//个人信息弹出框
 				bottomDialogVisible: false,//底部平头哥联系方式弹出框
-				isCollapse: true,
+				isCollapse: true,//默认收起左侧菜单栏
 				activeMenu:'1-2',//当前激活的菜单
 			}
 		},
 		methods:{
 			init:function(){
 				$("#mainFrame").attr("src",'/ratel/test?timestamp='+new Date().getTime());
+			},
+			personalInformation:function(){
+				
+			},
+			userInformationHandleClose(done){
+				
+			},
+			logout:function(){
+				
 			},
 			//底部平头哥弹出框关闭事件
 			bottomHandleClose(done) {
