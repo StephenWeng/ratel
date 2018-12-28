@@ -56,4 +56,7 @@ a:hover{
 	active-text-color:#ffd04b;
 	border-right-width: 0px;
   }
+  .el-dialog__body{
+  	 padding-top: 0px;
+  }
   
