@@ -53,4 +53,11 @@ public class ProtalViewController extends BaseController {
 		return mav;
 	}
 
+	@RequestMapping(value = "/test", method = RequestMethod.GET, name = "主页面")
+	public ModelAndView test() {
+		ModelAndView mav = new ModelAndView("test");
+		mav.addObject("appName", appName);
+		return mav;
+	}
+
 }

@@ -1,5 +1,6 @@
 /* 页面加载时触发事件 */
 window.onload=function(){ 
+	vm.init();
 	//页面初始化时，设置高度
 	setAsideHeight();
 }
