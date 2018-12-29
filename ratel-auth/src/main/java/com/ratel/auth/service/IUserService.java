@@ -48,9 +48,10 @@ public interface IUserService {
 	 * @Description 向用户邮箱发送重置密码的验证码
 	 * @date 2018年12月23日 下午7:18:55
 	 * @param account 用户账号
+	 * @param email   用户邮箱
 	 * @return ResponseData 操作是否成功
 	 */
-	public ResponseData sendSecurityCode(String account);
+	public ResponseData sendSecurityCode(User user);
 
 	/**
 	 * @Title reset
@@ -61,5 +62,15 @@ public interface IUserService {
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	public ResponseData reset(User user);
+
+	/**
+	 * @Title checkPwd
+	 * @author :Stephen
+	 * @Description 首页编辑密码，检验原密码是否正确
+	 * @date 2018年12月22日 上午11:09:42
+	 * @param user 包含用户账号和密码
+	 * @return ResponseData 操作是否成功
+	 */
+	public ResponseData checkPwd(User user);
 
 }

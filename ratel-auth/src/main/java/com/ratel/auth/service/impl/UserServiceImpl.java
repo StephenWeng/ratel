@@ -123,14 +123,18 @@ public class UserServiceImpl implements IUserService {
 	public ResponseData login(User user, HttpServletResponse response) {
 		try {
 			// 邮箱后半段转小写
-			String account = email2Lower(user.getAccount());
-			User userDo = userRepository.findByUserAccount(account);
+			String email = email2Lower(user.getEmail());
+			String account = user.getAccount();
+			User userDo = !StringUtil.isEmpty(account) ? userRepository.findByUserAccount(account)
+					: userRepository.findByEmail(email);
 			// 验证用户
 			if (null == userDo) {
 				logger.error(
 						DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + user.getAccount() + "登录时，找不到账号");
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号错误！");
 			}
+			email = userDo.getAccount();
+			account = userDo.getEmail();
 			// 验证密码
 			if (!MD5Util.verify(user.getPassword(), userDo.getPassword())) {
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + user.getAccount() + "登录时，密码错误");
@@ -150,22 +154,25 @@ public class UserServiceImpl implements IUserService {
 
 	@Transactional
 	@Override
-	public ResponseData sendSecurityCode(String account) {
+	public ResponseData sendSecurityCode(User user) {
 		try {
 			// 邮箱后半段转小写
-			account = email2Lower(account);
+			String email = email2Lower(user.getEmail());
+			String account = user.getAccount();
 			// 1.查询用户
-			User userDo = userRepository.findByUserAccount(account);
+			User userDo = !StringUtil.isEmpty(account) ? userRepository.findByUserAccount(account)
+					: userRepository.findByEmail(email);
 			if (null == userDo) {
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取账号：" + account + "重置密码验证码时，账号错误");
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号错误！");
 			}
+			email = userDo.getAccount();
+			account = userDo.getEmail();
 			// 1.生成验证码
 			String randomCode = StringUtil.randomStr(6);
 			// 2.发送验证码到邮箱
-			boolean hasSend = emailService
-					.sendSimpleEmail(new Email(userDo.getAccount(), "", "重置密码验证码", userDo.getName() + "您好！您重置密码的验证码是："
-							+ randomCode + "。验证码有效时间为：" + MAX_SECURITY_CODE_INDATE + "小时；若非本人操作，请忽略本邮件!"));
+			boolean hasSend = emailService.sendSimpleEmail(new Email(userDo.getEmail(), "", "重置密码验证码", userDo.getName()
+					+ "您好！您重置密码的验证码是：" + randomCode + "。验证码有效时间为：" + MAX_SECURITY_CODE_INDATE + "小时；若非本人操作，请忽略本邮件!"));
 			if (!hasSend) {
 				// 如果没有发送成功，则操作失败
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取账号：" + account + "重置密码验证码时邮件发送失败");
@@ -178,6 +185,7 @@ public class UserServiceImpl implements IUserService {
 			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取账号：" + account + "重置密码验证码成功");
 			return new ResponseData(ResponseMsg.SUCCESS);
 		} catch (Exception e) {
+			String account = StringUtil.isEmpty(user.getAccount()) ? user.getAccount() : user.getEmail();
 			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取账号：" + account + "重置密码验证码时系统异常："
 					+ e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
@@ -197,12 +205,16 @@ public class UserServiceImpl implements IUserService {
 	public ResponseData reset(User user) {
 		try {
 			// 邮箱后半段转小写
-			String account = email2Lower(user.getAccount());
-			User userDo = userRepository.findByUserAccount(account);
+			String email = email2Lower(user.getEmail());
+			String account = user.getAccount();
+			User userDo = !StringUtil.isEmpty(account) ? userRepository.findByUserAccount(account)
+					: userRepository.findByEmail(email);
 			if (null == userDo) {
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "密码时找不到账号");
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号错误！");
 			}
+			email = userDo.getAccount();
+			account = userDo.getEmail();
 			if (null == userDo.getSecurityCodeCreateTime()) {
 				logger.error(
 						DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "密码时没有先获取验证码");
@@ -229,7 +241,7 @@ public class UserServiceImpl implements IUserService {
 			/*
 			 * 3.将新密码发送至邮件
 			 */
-			boolean hasSend = emailService.sendSimpleEmail(new Email(userDo.getAccount(), "", "重置密码",
+			boolean hasSend = emailService.sendSimpleEmail(new Email(userDo.getEmail(), "", "重置密码",
 					userDo.getName() + "，您好！您的密码已重置，密码是：" + randomPwd + "，请及时上线进行修改。"));
 			if (!hasSend) {
 				// 如果没有发送成功，则操作失败
@@ -265,6 +277,37 @@ public class UserServiceImpl implements IUserService {
 			return emailArr[0] + "@" + emailArr[1].toLowerCase();
 		}
 		return null;
+	}
+
+	/**
+	 * @Title checkPwd
+	 * @author :Stephen
+	 * @Description
+	 * @date 2018年12月29日 下午5:35:41
+	 * @param user
+	 * @return
+	 */
+	@Override
+	public ResponseData checkPwd(User user) {
+		try {
+			String account = "stephen";
+			User userDo = userRepository.findByUserAccount(account);
+			if (null == userDo) {
+				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "检验账号：" + user.getAccount() + "密码时找不到账号");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
+			}
+			// 验证密码
+			if (!MD5Util.verify(user.getPassword(), userDo.getPassword())) {
+				logger.error(
+						DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "检验账号：" + user.getAccount() + "密码时输入密码错误");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "密码错误！");
+			}
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "密码时系统异常："
+					+ e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
+		}
 	}
 
 }

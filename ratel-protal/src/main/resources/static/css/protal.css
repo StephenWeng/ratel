@@ -60,4 +60,7 @@ a:hover{
   .el-dialog__body{
   	 padding-top: 0px;
   }
+  .el-button{
+  	border-radius:20px;
+  }
   

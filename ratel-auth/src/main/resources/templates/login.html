@@ -25,9 +25,17 @@
 		  	<el-col :span="6" id="loginDiv" style="background-color:#000000;">
 		  		<el-row id="emptyHeight"></el-row>
 		  		<el-form class="whiteForm" ref="form" :rules="rules" :model="form" label-width="80px">
-				  	<el-form-item label="账号：" prop="name" class="whiteLabel">
-				    	<el-input v-model="form.name" :disabled="islanding" 
+				  	<el-form-item label="登陆：" prop="method">
+				  		<el-radio :disabled="islanding" v-model="form.method" @click.native.prevent="changeLoginMethod('0')" label="0">账号</el-radio>
+	  					<el-radio :disabled="islanding" v-model="form.method" @click.native.prevent="changeLoginMethod('1')" label="1">邮箱</el-radio>
+				  	</el-form-item>
+				  	<el-form-item v-if="form.method==0" label="账号：" prop="account" class="whiteLabel">
+				    	<el-input v-model="form.account" :disabled="islanding" 
 				    	placeholder="请输入账号" clearable prefix-icon="el-icon-search"></el-input>
+				  	</el-form-item>
+				  	<el-form-item v-if="form.method==1" label="邮箱：" prop="email" class="whiteLabel">
+				    	<el-input v-model="form.email" :disabled="islanding" 
+				    	placeholder="请输入邮箱" clearable prefix-icon="el-icon-search"></el-input>
 				  	</el-form-item>
 				  	<el-form-item label="密码："prop="password" class="whiteLabel">
 				    	<el-input type="password" v-model="form.password" :disabled="islanding" 
@@ -41,8 +49,8 @@
 					<el-row type="flex" class="row-bg" justify="center">
 					  	<el-col :span="24">
 					  		<el-form-item>
-						    	<el-button size="small" type="primary" round @click="login('form')" :disabled="islanding" :loading="islanding">登录</el-button>
-						    	<el-button size="small" round @click="resetForm('form')" :disabled="islanding">重置</el-button>
+						    	<el-button size="small" type="primary" @click="login('form')" :disabled="islanding" :loading="islanding">登录</el-button>
+						    	<el-button size="small" @click="resetForm('form')" :disabled="islanding">重置</el-button>
 						  	</el-form-item>
 					  	</el-col>
 					</el-row>
@@ -52,12 +60,20 @@
 		<el-dialog
 		  	title="重置密码" :visible.sync="dialogVisible" width="40%" :before-close="handleClose">
 		  	<el-form :inline="true" ref="emailForm" :rules="emailRules" :model="emailForm">
-			  	<el-form-item label="邮箱：" prop="email">
+			  	<el-form-item label="找回方式：" prop="method">
+			  		<el-radio :disabled="isReset" v-model="emailForm.method" @click.native.prevent="changeResetMethod('0')" label="0">账号</el-radio>
+  					<el-radio :disabled="isReset" v-model="emailForm.method" @click.native.prevent="changeResetMethod('1')" label="1">邮箱</el-radio>
+			  	</el-form-item>
+			  	<el-form-item v-if="emailForm.method==0" label="账号：" prop="account">
+			    	<el-input v-model="emailForm.account"
+			    	placeholder="请输入账号" clearable prefix-icon="el-icon-message" :disabled="isReset"></el-input>
+			  	</el-form-item>
+			  	<el-form-item v-if="emailForm.method==1" label="邮箱：" prop="email">
 			    	<el-input v-model="emailForm.email"
 			    	placeholder="请输入邮箱" clearable prefix-icon="el-icon-message" :disabled="isReset"></el-input>
 			  	</el-form-item>
 			  	<el-form-item>
-			    	<el-button @click="sendSecurityCode();" size="small" type="info" round :disabled="isReset || isSendCode">{{securityBtnValue}}</el-button>
+			    	<el-button @click="sendSecurityCode();" size="small" type="info" :disabled="isReset || isSendCode">{{securityBtnValue}}</el-button>
 			  	</el-form-item>
 			  	<el-form-item label="验证：" prop="securityCode">
 			    	<el-input  v-model="emailForm.securityCode"
@@ -65,8 +81,8 @@
 			  	</el-form-item>
 			</el-form>
 		  	<span slot="footer" class="dialog-footer">
-		    	<el-button size="small" round @click="closeResetDiv('emailForm');" :disabled="isReset">取 消</el-button>
-		    	<el-button size="small" round type="primary" @click="resetPwd('emailForm')" :disabled="isReset" :loading="islanding">确 定</el-button>
+		    	<el-button size="small" @click="closeResetDiv('emailForm');" :disabled="isReset">取 消</el-button>
+		    	<el-button size="small" type="primary" @click="resetPwd('emailForm')" :disabled="isReset" :loading="isReset">确 定</el-button>
 		  	</span>
 		</el-dialog>
 	</div>
@@ -84,12 +100,17 @@
 					 * 这下面是重用户登录表单数据
 					*/
 					form: {
-						name:'',
-						password:''
+						method:'0',//登陆方式
+						email:'',
+						password:'',
+						account:''
 					},
 					rules:{
-						name: [
-			            	{ required: true, message: '请输入账号', trigger: 'blur' },
+						account:[
+							{ required: true, message: '请输入账号', trigger: 'blur' }
+						],
+						email: [
+			            	{ required: true, message: '请输入邮箱', trigger: 'blur' },
 			            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
 			          	],
 			          	password: [
@@ -108,10 +129,15 @@
 					isReset:false,//是否正在重置密码，输入框和按钮都不可用
 					hasSecurityCode:false,//是否已生成验证码，判断验证码输入框是否可用
 					emailForm: {
+						method:'0',//登陆方式
+						account:'',
 						email:'',
 						securityCode:''
 					},
 					emailRules:{
+						account:[
+							{ required: true, message: '请输入账号', trigger: 'blur' }
+						],
 						email:[
 							{ required: true, message: '请输入邮箱', trigger: 'blur' },
 			            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
@@ -143,11 +169,17 @@
 			        }
 			        document.getElementById("emptyHeight").style.height= emptyHeight +"px";
 				},
+				//改变登陆方式
+				changeLoginMethod:function(method){
+					this.$refs['form'].resetFields();
+					vm.form.method=method;
+				},
 				//登录
 				login:function(formName){
 					var that=this;
 					var data={};
-					data.account=vm.form.name;
+					data.account=vm.form.account;
+					data.email=vm.form.email;
 					data.password=vm.form.password;
 					var json=JSON.stringify(data); 
 					this.$refs[formName].validate((valid) => {
@@ -180,6 +212,11 @@
 					this.$refs[formName].resetFields();
 					vm.islanding=false;
 				},
+				//改变找回密码方式
+			    changeResetMethod:function(method){
+					this.$refs['emailForm'].resetFields();
+					vm.emailForm.method=method;
+			    },
 				//点x关闭重置密码对话框
 				handleClose(done) {
 			        this.$confirm('确认关闭？').then(_ => {
@@ -192,10 +229,90 @@
 			    	this.$refs[formName].resetFields();
 			    	vm.dialogVisible = false;
 			    },
-			    //重置密码请求
+			    //发送验证码
+			    sendSecurityCode:function(){
+			    	var method=vm.emailForm.method;
+			    	var account='';
+			    	var email='';
+			    	if(method=='0'){
+			    		//账号发送验证码
+			    		account=vm.emailForm.account.trim();
+			    		if(!account || account.trim==""){
+				    		this.$notify.error({
+	               	          	title: '获取验证码',
+	               	          	message: '账号不能为空',
+	               	         	position: 'bottom-right'
+	               	        });
+				    		return false;
+				    	}
+			    	}else if(method=='1'){
+			    		//邮箱发送验证码
+			    		email=vm.emailForm.email.trim();
+			    		if(!email || email.trim==""){
+				    		this.$notify.error({
+	               	          	title: '获取验证码',
+	               	          	message: '邮箱不能为空',
+	               	         	position: 'bottom-right'
+	               	        });
+				    		return false;
+				    	}
+			    		if(!emailReg.test(email)){
+			    			this.$notify.error({
+	               	          	title: '获取验证码',
+	               	          	message: '请输入正确的邮箱地址或账号',
+	               	         	position: 'bottom-right'
+	               	        });
+	                 		return false;
+			    		}
+			    	}
+			    	var data={};
+					data.account=account;
+					data.email=email;
+					var json=JSON.stringify(data); 
+			    	vm.sendAjax2SecurityCode(json);
+			    },
+			    //发送验证码请求
+			    sendAjax2SecurityCode:function(json){
+			    	var that=this;
+			    	vm.isSendCode=true;
+		    		//发送验证码请求
+		    		$.ajax({
+	  		          	url: '/users/securityCode?timestamp='+new Date().getTime(),
+	  		          	type: 'POST',
+	  		          	data:json,
+	  		          	dataType : 'json', 
+	  		          	contentType: 'application/json; charset=utf-8',
+	  		          	success: function (res) {
+	  		          		vm.isReset=false;
+	  		        	  	if(res.rspCode=="000000"){
+	  		        	  		vm.countDown(60);
+	  		        	  		vm.hasSecurityCode=true;
+	  		        	  	}else{
+	  		        	  		vm.isSendCode=false;
+	  		        	  		that.$notify.error({
+			  		        	  	title: '获取验证码',
+			  		        	  	message: res.rspMsg,
+			  		        	  	position: 'bottom-right'
+			  		        	});
+	  		        	  	} 
+	  		          	}
+	  		    	});
+			    },
+			    //验证码发送倒计时
+			    countDown:function(time){
+			    	vm.securityBtnValue=time+'s后可重新获取验证码';
+			    	if(--time>0){       
+			    		setTimeout("vm.countDown("+time+")",1000);    
+					}else{         
+						vm.isSendCode=false;
+						vm.securityBtnValue="获取验证码"; 
+					} 
+			    },
+			  //重置密码请求
 			    resetPwd:function(formName){
 			    	var data={};
-			    	data.account=vm.emailForm.email;
+			    	data.account=vm.emailForm.account;
+			    	data.email=vm.emailForm.email;
 			    	data.securityCode=vm.emailForm.securityCode;
 			    	var json=JSON.stringify(data);
 			    	var that=this;
@@ -229,67 +346,6 @@
 			  		    	});
 			          	}
 			        });
-			    },
-			    //发送验证码
-			    sendSecurityCode:function(){
-			    	var email=vm.emailForm.email.trim();
-			    	if(!email || email.trim==""){
-			    		this.$notify.error({
-               	          	title: '获取验证码',
-               	          	message: '邮箱不能为空',
-               	         	position: 'bottom-right'
-               	        });
-			    		return false;
-			    	}
-			    	if (emailReg.test(email)) {
-			    		vm.sendAjax2SecurityCode(email);
-                 	}else{
-                 		this.$notify.error({
-               	          	title: '获取验证码',
-               	          	message: '请输入正确的邮箱地址',
-               	         	position: 'bottom-right'
-               	        });
-                 		return false;
-                 	}
-			    },
-			    //发送验证码请求
-			    sendAjax2SecurityCode:function(email){
-			    	var that=this;
-			    	vm.isSendCode=true;
-		    		//发送验证码请求
-		    		$.ajax({
-	  		          	url: '/users/securityCode?timestamp='+new Date().getTime(),
-	  		          	type: 'GET',
-	  		          	data:{
-	  		          		'account':email
-	  		          	},
-	  		          	dataType : 'json', 
-	  		          	contentType: 'application/json; charset=utf-8',
-	  		          	success: function (res) {
-	  		          		vm.isReset=false;
-	  		        	  	if(res.rspCode=="000000"){
-	  		        	  		vm.countDown(60);
-	  		        	  		vm.hasSecurityCode=true;
-	  		        	  	}else{
-	  		        	  		vm.isSendCode=false;
-	  		        	  		that.$notify.error({
-			  		        	  	title: '获取验证码',
-			  		        	  	message: res.rspMsg,
-			  		        	  	position: 'bottom-right'
-			  		        	});
-	  		        	  	} 
-	  		          	}
-	  		    	});
-			    },
-			    //验证码发送倒计时
-			    countDown:function(time){
-			    	vm.securityBtnValue=time+'s后可重新获取验证码';
-			    	if(--time>0){       
-			    		setTimeout("vm.countDown("+time+")",1000);    
-					}else{         
-						vm.isSendCode=false;
-						vm.securityBtnValue="获取验证码"; 
-					} 
 			    }
 			}
 		})

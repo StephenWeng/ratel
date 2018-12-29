@@ -19,10 +19,10 @@
 				  		<el-row type="flex" class="row-bg" justify="end">
 				  			<el-col :span="18">用户</el-col>
 						  	<el-col :span="6">
-						  		<el-dropdown size="mini" split-button type="primary">操作
+						  		<el-dropdown size="mini" split-button type="primary" @command="userInformationCommand">操作
 								  	<el-dropdown-menu slot="dropdown">
-								    	<el-dropdown-item @click="userInformationVisible = true">个人信息</el-dropdown-item>
-								    	<el-dropdown-item @click="logout()">注销</el-dropdown-item>
+								    	<el-dropdown-item command="0">个人信息</el-dropdown-item>
+								    	<el-dropdown-item command="1">注销</el-dropdown-item>
 								  	</el-dropdown-menu>
 								</el-dropdown>
 						  	</el-col>
@@ -81,31 +81,202 @@
 		
 		<!-- 个人信息弹出框 -->
 		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="40%" :before-close="userInformationHandleClose">
-		  	
+		  	<el-tabs type="border-card" @tab-click="handleTabsClick">
+		  		<!-- 展示个人信息tab -->
+			  	<el-tab-pane name="information">
+			    	<span slot="label"><i class="el-icon-document"></i>信息</span>
+			    	个人信息s
+			  	</el-tab-pane>
+			  	<!-- 修改个人信息tab -->
+			  	<el-tab-pane name="edit">
+			    	<span slot="label"><i class="el-icon-edit"></i>编辑</span>
+			    	<el-form label-width="80px" :label-position="labelPosition" ref="userInformationForm" :rules="userInformationRules" :model="userInformationForm">
+					  	<el-form-item label="昵称：" prop="name">
+					    	<el-input v-model="userInformationForm.name"
+					    	clearable prefix-icon="el-icon-tickets"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="账号：" prop="account">
+					    	<el-input v-model="userInformationForm.account"
+					    	 clearable disabled prefix-icon="el-icon-message"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="邮箱：" prop="email">
+					    	<el-input v-model="userInformationForm.email"
+					    	 clearable prefix-icon="el-icon-message"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="生日：" prop="birthday">
+					    	<el-date-picker v-model="userInformationForm.birthday" type="date" placeholder="选择日期"></el-date-picker>
+					  	</el-form-item>
+					  	<el-form-item label="年龄：" prop="age">
+					    	<el-input disabled v-model="userInformationForm.age"
+					    	 clearable prefix-icon="el-icon-date"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="性别：" prop="gender">
+					  		<el-radio v-model="userInformationForm.gender" label="0" border>男</el-radio>
+    						<el-radio v-model="userInformationForm.gender" label="1" border>女</el-radio>
+					  	</el-form-item>
+					  	<el-form-item label="电话：" prop="telphone">
+					    	<el-input v-model="userInformationForm.telphone"
+					    	 clearable prefix-icon="el-icon-mobile-phone"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="地址：" prop="address">
+					    	<el-input type="textarea" v-model="userInformationForm.address"
+					    	 clearable prefix-icon="el-icon-location-outline"></el-input>
+					  	</el-form-item>
+					  	<el-form-item>
+					  		<el-button size="small" round>取 消</el-button>
+				    		<el-button size="small" round type="primary">确 定</el-button>
+					  	</el-form-item>
+					</el-form>
+			  	</el-tab-pane>
+			  	<!-- 密码修改区 -->
+			  	<el-tab-pane name="editPwd">
+			    	<span slot="label"><i class="el-icon-document"></i>密码</span>
+			    	<el-form :model="resetPwdForm" status-icon :rules="resetPwdRules" ref="resetPwdForm" :label-position="labelPosition" label-width="100px">
+					  	<el-form-item label="原密码：" prop="pwd">
+					    	<el-input type="password" v-model="resetPwdForm.pwd" autocomplete="off"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="新密码：" prop="pass">
+					  	 	<el-input type="password" v-model="resetPwdForm.pass" autocomplete="off"></el-input>
+					  	</el-form-item>
+					  	<el-form-item label="确认密码：" prop="checkPass">
+					    	<el-input type="password" v-model="resetPwdForm.checkPass" autocomplete="off"></el-input>
+					  	</el-form-item>
+					  	<el-form-item>
+					  		<el-button size="small">取 消</el-button>
+					    	<el-button type="primary" size="small">提交</el-button>
+					  	</el-form-item>
+					</el-form>
+			  	</el-tab-pane>
+			</el-tabs>
 		</el-dialog>
 	</div> 
 </body>
   	<script>
 	var vm=new Vue({
 		el:'#protal',
-		data() {
+		data() { 
+			//异步请求，检验密码是否正确
+			var validatePwd = (rule, value, callback) => {
+	        	if (value === '') {
+		          	callback(new Error('请输入密码'));
+		        } else {
+		        	var data={};
+			    	data.password=value;
+			    	var json=JSON.stringify(data);
+		        	$.ajax({
+	  		          	url: '/users/pwd?timestamp='+new Date().getTime(),
+	  		          	type: 'POST',
+	  		          	data:json,
+	  		          	dataType : 'json', 
+	  		          	contentType: 'application/json; charset=utf-8',
+	  		          	success: function (res) {
+	  		          		if(res.rspCode!="000000"){
+	  		          			callback(new Error(res.rspMsg));
+	  		          		}
+	  		          	}
+	  		    	});
+		        }
+		    };
+			var validatePass = (rule, value, callback) => {
+		        if (value === '') {
+		          	callback(new Error('请输入密码'));
+		        } else {
+		          	if (this.resetPwdForm.checkPass !== '') {
+		            	this.$refs.resetPwdForm.validateField('checkPass');
+		          	}
+		          	callback();
+		        }
+		    };
+		    var validatePass2 = (rule, value, callback) => {
+		        if (value === '') {
+		          	callback(new Error('请确认密码'));
+		        } else if (value !== this.resetPwdForm.pass) {
+		          	callback(new Error('两次输入密码不一致!'));
+		        } else {
+		          	callback();
+		        }
+		    };
 			return {
+				labelPosition: 'right',//表单对齐方式
 				userInformationVisible:false,//个人信息弹出框
 				bottomDialogVisible: false,//底部平头哥联系方式弹出框
 				isCollapse: true,//默认收起左侧菜单栏
 				activeMenu:'1-2',//当前激活的菜单
+				//个人信息form
+				userInformationForm:{
+					name:'缒懿',
+					email:'403558048@qq.com',
+					account:'stephen',
+					age:27,
+					gender:'0',
+					telphone:'18782945613',
+					address:'成都市高新西区尚雅路8号万景峰一期14栋2805',
+					birthday:'1991-11-21',
+				},
+				userInformationRules:{
+					name:[
+						{ required: true, message: '请输入昵称', trigger: 'change' },
+		            	{ validator: checkEmpty, trigger: 'blur' }
+					],
+		          	email:[
+		          		{ required: true, message: '请输入账号', trigger: 'blur' },
+		            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+		          	],
+		          	age:[],
+		          	gender:[],
+		          	telphone:[],
+		          	address:[],
+		          	birthday:[]
+				},
+				resetPwdForm:{
+					pwd:'',
+					pass:'',
+					checkPass:''
+				},
+				resetPwdRules:{
+					pwd:[
+						{ required: true, message: '请输入原密码', trigger: 'change' },
+		            	{ validator: checkEmpty, trigger: 'blur' },
+		            	{ validator: validatePwd, trigger: 'blur' }
+					],
+					pass:[
+						{ required: true, message: '请输入新密码', trigger: 'change' },
+		            	{ validator: checkEmpty, trigger: 'blur' },
+		            	{ validator: validatePass, trigger: 'blur' }
+					],
+					checkPass:[
+						{ required: true, message: '请确认密码', trigger: 'change' },
+		            	{ validator: checkEmpty, trigger: 'blur' },
+		            	{ validator: validatePass2, trigger: 'blur' }
+					],
+				}
 			}
 		},
 		methods:{
 			init:function(){
 				$("#mainFrame").attr("src",'/ratel/test?timestamp='+new Date().getTime());
 			},
+			//个人信息tabs可见
+			userInformationCommand:function(command){
+				if(command==0){
+					//个人信息tab
+					vm.userInformationVisible=true;
+				}else if(command==1){
+					//注销
+					vm.logout();
+				}
+			},
+			//个人信息tabs关闭事件
+			userInformationHandleClose(done){
+				done();
+			},
+			handleTabsClick:function(tab, event) {
+		        console.log(tab.name);
+		    },
 			personalInformation:function(){
 				
 			},
-			userInformationHandleClose(done){
-				
-			},
+			//修改密码方法
 			logout:function(){
 				
 			},

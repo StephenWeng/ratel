@@ -86,9 +86,9 @@ public class UserController extends BaseController {
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/securityCode", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseData sendSecurityCode(@RequestParam("account") String account) {
-		return userService.sendSecurityCode(account);
+	@RequestMapping(value = "/securityCode", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData sendSecurityCode(@RequestBody User user) {
+		return userService.sendSecurityCode(user);
 	}
 
 	/**
@@ -103,6 +103,21 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/reset", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData reset(@RequestBody User user) {
 		return userService.reset(user);
+	}
+
+	/**
+	 * @Title checkPwd
+	 * @author :Stephen
+	 * @Description 首页编辑密码，检验原密码是否正确
+	 * @date 2018年12月22日 上午11:09:42
+	 * @param user 包含用户账号和密码
+	 * @return ResponseData 操作是否成功
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/pwd", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData checkPwd(@RequestBody User user) {
+		String name = this.getUsername();
+		return userService.checkPwd(user);
 	}
 
 }

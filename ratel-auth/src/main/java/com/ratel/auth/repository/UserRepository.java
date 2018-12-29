@@ -38,4 +38,7 @@ public interface UserRepository
 	@Query("select t from User t where t.account=:account and t.isDeleted=0")
 	public User findByUserAccount(@Param("account") String account);
 
+	@Query("select t from User t where t.email=:email and t.isDeleted=0")
+	public User findByEmail(@Param("email") String email);
+
 }
