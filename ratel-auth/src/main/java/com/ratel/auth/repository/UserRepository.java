@@ -1,5 +1,7 @@
 package com.ratel.auth.repository;
 
+import java.util.List;
+
 import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,12 +29,13 @@ public interface UserRepository
 		extends QueryByExampleExecutor<User>, CrudRepository<User, String>, JpaSpecificationExecutor<User> {
 
 	/**
-	 * 
+	 *
 	 * @Title findByUserAccount
 	 * @author :Stephen
 	 * @Description 根据用户名查询用户
 	 * @date 2018年12月22日 上午10:31:57
-	 * @param account 用户账号
+	 * @param account
+	 *            用户账号
 	 * @return User 用户全部信息
 	 */
 	@Query("select t from User t where t.account=:account and t.isDeleted=0")
@@ -40,5 +43,8 @@ public interface UserRepository
 
 	@Query("select t from User t where t.email=:email and t.isDeleted=0")
 	public User findByEmail(@Param("email") String email);
+
+	@Query("select t from User t where t.email=:email and t.account!=:account and t.isDeleted=0")
+	public List<User> findEmailAnyotherAccount(@Param("account") String account, @Param("email") String email);
 
 }

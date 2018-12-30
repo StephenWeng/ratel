@@ -63,4 +63,11 @@ a:hover{
   .el-button{
   	border-radius:20px;
   }
+  .text {
+    font-size: 14px;
+  }
+
+  .item {
+    padding: 18px 0;
+  }
   

@@ -49,16 +49,17 @@ public class UserController extends BaseController {
 
 	/**
 	 *
-	 * @Title queryUser
+	 * @Title queryActiveUser
 	 * @author :Stephen
-	 * @Description 根据用户账号查询用户,不模糊
+	 * @Description 查询当前用户信息
 	 * @date 2018年12月22日 上午11:08:23
-	 * @param account 用户账号
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseData queryUser(@RequestParam("account") String account) {
+	@RequestMapping(value = "/activeUser", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData queryActiveUser() {
+		// TODO 获取当前登录用户 String account=""
+		String account = "stephen";
 		return userService.queryUser(account);
 	}
 
@@ -68,7 +69,8 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 用户登录
 	 * @date 2018年12月22日 上午11:09:06
-	 * @param user 包含用户账号和密码
+	 * @param user
+	 *            包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
@@ -78,11 +80,26 @@ public class UserController extends BaseController {
 	}
 
 	/**
+	 * @Title editInformation
+	 * @author :Stephen
+	 * @Description 用户首页修改葛粉信息
+	 * @date 2018年12月22日 上午11:09:42
+	 * @param user
+	 * @return ResponseData 操作是否成功，data：user对象
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/information", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData editInformation(@RequestBody User user) {
+		return userService.editInformation(user);
+	}
+
+	/**
 	 * @Title sendSecurityCode
 	 * @author :技术部-文章
 	 * @Description 向用户邮箱发送重置密码的验证码
 	 * @date 2018年12月23日 下午7:18:55
-	 * @param account 用户账号
+	 * @param account
+	 *            用户账号
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody
@@ -96,7 +113,8 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 重置密码，将密码发送至用户邮箱
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user 包含用户账号和密码
+	 * @param user
+	 *            包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
@@ -106,18 +124,50 @@ public class UserController extends BaseController {
 	}
 
 	/**
+	 * @Title resetSelf
+	 * @author :Stephen
+	 * @Description 用户首页重置密码
+	 * @date 2018年12月22日 上午11:09:42
+	 * @param user
+	 *            包含用户账号和密码
+	 * @return ResponseData 操作是否成功，data：user对象
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/resetSelf", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData resetSelf(@RequestBody User user) {
+		user.setAccount("stephen");// TODO
+		return userService.resetSelf(user);
+	}
+
+	/**
 	 * @Title checkPwd
 	 * @author :Stephen
 	 * @Description 首页编辑密码，检验原密码是否正确
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user 包含用户账号和密码
+	 * @param user
+	 *            包含用户账号和密码
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/pwd", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData checkPwd(@RequestBody User user) {
-		String name = this.getUsername();
+		user.setAccount("stephen");// TODO
 		return userService.checkPwd(user);
+	}
+
+	/**
+	 * @Title checkEmail
+	 * @author :Stephen
+	 * @Description 首页编辑邮箱，检验邮箱是否可用
+	 * @date 2018年12月22日 上午11:09:42
+	 * @param user
+	 *            包含用户账号和邮箱
+	 * @return ResponseData 操作是否成功
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/email", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData checkEmail(@RequestBody User user) {
+		return userService.checkEmail(user);
 	}
 
 }

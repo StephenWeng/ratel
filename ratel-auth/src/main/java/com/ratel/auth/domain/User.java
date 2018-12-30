@@ -13,6 +13,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -39,9 +41,6 @@ public class User {
 	@NotEmpty(message = "密码不能为空")
 	@ApiModelProperty(value = "密码")
 	private String password;
-
-	@ApiModelProperty(value = "盐")
-	private String salt;
 
 	@ApiModelProperty(value = "部门id")
 	private String departmentId;
@@ -72,6 +71,7 @@ public class User {
 	@ApiModelProperty(value = "地址")
 	private String address;
 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	@ApiModelProperty(value = "生日日期")
 	private Date birthDay;
 
@@ -94,7 +94,8 @@ public class User {
 	}
 
 	/**
-	 * @param id 要设置的 id
+	 * @param id
+	 *            要设置的 id
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -106,7 +107,8 @@ public class User {
 	}
 
 	/**
-	 * @param name 要设置的 name
+	 * @param name
+	 *            要设置的 name
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -118,22 +120,11 @@ public class User {
 	}
 
 	/**
-	 * @param password 要设置的 password
+	 * @param password
+	 *            要设置的 password
 	 */
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	@Column(name = "SALT")
-	public String getSalt() {
-		return salt;
-	}
-
-	/**
-	 * @param salt 要设置的 salt
-	 */
-	public void setSalt(String salt) {
-		this.salt = salt;
 	}
 
 	@Column(name = "DEPARTMENT_ID")
@@ -142,7 +133,8 @@ public class User {
 	}
 
 	/**
-	 * @param departmentId 要设置的 departmentId
+	 * @param departmentId
+	 *            要设置的 departmentId
 	 */
 	public void setDepartmentId(String departmentId) {
 		this.departmentId = departmentId;
@@ -154,7 +146,8 @@ public class User {
 	}
 
 	/**
-	 * @param age 要设置的 age
+	 * @param age
+	 *            要设置的 age
 	 */
 	public void setAge(Integer age) {
 		this.age = age;
@@ -166,7 +159,8 @@ public class User {
 	}
 
 	/**
-	 * @param gender 要设置的 gender
+	 * @param gender
+	 *            要设置的 gender
 	 */
 	public void setGender(Integer gender) {
 		this.gender = gender;
@@ -178,7 +172,8 @@ public class User {
 	}
 
 	/**
-	 * @param createTime 要设置的 createTime
+	 * @param createTime
+	 *            要设置的 createTime
 	 */
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
@@ -190,7 +185,8 @@ public class User {
 	}
 
 	/**
-	 * @param updateTime 要设置的 updateTime
+	 * @param updateTime
+	 *            要设置的 updateTime
 	 */
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
@@ -202,7 +198,8 @@ public class User {
 	}
 
 	/**
-	 * @param account 要设置的 account
+	 * @param account
+	 *            要设置的 account
 	 */
 	public void setAccount(String account) {
 		this.account = account;
@@ -214,7 +211,8 @@ public class User {
 	}
 
 	/**
-	 * @param telphone 要设置的 telphone
+	 * @param telphone
+	 *            要设置的 telphone
 	 */
 	public void setTelphone(String telphone) {
 		this.telphone = telphone;
@@ -226,7 +224,8 @@ public class User {
 	}
 
 	/**
-	 * @param address 要设置的 address
+	 * @param address
+	 *            要设置的 address
 	 */
 	public void setAddress(String address) {
 		this.address = address;
@@ -238,7 +237,8 @@ public class User {
 	}
 
 	/**
-	 * @param isDeleted 要设置的 isDeleted
+	 * @param isDeleted
+	 *            要设置的 isDeleted
 	 */
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
@@ -263,12 +263,14 @@ public class User {
 	}
 
 	@Column(name = "BIRTHDAY")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	public Date getBirthDay() {
 		return birthDay;
 	}
 
 	/**
-	 * @param birthDay 要设置的 birthDay
+	 * @param birthDay
+	 *            要设置的 birthDay
 	 */
 	public void setBirthDay(Date birthDay) {
 		this.birthDay = birthDay;
@@ -280,7 +282,8 @@ public class User {
 	}
 
 	/**
-	 * @param email 要设置的 email
+	 * @param email
+	 *            要设置的 email
 	 */
 	public void setEmail(String email) {
 		this.email = email;

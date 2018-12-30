@@ -1,6 +1,7 @@
 package com.ratel.auth.service.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -84,7 +85,6 @@ public class UserServiceImpl implements IUserService {
 		user.setAccount("1");
 		user.setName("撒打算");
 		user.setPassword("12312");
-		user.setSalt("dasdsa");
 		user.setGender(0);
 		user.setAge(21);
 		userRepository.save(user);
@@ -96,16 +96,16 @@ public class UserServiceImpl implements IUserService {
 	 * @author :Stephen
 	 * @Description 根据用户账号查询用户，不模糊查询
 	 * @date 2018年12月22日 上午10:57:08
-	 * @param account 用户账号
+	 * @param account
+	 *            用户账号
 	 * @return 操作是否成功
 	 */
 	@Override
 	public ResponseData queryUser(String account) {
-		account = email2Lower(account);
 		try {
 			User userDo = userRepository.findByUserAccount(account);
 			return null == userDo ? new ResponseData(ResponseMsg.FAILED.getCode(), "用户不存在！")
-					: new ResponseData(ResponseMsg.SUCCESS);
+					: new ResponseData(ResponseMsg.SUCCESS, userDo);
 		} catch (Exception e) {
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
 		}
@@ -150,6 +150,33 @@ public class UserServiceImpl implements IUserService {
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
 		}
 
+	}
+
+	@Override
+	public ResponseData editInformation(User user) {
+		try {
+			User userDo = userRepository.findByUserAccount(user.getAccount());
+			if (null == userDo) {
+				logger.error(
+						DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "修改账号：" + user.getAccount() + "个人信息时找不到账号");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
+			}
+			userDo.setName(user.getName());
+			userDo.setEmail(user.getEmail());
+			userDo.setAge(user.getAge());
+			userDo.setGender(user.getGender());
+			userDo.setTelphone(user.getTelphone());
+			userDo.setAddress(user.getAddress());
+			userDo.setBirthDay(user.getBirthDay());
+			userDo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			userRepository.save(userDo);
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "修改账号：" + user.getAccount() + "个人信息成功");
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "修改账号：" + user.getAccount() + "个人信息时系统异常："
+					+ e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
+		}
 	}
 
 	@Transactional
@@ -197,7 +224,8 @@ public class UserServiceImpl implements IUserService {
 	 * @author :Stephen
 	 * @Description 重置用户密码，并将密码发送至邮箱
 	 * @date 2018年12月22日 上午11:17:53
-	 * @param user 用户信息，包含用户账号
+	 * @param user
+	 *            用户信息，包含用户账号
 	 * @return 操作是否成功
 	 */
 	@Transactional
@@ -254,7 +282,6 @@ public class UserServiceImpl implements IUserService {
 			 * 4.新密码存入数据库
 			 */
 			userDo.setPassword(encrypt.getMd5Passwd());
-			userDo.setSalt(encrypt.getSalt());
 			userDo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
 			userDo.setSecurityCode(null);
 			userDo.setSecurityCodeCreateTime(null);
@@ -279,6 +306,32 @@ public class UserServiceImpl implements IUserService {
 		return null;
 	}
 
+	@Override
+	public ResponseData resetSelf(User user) {
+		try {
+			User userDo = userRepository.findByUserAccount(user.getAccount());
+			if (null == userDo) {
+				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "密码时找不到账号");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
+			}
+			Encrypt encrypt = MD5Util.generate(user.getPassword());
+			/*
+			 * 4.新密码存入数据库
+			 */
+			userDo.setPassword(encrypt.getMd5Passwd());
+			userDo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			userDo.setSecurityCode(null);
+			userDo.setSecurityCodeCreateTime(null);
+			userRepository.save(userDo);
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "成功");
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "密码时系统异常："
+					+ e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
+		}
+	}
+
 	/**
 	 * @Title checkPwd
 	 * @author :Stephen
@@ -290,8 +343,7 @@ public class UserServiceImpl implements IUserService {
 	@Override
 	public ResponseData checkPwd(User user) {
 		try {
-			String account = "stephen";
-			User userDo = userRepository.findByUserAccount(account);
+			User userDo = userRepository.findByUserAccount(user.getAccount());
 			if (null == userDo) {
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "检验账号：" + user.getAccount() + "密码时找不到账号");
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
@@ -305,6 +357,25 @@ public class UserServiceImpl implements IUserService {
 			return new ResponseData(ResponseMsg.SUCCESS);
 		} catch (Exception e) {
 			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "密码时系统异常："
+					+ e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
+		}
+	}
+
+	@Override
+	public ResponseData checkEmail(User user) {
+		try {
+			User userDo = userRepository.findByUserAccount(user.getAccount());
+			if (null == userDo) {
+				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "检验账号：" + user.getAccount() + "邮箱时找不到账号");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
+			}
+			List<User> otherEmail = userRepository.findEmailAnyotherAccount(userDo.getAccount(),
+					email2Lower(user.getEmail()));
+			return otherEmail.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+					: new ResponseData(ResponseMsg.FAILED.getCode(), "该邮箱已被使用");
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + user.getAccount() + "邮箱时系统异常："
 					+ e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
 		}

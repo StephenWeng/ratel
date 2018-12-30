@@ -17,8 +17,17 @@
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<el-row type="flex" class="row-bg" justify="end">
-				  			<el-col :span="18">用户</el-col>
-						  	<el-col :span="6">
+				  			<el-col :span="16">用户</el-col>
+				  			<el-col :span="4">
+						  		<el-dropdown size="mini" split-button type="primary" @command="userInformationCommand">待办事项
+								  	<el-dropdown-menu slot="dropdown">
+								    	<el-dropdown-item class="clearfix"> 评论
+								      		<el-badge class="mark" :value="200" :max="99"/>
+								    	</el-dropdown-item>
+								  	</el-dropdown-menu>
+								</el-dropdown>
+				  			</el-col>
+						  	<el-col :span="4">
 						  		<el-dropdown size="mini" split-button type="primary" @command="userInformationCommand">操作
 								  	<el-dropdown-menu slot="dropdown">
 								    	<el-dropdown-item command="0">个人信息</el-dropdown-item>
@@ -80,12 +89,40 @@
 		
 		
 		<!-- 个人信息弹出框 -->
-		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="40%" :before-close="userInformationHandleClose">
-		  	<el-tabs type="border-card" @tab-click="handleTabsClick">
+		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="25%" :before-close="userInformationHandleClose">
+		  	<el-tabs type="border-card" @tab-click="handleTabsClick" v-model="activeName">
 		  		<!-- 展示个人信息tab -->
 			  	<el-tab-pane name="information">
 			    	<span slot="label"><i class="el-icon-document"></i>信息</span>
-			    	个人信息s
+			    	<el-card class="box-card">
+					  	<div class="text item">
+					    	昵称：{{userInformationForm.name}}
+					  	</div>
+					  	<div class="text item">
+					    	账号：{{userInformationForm.account}}
+					  	</div>
+					  	<div class="text item">
+					    	邮箱：{{userInformationForm.email}}
+					  	</div>
+					  	<div class="text item">
+					    	生日：{{userInformationForm.birthDay}}
+					  	</div>
+					  	<div class="text item">
+					    	年龄：{{userInformationForm.age}}
+					  	</div>
+					  	<div class="text item" v-if="userInformationForm.gender==0">
+					    	性别：男
+					  	</div>
+					  	<div class="text item" v-if="userInformationForm.gender==1">
+					    	性别：女
+					  	</div>
+					  	<div class="text item">
+					    	电话：{{userInformationForm.telphone}}
+					  	</div>
+					  	<div class="text item">
+					    	地址：{{userInformationForm.address}}
+					  	</div>
+					</el-card>
 			  	</el-tab-pane>
 			  	<!-- 修改个人信息tab -->
 			  	<el-tab-pane name="edit">
@@ -103,8 +140,10 @@
 					    	<el-input v-model="userInformationForm.email"
 					    	 clearable prefix-icon="el-icon-message"></el-input>
 					  	</el-form-item>
-					  	<el-form-item label="生日：" prop="birthday">
-					    	<el-date-picker v-model="userInformationForm.birthday" type="date" placeholder="选择日期"></el-date-picker>
+					  	<el-form-item label="生日：" prop="birthDay">
+					    	<el-date-picker @change='changeBirthday' format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" 
+					    	v-model="userInformationForm.birthDay" type="date" placeholder="选择日期">
+					    	</el-date-picker>
 					  	</el-form-item>
 					  	<el-form-item label="年龄：" prop="age">
 					    	<el-input disabled v-model="userInformationForm.age"
@@ -123,8 +162,8 @@
 					    	 clearable prefix-icon="el-icon-location-outline"></el-input>
 					  	</el-form-item>
 					  	<el-form-item>
-					  		<el-button size="small" round>取 消</el-button>
-				    		<el-button size="small" round type="primary">确 定</el-button>
+					  		<el-button size="small" @click="personalInformation">重置</el-button>
+				    		<el-button size="small" type="primary" @click="reseInformation">确 定</el-button>
 					  	</el-form-item>
 					</el-form>
 			  	</el-tab-pane>
@@ -142,8 +181,8 @@
 					    	<el-input type="password" v-model="resetPwdForm.checkPass" autocomplete="off"></el-input>
 					  	</el-form-item>
 					  	<el-form-item>
-					  		<el-button size="small">取 消</el-button>
-					    	<el-button type="primary" size="small">提交</el-button>
+					  		<el-button size="small" @click="resetForm('resetPwdForm')">重置</el-button>
+					    	<el-button type="primary" size="small" @click="resetPwd">提交</el-button>
 					  	</el-form-item>
 					</el-form>
 			  	</el-tab-pane>
@@ -172,6 +211,8 @@
 	  		          	success: function (res) {
 	  		          		if(res.rspCode!="000000"){
 	  		          			callback(new Error(res.rspMsg));
+	  		          		}else{
+	  		          			callback();
 	  		          		}
 	  		          	}
 	  		    	});
@@ -196,23 +237,48 @@
 		          	callback();
 		        }
 		    };
+		    //检测邮箱是否唯一
+		    var checkEmail= (rule, value, callback) => {
+		    	var data={};
+		    	data.email=value;
+		    	data.account=vm.userInformationForm.account;
+		    	var json=JSON.stringify(data);
+	        	$.ajax({
+  		          	url: '/users/email?timestamp='+new Date().getTime(),
+  		          	type: 'POST',
+  		          	data:json,
+  		          	dataType : 'json', 
+  		          	contentType: 'application/json; charset=utf-8',
+  		          	success: function (res) {
+  		          		if(res.rspCode!="000000"){
+  		          			callback(new Error(res.rspMsg));
+  		          		}else{
+  		          			callback();
+  		          		}
+  		          	}
+  		    	});
+		    };
+		    //验证手机号码
+		    var checkPhone= (rule, value, callback) => {
+		    	if(value==='' || value.trim()===''){
+		    		callback();
+		    	}
+		    	if(telphoneReg.test(value.trim())){
+		    		callback();
+          		}else{
+          			callback(new Error('请输入正确的电话号码'));
+          		}
+		    };
 			return {
 				labelPosition: 'right',//表单对齐方式
-				userInformationVisible:false,//个人信息弹出框
 				bottomDialogVisible: false,//底部平头哥联系方式弹出框
 				isCollapse: true,//默认收起左侧菜单栏
 				activeMenu:'1-2',//当前激活的菜单
+				//个人信息tabs
+				userInformationVisible:false,//个人信息弹出框
+				activeName:'information',//默认tab页
 				//个人信息form
-				userInformationForm:{
-					name:'缒懿',
-					email:'403558048@qq.com',
-					account:'stephen',
-					age:27,
-					gender:'0',
-					telphone:'18782945613',
-					address:'成都市高新西区尚雅路8号万景峰一期14栋2805',
-					birthday:'1991-11-21',
-				},
+				userInformationForm:{},
 				userInformationRules:{
 					name:[
 						{ required: true, message: '请输入昵称', trigger: 'change' },
@@ -220,13 +286,12 @@
 					],
 		          	email:[
 		          		{ required: true, message: '请输入账号', trigger: 'blur' },
-		            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+		            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] },
+		            	{ validator: checkEmail, trigger: 'blur' }
 		          	],
-		          	age:[],
-		          	gender:[],
-		          	telphone:[],
-		          	address:[],
-		          	birthday:[]
+		          	telphone:[
+		          		{ validator: checkPhone, trigger: 'blur' }
+		          	]
 				},
 				resetPwdForm:{
 					pwd:'',
@@ -260,7 +325,9 @@
 			userInformationCommand:function(command){
 				if(command==0){
 					//个人信息tab
-					vm.userInformationVisible=true;
+					vm.activeName='information';//默认打开信息tab页
+					vm.personalInformation();//请求查询用户信息
+					vm.userInformationVisible=true;//打开tabs页面
 				}else if(command==1){
 					//注销
 					vm.logout();
@@ -268,15 +335,125 @@
 			},
 			//个人信息tabs关闭事件
 			userInformationHandleClose(done){
+				vm.resetForm('userInformationForm');//格式化表单
+				vm.resetForm('resetPwdForm');//格式化表单
 				done();
 			},
+			//点击不同tab触发事件
 			handleTabsClick:function(tab, event) {
-		        console.log(tab.name);
+				vm.resetForm('userInformationForm');//格式化表单
+				vm.resetForm('resetPwdForm');//格式化表单
+				//单击跟用户相关的信息需要重新请求
+				if(tab.name=='information' || tab.name=='edit'){
+					vm.personalInformation();
+				}
 		    },
+		    //查询当前登录用户信息
 			personalInformation:function(){
-				
+				$.ajax({
+  		          	url: '/users/activeUser?timestamp='+new Date().getTime(),
+  		          	type: 'GET',
+  		          	dataType : 'json', 
+  		          	contentType: 'application/json; charset=utf-8',
+  		          	success: function (res) {
+  		        	  	if(res.rspCode=="000000"){
+  		        	  		vm.userInformationForm=res.data;
+  		        	  		//性别需要转换为字符串格式
+  		        	  		vm.userInformationForm.gender=res.data.gender+'';
+  		        	  	}else{
+  		        	  		that.$notify.error({
+		  		        	  	title: '查询用户',
+		  		        	  	message: res.rspMsg,
+		  		        	  	position: 'bottom-right'
+		  		        	});
+  		        	  	}
+  		          	}
+  		    	});
 			},
-			//修改密码方法
+			//改变生日，造成年龄变化
+			changeBirthday:function(selVal){
+				var now = new Date();//获取系统当前时间
+				var selDate= new Date(Date.parse(selVal.replace(/-/g, "/")));//选中时间
+				vm.userInformationForm.age=getDateYearSub(selDate,now);//计算年龄
+			},
+			//修改用户信息
+			reseInformation:function(){
+				var that=this;
+		    	this.$refs['userInformationForm'].validate((valid) => {
+		          	if (valid) {
+		          		var data={};
+				    	data.name=vm.userInformationForm.name;
+				    	data.email=vm.userInformationForm.email;
+				    	data.age=vm.userInformationForm.age;
+				    	data.gender=vm.userInformationForm.gender;
+				    	data.telphone=vm.userInformationForm.telphone;
+				    	data.address=vm.userInformationForm.address;
+				    	data.birthDay=vm.userInformationForm.birthDay;
+				    	data.account=vm.userInformationForm.account;
+				    	var json=JSON.stringify(data);
+		          		$.ajax({
+		  		          	url: '/users/information?timestamp='+new Date().getTime(),
+		  		          	type: 'POST',
+		  		          	data:json,
+		  		          	dataType : 'json', 
+		  		          	contentType: 'application/json; charset=utf-8',
+		  		          	success: function (res) {
+		  		        	  	if(res.rspCode=="000000"){
+			  		        	  	that.$notify.success({
+				  		        	  	title: '编辑信息',
+				  		        	  	message: '操作成功',
+				  		        	  	position: 'bottom-right'
+				  		        	});
+		  		        	  	}else{
+		  		        	  		that.$notify.error({
+				  		        	  	title: '编辑信息',
+				  		        	  	message: res.rspMsg,
+				  		        	  	position: 'bottom-right'
+				  		        	});
+		  		        	  	} 
+		  		          	}
+		  		    	});
+		          	}
+		        }); 
+			},
+			//用户个人修改密码
+			resetPwd:function(){
+		    	var that=this;
+		    	this.$refs['resetPwdForm'].validate((valid) => {
+		          	if (valid) {
+		          		var data={};
+				    	data.password=vm.resetPwdForm.pass;
+				    	var json=JSON.stringify(data);
+		          		$.ajax({
+		  		          	url: '/users/resetSelf?timestamp='+new Date().getTime(),
+		  		          	type: 'POST',
+		  		          	data:json,
+		  		          	dataType : 'json', 
+		  		          	contentType: 'application/json; charset=utf-8',
+		  		          	success: function (res) {
+		  		        	  	if(res.rspCode=="000000"){
+		  		        	  		that.$refs['resetPwdForm'].resetFields();
+			  		        	  	that.$notify.success({
+				  		        	  	title: '重置密码',
+				  		        	  	message: '操作成功',
+				  		        	  	position: 'bottom-right'
+				  		        	});
+		  		        	  	}else{
+		  		        	  		that.$notify.error({
+				  		        	  	title: '重置密码',
+				  		        	  	message: res.rspMsg,
+				  		        	  	position: 'bottom-right'
+				  		        	});
+		  		        	  	} 
+		  		          	}
+		  		    	});
+		          	}
+		        });
+			},
+			resetForm:function(formName){
+				this.$refs[formName].resetFields();
+			},
+			//注销码方法
 			logout:function(){
 				
 			},
