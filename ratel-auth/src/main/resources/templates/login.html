@@ -181,14 +181,11 @@
 				//登录
 				login:function(formName){
 					var that=this;
-					var data={};
-					data.account=vm.form.account;
-					data.email=vm.form.email;
-					data.password=vm.form.password;
-					var json=JSON.stringify(data); 
 					this.$refs[formName].validate((valid) => {
 			          	if (valid) {
 			          		vm.islanding=true;
+			          		var data=vm.form;
+							var json=JSON.stringify(data); 
 			          		$.ajax({
 			  		          	url: '/users/login?timestamp='+new Date().getTime(),
 			  		          	type: 'POST',
@@ -269,9 +266,7 @@
 	                 		return false;
 			    		}
 			    	}
-			    	var data={};
-					data.account=account;
-					data.email=email;
+			    	var data=vm.emailForm;
 					var json=JSON.stringify(data); 
 			    	vm.sendAjax2SecurityCode(json);
 			    },
@@ -314,15 +309,12 @@
 			    },
 			  //重置密码请求
 			    resetPwd:function(formName){
-			    	var data={};
-			    	data.account=vm.emailForm.account;
-			    	data.email=vm.emailForm.email;
-			    	data.securityCode=vm.emailForm.securityCode;
-			    	var json=JSON.stringify(data);
 			    	var that=this;
 			    	this.$refs[formName].validate((valid) => {
 			          	if (valid) {
 			          		vm.isReset=true;
+			          		var data=vm.emailForm;
+					    	var json=JSON.stringify(data);
 			          		$.ajax({
 			  		          	url: '/users/reset?timestamp='+new Date().getTime(),
 			  		          	type: 'POST',
