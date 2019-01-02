@@ -149,4 +149,21 @@ public abstract class StringUtil extends StringUtils {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * 
+	 * @Title email2Lower
+	 * @author :Stephen
+	 * @Description 邮箱后缀统一转小写
+	 * @date 2019年1月2日 上午9:31:16
+	 * @param email 邮箱地址
+	 * @return String
+	 */
+	public static String email2Lower(String email) {
+		if (!StringUtil.isEmpty(email)) {
+			String[] emailArr = email.split("@");
+			return emailArr[0] + "@" + emailArr[1].toLowerCase();
+		}
+		return null;
+	}
 }

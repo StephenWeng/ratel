@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ratel.auth.service.IResourceService;
 import com.ratel.common.response.ResponseData;
+import com.ratel.common.web.BaseController;
 
 /**
  * @文件名:ResourceController.java
@@ -33,7 +34,7 @@ import com.ratel.common.response.ResponseData;
 @EnableAutoConfiguration
 @RestController
 @RequestMapping(value = "resources")
-public class ResourceController {
+public class ResourceController extends BaseController {
 
 	@Autowired
 	private IResourceService resourceService;
@@ -48,9 +49,7 @@ public class ResourceController {
 	@ResponseBody
 	@RequestMapping(value = "/myResources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData queryResources() {
-		// TODO
-		String account = "stephen";
-		return resourceService.queryResourcesByAccount(account);
+		return resourceService.queryResourcesByAccount(this.getUserAccount());
 	}
 
 }

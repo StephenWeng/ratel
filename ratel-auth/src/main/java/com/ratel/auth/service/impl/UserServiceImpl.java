@@ -96,8 +96,7 @@ public class UserServiceImpl implements IUserService {
 	 * @author :Stephen
 	 * @Description 根据用户账号查询用户，不模糊查询
 	 * @date 2018年12月22日 上午10:57:08
-	 * @param account
-	 *            用户账号
+	 * @param account 用户账号
 	 * @return 操作是否成功
 	 */
 	@Override
@@ -123,7 +122,7 @@ public class UserServiceImpl implements IUserService {
 	public ResponseData login(User user, HttpServletResponse response) {
 		try {
 			// 邮箱后半段转小写
-			String email = email2Lower(user.getEmail());
+			String email = StringUtil.email2Lower(user.getEmail());
 			String account = user.getAccount();
 			User userDo = !StringUtil.isEmpty(account) ? userRepository.findByUserAccount(account)
 					: userRepository.findByEmail(email);
@@ -184,7 +183,7 @@ public class UserServiceImpl implements IUserService {
 	public ResponseData sendSecurityCode(User user) {
 		try {
 			// 邮箱后半段转小写
-			String email = email2Lower(user.getEmail());
+			String email = StringUtil.email2Lower(user.getEmail());
 			String account = user.getAccount();
 			// 1.查询用户
 			User userDo = !StringUtil.isEmpty(account) ? userRepository.findByUserAccount(account)
@@ -224,8 +223,7 @@ public class UserServiceImpl implements IUserService {
 	 * @author :Stephen
 	 * @Description 重置用户密码，并将密码发送至邮箱
 	 * @date 2018年12月22日 上午11:17:53
-	 * @param user
-	 *            用户信息，包含用户账号
+	 * @param user 用户信息，包含用户账号
 	 * @return 操作是否成功
 	 */
 	@Transactional
@@ -233,7 +231,7 @@ public class UserServiceImpl implements IUserService {
 	public ResponseData reset(User user) {
 		try {
 			// 邮箱后半段转小写
-			String email = email2Lower(user.getEmail());
+			String email = StringUtil.email2Lower(user.getEmail());
 			String account = user.getAccount();
 			User userDo = !StringUtil.isEmpty(account) ? userRepository.findByUserAccount(account)
 					: userRepository.findByEmail(email);
@@ -293,17 +291,6 @@ public class UserServiceImpl implements IUserService {
 					+ e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
 		}
-	}
-
-	/**
-	 * 邮箱后缀统一转小写
-	 */
-	private String email2Lower(String email) {
-		if (!StringUtil.isEmpty(email)) {
-			String[] emailArr = email.split("@");
-			return emailArr[0] + "@" + emailArr[1].toLowerCase();
-		}
-		return null;
 	}
 
 	@Override
@@ -371,7 +358,7 @@ public class UserServiceImpl implements IUserService {
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
 			}
 			List<User> otherEmail = userRepository.findEmailAnyotherAccount(userDo.getAccount(),
-					email2Lower(user.getEmail()));
+					StringUtil.email2Lower(user.getEmail()));
 			return otherEmail.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
 					: new ResponseData(ResponseMsg.FAILED.getCode(), "该邮箱已被使用");
 		} catch (Exception e) {

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.ratel.auth.domain.User;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import net.sf.json.JSONObject;
@@ -52,9 +53,9 @@ public class JwtTokenUtil implements Serializable {
 	public String generateToken(User userDetails) {
 		userDetails.setPassword("");
 		JSONObject jsonObject = JSONObject.fromObject(userDetails);
-		Map<String, Object> claims = new HashMap<>();
+		Map<String, Object> claims = new HashMap<String, Object>();
 		claims.put(CLAIM_KEY_USER, jsonObject.toString());
-		claims.put(CLAIM_KEY_USERNAME, userDetails.getName());
+		claims.put(CLAIM_KEY_USERNAME, userDetails.getAccount());
 		claims.put(CLAIM_KEY_CREATED, new Date());
 		return generateToken(claims);
 	}
@@ -66,6 +67,26 @@ public class JwtTokenUtil implements Serializable {
 
 	private Date generateExpirationDate() {
 		return new Date(System.currentTimeMillis() + expiration * 1000);
+	}
+
+	/**
+	 * 
+	 * @Description:解析token，获取Claims
+	 *
+	 * @author wenzhang
+	 * @date:2018年2月9日 上午9:25:25
+	 * @Title:getClaimsFromToken
+	 * @param token
+	 * @return Claims
+	 * @since JDK 1.8
+	 */
+	public Claims getClaimsFromToken(String token) {
+		try {
+			Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			return claims;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }

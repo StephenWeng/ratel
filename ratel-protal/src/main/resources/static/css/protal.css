@@ -6,8 +6,8 @@ body{
     overflow: hidden;
 }
 a:hover{
-	text-decoration:underline;  /*Êó±ê·ÅÉÏÈ¥ÓÐÏÂ»®Ïß*/
-	cursor:pointer;/*Êó±ê·ÅÉÏÈ¥ÓÐÊÖÕÆ*/
+	text-decoration:underline;  /*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½Â»ï¿½ï¿½ï¿½*/
+	cursor:pointer;/*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 }
 .el-header{
   	background-color: #1D8CE1;
@@ -35,8 +35,10 @@ a:hover{
   .el-main {
     background-color: #E9EEF3;
     color: #333;
-    text-align: center;
-    line-height: 160px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 0px;
   }
   
   body > .el-container {
@@ -69,5 +71,22 @@ a:hover{
 
   .item {
     padding: 18px 0;
+  }
+  
+  .el-breadcrumb{
+  	margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    background: #D2D4D7;
+    line-height: 30px;
+  	height:30px !important;
+  	font-size:14px;
+  	font-family: 'æ¥·ä½“' !important;
+  }
+  
+  #mainFrame{
+  	margin-left: 20px !important;
+  	margin-right: 20px !important;
   }
   

@@ -61,6 +61,12 @@
 		    	<!-- 页面正中，切换页面区域 -->
 		    	<el-container>
 		      		<el-main id='main'>
+		      			<el-breadcrumb separator-class="el-icon-arrow-right">
+						  	<el-breadcrumb-item>首页</el-breadcrumb-item>
+						  	<el-breadcrumb-item>活动管理</el-breadcrumb-item>
+						  	<el-breadcrumb-item>活动列表</el-breadcrumb-item>
+						  	<el-breadcrumb-item>活动详情</el-breadcrumb-item>
+						</el-breadcrumb>
 		      			<iframe id="mainFrame" scrolling="auto">   
 						</iframe>
 		      		</el-main>
@@ -76,7 +82,7 @@
 		
 		
 		<!-- 个人信息弹出框 -->
-		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="25%" :before-close="userInformationHandleClose">
+		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="30%" :before-close="userInformationHandleClose">
 		  	<el-tabs type="border-card" @tab-click="handleTabsClick" v-model="activeName">
 		  		<!-- 展示个人信息tab -->
 			  	<el-tab-pane name="information">
@@ -308,7 +314,7 @@
 		methods:{
 			init:function(){
 				vm.userResources();//获取用户的资源，生成左侧菜单栏
-				$("#mainFrame").attr("src",'/ratel/test?timestamp='+new Date().getTime());
+				$("#mainFrame").attr("src",'/users/index?timestamp='+new Date().getTime());
 			},
 			userResources:function(){
 				$.ajax({
@@ -459,7 +465,8 @@
 			},
 			//点击菜单，更换ifram内容
 			ifram:function(url){
-				alert(url);
+				$("#mainFrame").empty();//先清空
+				$("#mainFrame").attr("src",url+'?timestamp='+new Date().getTime());
 			},
 			//底部平头哥弹出框关闭事件
 			bottomHandleClose(done) {

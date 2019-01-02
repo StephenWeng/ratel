@@ -58,9 +58,7 @@ public class UserController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/activeUser", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData queryActiveUser() {
-		// TODO 获取当前登录用户 String account=""
-		String account = "stephen";
-		return userService.queryUser(account);
+		return userService.queryUser(this.getUserAccount());
 	}
 
 	/**
@@ -69,8 +67,7 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 用户登录
 	 * @date 2018年12月22日 上午11:09:06
-	 * @param user
-	 *            包含用户账号和密码
+	 * @param user 包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
@@ -98,8 +95,7 @@ public class UserController extends BaseController {
 	 * @author :技术部-文章
 	 * @Description 向用户邮箱发送重置密码的验证码
 	 * @date 2018年12月23日 下午7:18:55
-	 * @param account
-	 *            用户账号
+	 * @param account 用户账号
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody
@@ -113,8 +109,7 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 重置密码，将密码发送至用户邮箱
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user
-	 *            包含用户账号和密码
+	 * @param user 包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
@@ -128,14 +123,13 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 用户首页重置密码
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user
-	 *            包含用户账号和密码
+	 * @param user 包含用户账号和密码
 	 * @return ResponseData 操作是否成功，data：user对象
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/resetSelf", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData resetSelf(@RequestBody User user) {
-		user.setAccount("stephen");// TODO
+		user.setAccount(this.getUserAccount());
 		return userService.resetSelf(user);
 	}
 
@@ -144,14 +138,13 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 首页编辑密码，检验原密码是否正确
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user
-	 *            包含用户账号和密码
+	 * @param user 包含用户账号和密码
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/pwd", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData checkPwd(@RequestBody User user) {
-		user.setAccount("stephen");// TODO
+		user.setAccount(this.getUserAccount());
 		return userService.checkPwd(user);
 	}
 
@@ -160,8 +153,7 @@ public class UserController extends BaseController {
 	 * @author :Stephen
 	 * @Description 首页编辑邮箱，检验邮箱是否可用
 	 * @date 2018年12月22日 上午11:09:42
-	 * @param user
-	 *            包含用户账号和邮箱
+	 * @param user 包含用户账号和邮箱
 	 * @return ResponseData 操作是否成功
 	 */
 	@ResponseBody

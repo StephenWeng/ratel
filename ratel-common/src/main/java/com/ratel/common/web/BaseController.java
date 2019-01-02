@@ -7,13 +7,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.ratel.common.constant.CommonConst;
+import com.ratel.common.domain.User;
 import com.ratel.common.response.Response;
 import com.ratel.common.response.ResponseMsg;
+import com.ratel.common.utils.CookieUtil;
 import com.ratel.common.utils.StringUtil;
+import com.ratel.common.utils.TokenUtil;
 
 @Controller
 public class BaseController {
@@ -23,6 +28,9 @@ public class BaseController {
 	private static ThreadLocal<ServletRequest> currentRequest = new ThreadLocal<ServletRequest>();
 
 	private static ThreadLocal<ServletResponse> currentResponse = new ThreadLocal<ServletResponse>();
+
+	@Autowired
+	private TokenUtil tokenUtil;
 
 	@Value("${spring.application.name}")
 	protected String appName;
@@ -86,7 +94,19 @@ public class BaseController {
 		}
 	}
 
-	protected String getUsername() {
-		return request().getParameter("username");
+	protected User getActiveUser() {
+		HttpServletRequest req = request();
+		String authToken = CookieUtil.getCookie(req, CommonConst.COOKIE_KEY_JWT_TOKEN);
+		authToken = StringUtil.isBlank(authToken) ? req.getHeader(CommonConst.COOKIE_KEY_JWT_TOKEN) : authToken;
+		User user = tokenUtil.getUserFromToken(authToken);
+		return user;
+	}
+
+	protected String getUserAccount() {
+		HttpServletRequest req = request();
+		String authToken = CookieUtil.getCookie(req, CommonConst.COOKIE_KEY_JWT_TOKEN);
+		authToken = StringUtil.isBlank(authToken) ? req.getHeader(CommonConst.COOKIE_KEY_JWT_TOKEN) : authToken;
+		String username = tokenUtil.getUsernameFromToken(authToken);
+		return username;
 	}
 }
