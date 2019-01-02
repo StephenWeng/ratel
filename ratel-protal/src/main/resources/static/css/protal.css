@@ -6,8 +6,8 @@ body{
     overflow: hidden;
 }
 a:hover{
-	text-decoration:underline;  /*������ȥ���»���*/
-	cursor:pointer;/*������ȥ������*/
+	text-decoration:underline;  /*鼠标悬浮下划线*/
+	cursor:pointer;/*鼠标悬浮手型*/
 }
 .el-header{
   	background-color: #1D8CE1;
@@ -88,5 +88,9 @@ a:hover{
   #mainFrame{
   	margin-left: 20px !important;
   	margin-right: 20px !important;
+  	border-top-width: 0px;
+  	border-left-width: 0px;
+  	border-bottom-width: 0px;
+  	border-right-width: 0px;
   }
   

@@ -19,6 +19,6 @@ function setAsideHeight(){
 	/*$("#aside").height($(document.body).height()-70);
 	$("#main").height($(document.body).height()-70);*/
 	//中间iframe区域高宽
-	$("#mainFrame").height($(document.body).height()-150);
-	$("#mainFrame").width($(document.body).width()-$('#aside').width()-44);
+	//$("#mainFrame").height($(document.body).height()-150);
+	//$("#mainFrame").width($(document.body).width()-$('#aside').width()-40);
 }
