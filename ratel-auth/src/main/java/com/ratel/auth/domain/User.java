@@ -52,9 +52,11 @@ public class User {
 	@ApiModelProperty(value = "年龄")
 	private Integer age;
 
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@ApiModelProperty(value = "创建时间")
 	private Date createTime;
 
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@ApiModelProperty(value = "修改时间")
 	private Date updateTime;
 
@@ -166,6 +168,7 @@ public class User {
 		this.gender = gender;
 	}
 
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "CREATE_TIME")
 	public Date getCreateTime() {
 		return createTime;
@@ -179,6 +182,7 @@ public class User {
 		this.createTime = createTime;
 	}
 
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "UPDATE_TIME")
 	public Date getUpdateTime() {
 		return updateTime;

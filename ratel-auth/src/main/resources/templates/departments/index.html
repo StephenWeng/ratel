@@ -2,23 +2,207 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-<head th:include="common/header :: head"></head>
-<div id="test">
-	<p @click="test()">部门管理</p>
+<head th:include="common/header :: head">
+	<style type="text/css">
+		.el-tree{
+			margin-top: 10px !important;
+		}
+		.el-form-item{
+			margin-bottom: 5px !important;
+		}
+	</style>
+</head>
+<div id="department" style="width:100%;height:100%;">
+	<el-row :gutter="20">
+	  	<el-col :span="6">
+	  		<el-input placeholder="输入名称进行过滤" v-model="filterText">
+	  			<template slot="prepend">名称</template>
+	  		</el-input>
+			<el-tree class="filter-tree" :data="treeData" :props="defaultProps"
+		  	accordion :filter-node-method="filterNode" ref="departmentTree" 
+		  	@node-click="clickNode">
+			</el-tree>
+	  	</el-col>
+	  	<el-col :span="18">
+	  		<el-form :inline="true" ref="departmentForm" :rules="departmentRules" :model="departmentForm">
+			  	<el-form-item label="名称：" prop="name">
+			    	<el-input v-model="departmentForm.name" clearable></el-input>
+			  	</el-form-item>
+			  	<el-form-item label="代码：" prop="code">
+			    	<el-input v-model="departmentForm.code" clearable></el-input>
+			  	</el-form-item>
+			  	<el-form-item>
+				    <el-button size="small" type="primary" @click="query">查询</el-button>
+				    <el-button size="small" @click="resetForm">重置</el-button>
+				  </el-form-item>
+			</el-form>
+	  		<el-table :data="departmentList" stripe border :height="tableHeight" style="width: 100%">
+     			<el-table-column type="selection" width="50"></el-table-column>
+     			<el-table-column label="序号" width="50" align="center">
+     				<template scope="scope">
+     					<span>{{scope.$index+(currentPage - 1) * pagesize + 1}} </span>
+     				</template>
+     			</el-table-column>
+    			<el-table-column prop="name" label="名称" width="180"></el-table-column>
+    			<el-table-column prop="code" label="代码" width="180"></el-table-column>
+    			<el-table-column prop="address" label="地址" width="180"></el-table-column>
+    			<el-table-column prop="lealPerson" label="负责人" width="180"></el-table-column>
+    			<el-table-column prop="plane" label="座机" width="180"></el-table-column>
+    			<el-table-column prop="telphone" label="电话" width="180"></el-table-column>
+    			<el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
+    			<el-table-column prop="address" label="地址"></el-table-column>
+  			</el-table>
+  			<el-pagination
+                   @size-change="handleSizeChange"
+                   @current-change="handleCurrentChange"
+                   :current-page="currentPage"
+                   :page-sizes="[5, 10, 20, 40]" 
+                   :page-size="pagesize" 
+                   layout="total, sizes, prev, pager, next, jumper"
+                   :total="totalSize">
+           </el-pagination>
+	  	</el-col>
+	</el-row>
 </div>
 <script>
 /*<![CDATA[*/
 var vm=new Vue({
-		el:'#test',
-		data() {
-			return {
-			}
-		},
-		methods:{
-			test:function(){
-				alert("test");
-			}
+	el:'#department',
+	watch: {
+		//树过滤监听事件
+    	filterText(val) {
+        	this.$refs.departmentTree.filter(val);
+      	}
+    },
+	data() {
+		return {
+			tableHeight:490,//table高
+			filterText: '',//树过滤字段
+	        treeData: [],//树结构数据
+	        //树节点默认格式
+	        defaultProps: {
+	          children: 'children',
+	          label: 'label'
+	        },
+	        activeNode:{},//当前单击的树节点
+	        //表格数据
+	        currentPage:1, //初始页
+            pagesize:10,    //    每页的数据
+            departmentList: [],//部门数据集合
+            totalSize:0,//总共数据个数
+            departmentForm:{
+            	name:'',
+            	code:''
+            },
+            departmentRules:{
+            	name:[
+            		{ validator: checkNoSpecialCharacters, trigger: 'blur' }
+				],
+				code:[
+					{ validator: checkNoSpecialCharacters, trigger: 'blur' }
+				]
+			},
 		}
-	})
+	},
+	methods:{
+		init:function(){
+			vm.tableHeight=$("#department").height()-172;
+			vm.queryTreeData();
+			vm.queryDepartmentList();
+		},
+		//查询组织机构树
+		queryTreeData:function(){
+			var that=this;
+			$.ajax({
+	          	url: '/departments/tree?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.treeData=res.data;
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '组织机构树',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
+		},
+		//树过滤事件
+		filterNode(value, data) {
+	        if (!value) return true;
+	        return data.label.indexOf(value) !== -1;
+	    },
+	    //单击树节点事件
+	    clickNode:function(node){
+	    	//避免用户点击节点本来就是当前节点
+	    	if(!vm.activeNode.id || node.id !=vm.activeNode.id){
+	    		this.$refs['departmentForm'].resetFields();
+	    		vm.activeNode=node;
+		    	this.pagesize = 10;
+		    	this.currentPage = 1;
+		    	vm.queryDepartmentList();
+	    	}
+	    },
+	 	// 初始页currentPage、初始每页数据数pagesize和数据data
+        handleSizeChange: function (size) {
+        	this.pagesize = size;
+        	vm.queryDepartmentList();
+        },
+        //改变当前页
+        handleCurrentChange: function(currentPage){
+        	this.currentPage = currentPage;
+        	vm.queryDepartmentList();
+        },
+        query:function(){
+        	this.$refs['departmentForm'].validate((valid) => {
+	          	if (valid) {
+	          		vm.queryDepartmentList();
+	          	}
+	        });
+        },
+        //分页查询数据
+        queryDepartmentList() {
+            var that=this;
+			$.ajax({
+	          	url: '/departments/departments?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	data:{
+	          		'currentPage':vm.currentPage,//当前页
+	          		'pagesize':vm.pagesize,//当前页个数
+	          		'pId':vm.activeNode.id?vm.activeNode.id:'',//当前点击节点
+	          		'name':vm.departmentForm.name,
+	          		'code':vm.departmentForm.code
+	          	},
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.departmentList=res.data.content;
+	        	  		vm.totalSize=res.data.totalElements;
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '查询组织',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
+        },
+      	//重置查询form
+		resetForm:function(){
+			this.$refs['departmentForm'].resetFields();
+			vm.queryDepartmentList();
+		}
+	}
+})
+/* 页面加载时触发事件 */
+window.onload=function(){ 
+	vm.init();
+}
 /*]]>*/
 </script>

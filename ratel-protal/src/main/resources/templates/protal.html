@@ -3,7 +3,6 @@
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head"></head>
-<link rel="stylesheet" th:href="@{/css/protal.css}"></link>
 <body>
 	<div id="protal">
 		<el-container>
@@ -250,17 +249,6 @@
   		          		}
   		          	}
   		    	});
-		    };
-		    //验证手机号码
-		    var checkPhone= (rule, value, callback) => {
-		    	if(value==='' || value.trim()===''){
-		    		callback();
-		    	}
-		    	if(telphoneReg.test(value.trim())){
-		    		callback();
-          		}else{
-          			callback(new Error('请输入正确的电话号码'));
-          		}
 		    };
 			return {
 				labelPosition: 'right',//表单对齐方式

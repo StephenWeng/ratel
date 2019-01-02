@@ -12,7 +12,6 @@
 	    }
 	</style>
 </head>
-<link rel="stylesheet" th:href="@{/css/protal.css}"></link>
 <body>
 	<div id="firstId">
 		<!-- 首页主区域 -->
@@ -111,7 +110,8 @@
 					},
 					rules:{
 						account:[
-							{ required: true, message: '请输入账号', trigger: 'blur' }
+							{ required: true, message: '请输入账号', trigger: 'blur' },
+							{ validator: checkNoSpecialCharacters, trigger: 'blur' }
 						],
 						email: [
 			            	{ required: true, message: '请输入邮箱', trigger: 'blur' },
