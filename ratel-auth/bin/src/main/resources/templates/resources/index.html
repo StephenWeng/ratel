@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+<head th:include="common/header :: head"></head>
+<div id="test">
+	<p @click="test()">资源管理</p>
+</div>
+<script>
+/*<![CDATA[*/
+var vm=new Vue({
+		el:'#test',
+		data() {
+			return {
+			}
+		},
+		methods:{
+			test:function(){
+				alert("test");
+			}
+		}
+	})
+/*]]>*/
+</script>

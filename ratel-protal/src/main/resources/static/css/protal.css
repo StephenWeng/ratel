@@ -6,8 +6,8 @@ body{
     overflow: hidden;
 }
 a:hover{
-	text-decoration:underline;  /*鼠标悬浮下划线*/
-	cursor:pointer;/*鼠标悬浮手型*/
+	text-decoration:underline;  /*榧犳爣鎮诞涓嬪垝绾�*/
+	cursor:pointer;/*榧犳爣鎮诞鎵嬪瀷*/
 }
 .el-header{
   	background-color: #1D8CE1;
@@ -83,7 +83,7 @@ a:hover{
     line-height: 30px;
   	height:30px !important;
   	font-size:14px;
-  	font-family: '楷体' !important;
+  	font-family: '妤蜂綋' !important;
   }
   
   #mainFrame{
@@ -94,4 +94,35 @@ a:hover{
   	border-bottom-width: 0px;
   	border-right-width: 0px;
   }
+  
+  .right{
+  	float:right;
+  }
+  
+  .left{
+  	float:left;
+  }
+  
+  	.el-tree{
+		margin-top: 10px !important;
+	}
+	.el-form-item{
+		margin-bottom: 5px !important;
+	}
+	.demo-table-expand {
+    	font-size: 0;
+ 	}
+  	.demo-table-expand label {
+    	width: 90px;
+    	color: #99a9bf;
+  	}
+  	.demo-table-expand .el-form-item {
+	    margin-right: 0;
+	    margin-bottom: 0;
+	    width: 50%;
+  	}
+  	/* 表头错位 */
+  	body .el-table th.gutter{
+    	display: table-cell!important;
+  	}
   

@@ -76,8 +76,10 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 递归将部门数据处理为树形结构
 	 * @date 2019年1月2日 下午9:41:06
-	 * @param pId  上级部门id
-	 * @param list 部门数据集合
+	 * @param pId
+	 *            上级部门id
+	 * @param list
+	 *            部门数据集合
 	 * @return List<TreeVo>
 	 */
 	private List<TreeVo> recursionDepartments(String pId, List<Department> list) {
@@ -102,7 +104,8 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 根据部门id查询下级单位，当传入参数为空时，查询全部
 	 * @date 2019年1月2日 下午9:32:44
-	 * @param departmentId 部门id
+	 * @param departmentId
+	 *            部门id
 	 * @return List<Department>
 	 */
 	private List<Department> queryDepartments(String departmentId) {
@@ -134,7 +137,8 @@ public class DepartmentServiceImpl implements IDepartmentService {
 			Pageable pageAble = new PageRequest(currentPage, pagesize, Direction.DESC, "createTime");
 			Department department = new Department();
 			// 当传入的pId为空时，传入顶层机构的下级
-			department.setpId(pId);
+			department.setpId(
+					StringUtil.isNotBlank(pId) ? pId : departmentRepository.queryTopDepartment().get(0).getId());
 			department.setName(name);
 			department.setCode(code);
 			DepartmentSpecification pcs = new DepartmentSpecification(department);

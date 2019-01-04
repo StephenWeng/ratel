@@ -122,11 +122,11 @@
 			    	<el-form label-width="80px" :label-position="labelPosition" ref="userInformationForm" :rules="userInformationRules" :model="userInformationForm">
 					  	<el-form-item label="昵称：" prop="name">
 					    	<el-input v-model="userInformationForm.name"
-					    	clearable prefix-icon="el-icon-tickets"></el-input>
+					    	clearable prefix-icon="el-icon-ratel-nicheng"></el-input>
 					  	</el-form-item>
 					  	<el-form-item label="账号：" prop="account">
 					    	<el-input v-model="userInformationForm.account"
-					    	 clearable disabled prefix-icon="el-icon-message"></el-input>
+					    	 clearable disabled prefix-icon="el-icon-ratel-people"></el-input>
 					  	</el-form-item>
 					  	<el-form-item label="邮箱：" prop="email">
 					    	<el-input v-model="userInformationForm.email"
@@ -139,7 +139,7 @@
 					  	</el-form-item>
 					  	<el-form-item label="年龄：" prop="age">
 					    	<el-input disabled v-model="userInformationForm.age"
-					    	 clearable prefix-icon="el-icon-date"></el-input>
+					    	 clearable prefix-icon="el-icon-ratel-nianling"></el-input>
 					  	</el-form-item>
 					  	<el-form-item label="性别：" prop="gender">
 					  		<el-radio v-model="userInformationForm.gender" label="0" border>男</el-radio>
@@ -161,7 +161,7 @@
 			  	</el-tab-pane>
 			  	<!-- 密码修改区 -->
 			  	<el-tab-pane name="editPwd">
-			    	<span slot="label"><i class="el-icon-document"></i>密码</span>
+			    	<span slot="label"><i class="el-icon-ratel-unlock"></i>密码</span>
 			    	<el-form :model="resetPwdForm" status-icon :rules="resetPwdRules" ref="resetPwdForm" :label-position="labelPosition" label-width="100px">
 					  	<el-form-item label="原密码：" prop="pwd">
 					    	<el-input type="password" v-model="resetPwdForm.pwd" autocomplete="off"></el-input>
@@ -263,7 +263,8 @@
 				userInformationRules:{
 					name:[
 						{ required: true, message: '请输入昵称', trigger: 'change' },
-		            	{ validator: checkEmpty, trigger: 'blur' }
+		            	{ validator: checkEmpty, trigger: 'blur' },
+		            	{ validator: checkNoSpecialCharacters, trigger: 'blur' }
 					],
 		          	email:[
 		          		{ required: true, message: '请输入账号', trigger: 'blur' },

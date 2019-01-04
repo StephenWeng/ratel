@@ -4,7 +4,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head">
 	<style type="text/css">
-		
+		.el-tree{
+			margin-top: 10px !important;
+		}
+		.el-form-item{
+			margin-bottom: 5px !important;
+		}
 	</style>
 </head>
 <div id="department" style="width:100%;height:100%;">
@@ -36,52 +41,27 @@
 				</el-col>
 				<el-col :span="6">
 					<el-button-group class="right">
-					  	<el-button size="small" type="primary" icon="el-icon-plus" @click="add"></el-button>
-					  	<el-button size="small" type="primary" icon="el-icon-edit" :disabled="handelEdit" @click="edit"></el-button>
+					  	<el-button size="small" type="primary" icon="el-icon-plus"></el-button>
+					  	<el-button size="small" type="primary" icon="el-icon-edit" :disabled="handelEdit"></el-button>
 					  	<el-button size="small" type="primary" icon="el-icon-delete" :disabled="isDeling || handelDel"></el-button>
 					</el-button-group>
 				</el-col>
 			</el-row>
-	  		<el-table :data="departmentList" stripe border :height="tableHeight" style="width: 100%"
-	  		 @selection-change="changeFun">
+	  		<el-table :data="departmentList" stripe border :height="tableHeight" style="width: 100%">
      			<el-table-column type="selection" width="50"></el-table-column>
-     			<!-- <el-table-column label="序号" width="50" align="center">
+     			<el-table-column label="序号" width="50" align="center">
      				<template scope="scope">
      					<span>{{scope.$index+(currentPage - 1) * pagesize + 1}} </span>
      				</template>
-     			</el-table-column> -->
-     			<el-table-column type="expand" width="50">
-			      	<template slot-scope="props">
-			        	<el-form label-position="left" inline class="demo-table-expand">
-			          		<el-form-item label="名称：">
-			            		<span>{{ props.row.name }}</span>
-			          		</el-form-item>
-			          		<el-form-item label="代码：">
-			            		<span>{{ props.row.code }}</span>
-			          		</el-form-item>
-			          		<el-form-item label="负责人：">
-			            		<span>{{ props.row.lealPerson }}</span>
-			          		</el-form-item>
-			          		<el-form-item label="创建时间：">
-			            		<span>{{ props.row.createTime}}</span>
-			          		</el-form-item>
-			          		<el-form-item label="座机：">
-			            		<span>{{ props.row.plane}}</span>
-			          		</el-form-item>
-			          		<el-form-item label="电话：">
-			            		<span>{{ props.row.telphone}}</span>
-			          		</el-form-item>
-			          		<el-form-item label="地址：">
-			            		<span>{{ props.row.address}}</span>
-			          		</el-form-item>
-			        	</el-form>
-			      	</template>
-			    </el-table-column>
-    			<el-table-column prop="name" label="名称" min-width="20%"></el-table-column>
-    			<el-table-column prop="code" label="代码" min-width="20%"></el-table-column>
-    			<el-table-column prop="lealPerson" label="负责人" min-width="20%"></el-table-column>
-    			<el-table-column prop="plane" label="座机" min-width="20%"></el-table-column>
-    			<el-table-column prop="telphone" label="电话"></el-table-column>
+     			</el-table-column>
+    			<el-table-column prop="name" label="名称" width="180"></el-table-column>
+    			<el-table-column prop="code" label="代码" width="180"></el-table-column>
+    			<el-table-column prop="address" label="地址" width="180"></el-table-column>
+    			<el-table-column prop="lealPerson" label="负责人" width="180"></el-table-column>
+    			<el-table-column prop="plane" label="座机" width="180"></el-table-column>
+    			<el-table-column prop="telphone" label="电话" width="180"></el-table-column>
+    			<el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
+    			<el-table-column prop="address" label="地址"></el-table-column>
   			</el-table>
   			<el-pagination
                    @size-change="handleSizeChange"
@@ -94,12 +74,6 @@
            </el-pagination>
 	  	</el-col>
 	</el-row>
-	
-	<!-- 新增/编辑组织机构弹出框 -->
-	<el-dialog :title="dialogTitle" :visible.sync="departmentVisible" width="30%" :before-close="departmentHandleClose">
-	</el-dialog>
-	
-	
 </div>
 <script>
 /*<![CDATA[*/
@@ -142,11 +116,6 @@ var vm=new Vue({
 			isDeling:false,//是否正在删除
 			handelDel:true,//删除按钮是否禁用，至少选中一个的时候才能删除
 			handelEdit:true,//编辑按钮是否禁用，只能选中一个的时候才能编辑
-			multipleSelection:[],//复选框被选中的对象
-			//弹出框相关数据
-			method:0,//0：增加  1：编辑
-			departmentVisible:false,//是否可见
-			dialogTitle:'新增组织机构'//弹出框title
 		}
 	},
 	methods:{
@@ -238,42 +207,10 @@ var vm=new Vue({
 	          	}
 	    	});
         },
-        //判断按钮组禁用情况
-        changeFun(val){
-        	this.multipleSelection = val; // 返回的是选中的列的数组集合
-        	if(this.multipleSelection.length==1){
-        		//只选了一个的时候编辑和删除可用
-        		this.handelDel=false;
-        		this.handelEdit=false;
-        	}else if(this.multipleSelection.length>1){
-        		//多选时编辑按钮不可用
-        		this.handelDel=false;
-        		this.handelEdit=true;
-        	}else{
-        		this.handelDel=true;
-        		this.handelEdit=true;
-        	}
-        },
       	//重置查询form
 		resetForm:function(){
 			this.$refs['departmentForm'].resetFields();
 			vm.queryDepartmentList();
-		},
-		add(){
-			this.departmentVisible=true;
-			this.dialogTitle='新增组织';
-			this.method=0;
-			this.$refs.departmentTree.append({ id: '5', label: '湛江分公司',children:[] }, {id: '156', label: '组织机构',children:[]});
-		},
-		edit(){
-			this.departmentVisible=true;
-			this.dialogTitle='编辑组织';
-			this.method=0;
-		},
-		departmentHandleClose(done){
-			this.$confirm('确认关闭？').then(_ => {
-	            done();
-	        }).catch(_ => {});
 		}
 	}
 })
