@@ -106,9 +106,9 @@ a:hover{
   	.el-tree{
 		margin-top: 10px !important;
 	}
-	.el-form-item{
+	/* .el-form-item{
 		margin-bottom: 5px !important;
-	}
+	} */
 	.demo-table-expand {
     	font-size: 0;
  	}
@@ -124,5 +124,9 @@ a:hover{
   	/* 表头错位 */
   	body .el-table th.gutter{
     	display: table-cell!important;
+  	}
+  	/* 弹出框表体背景色 */
+  	.el-dialog__header{
+  		
   	}
   

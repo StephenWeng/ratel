@@ -33,6 +33,8 @@ public class ResourceVo implements Comparable<ResourceVo> {
 
 	private List<ResourceVo> child;// 下级
 
+	private String icon;// 图标
+
 	/**
 	 * <p>
 	 * Title:
@@ -46,7 +48,8 @@ public class ResourceVo implements Comparable<ResourceVo> {
 	 * @param url
 	 * @param child
 	 */
-	public ResourceVo(String id, String name, String url, String pId, int sortCol, List<ResourceVo> child) {
+	public ResourceVo(String id, String name, String url, String pId, int sortCol, List<ResourceVo> child,
+			String icon) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -54,6 +57,7 @@ public class ResourceVo implements Comparable<ResourceVo> {
 		this.pId = pId;
 		this.sortCol = sortCol;
 		this.child = child;
+		this.icon = icon;
 	}
 
 	public String getId() {
@@ -102,6 +106,14 @@ public class ResourceVo implements Comparable<ResourceVo> {
 
 	public void setSortCol(int sortCol) {
 		this.sortCol = sortCol;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
 	/**

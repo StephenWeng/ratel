@@ -49,10 +49,12 @@
 						<el-menu :collapse="isCollapse">
 					      	<el-submenu :index="resource.id" v-for="resource in resourcesList">
 					        	<template slot="title">
-					          		<i class="el-icon-location"></i>
+					          		<i :class="resource.icon"></i>
 					          		<span>{{resource.name}}</span>
 					        	</template>
-					          	<el-menu-item @click="ifram(childResource.url)" :index="childResource.id" v-for="childResource in resource.child">{{childResource.name}}</el-menu-item>
+					          	<el-menu-item @click="ifram(childResource.url)" :index="childResource.id" v-for="childResource in resource.child">
+					          	<i :class="childResource.icon"></i>{{childResource.name}}
+					          	</el-menu-item>
 					      	</el-submenu>
 					    </el-menu>
 		    		</el-row>
@@ -174,7 +176,7 @@
 					  	</el-form-item>
 					  	<el-form-item>
 					  		<el-button size="small" @click="resetForm('resetPwdForm')">重置</el-button>
-					    	<el-button type="primary" size="small" @click="resetPwd">提交</el-button>
+					    	<el-button type="primary" size="small" @click="resetPwd">确定</el-button>
 					  	</el-form-item>
 					</el-form>
 			  	</el-tab-pane>

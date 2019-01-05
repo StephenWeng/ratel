@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -45,6 +46,9 @@ public class Department {
 
 	@ApiModelProperty(value = "法人代表、部门负责人")
 	private String lealPerson;// 法人代表、部门负责人
+
+	@ApiModelProperty(value = "负责人姓名")
+	private String lealPersonName;// 临时属性
 
 	@ApiModelProperty(value = "座机")
 	private String plane;// 座机
@@ -153,6 +157,15 @@ public class Department {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	@Transient
+	public String getLealPersonName() {
+		return lealPersonName;
+	}
+
+	public void setLealPersonName(String lealPersonName) {
+		this.lealPersonName = lealPersonName;
 	}
 
 }

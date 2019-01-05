@@ -102,7 +102,8 @@ public class ResourceServiceImpl implements IResourceService {
 		for (Resource resource : resources) {
 			if (StringUtil.isEmpty(resource.getpId())) {
 				ResourceVo vo = new ResourceVo(resource.getId(), resource.getName(), resource.getUrl(),
-						resource.getpId(), resource.getSortCol(), getChildList(resource, resources));
+						resource.getpId(), resource.getSortCol(), getChildList(resource, resources),
+						resource.getIcon());
 				list.add(vo);
 			}
 		}
@@ -127,7 +128,8 @@ public class ResourceServiceImpl implements IResourceService {
 			for (Resource resource : resources) {
 				if (pResource.getId().equals(resource.getpId())) {
 					ResourceVo vo = new ResourceVo(resource.getId(), resource.getName(), resource.getUrl(),
-							resource.getpId(), resource.getSortCol(), getChildList(resource, resources));
+							resource.getpId(), resource.getSortCol(), getChildList(resource, resources),
+							resource.getIcon());
 					list.add(vo);
 				}
 			}

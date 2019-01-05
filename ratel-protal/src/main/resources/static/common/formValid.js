@@ -21,6 +21,18 @@ var checkPhone= (rule, value, callback) => {
 		}
 };
 
+//验证座机号
+var checkPlanePhone= (rule, value, callback) => {
+	if(value==='' || value.trim()===''){
+		callback();
+	}
+	if(planePhoneReg.test(value.trim())){
+		callback();
+	}else{
+		callback(new Error('请输入正确的座机号码'));
+	}
+};
+
 //只能输入汉字和英文字母
 var checkOnlyEnCn= (rule, value, callback) => {
 	if(value==='' || value.trim()===''){

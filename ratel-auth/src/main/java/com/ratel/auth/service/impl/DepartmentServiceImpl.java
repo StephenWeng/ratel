@@ -18,12 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ratel.auth.domain.Department;
 import com.ratel.auth.repository.DepartmentRepository;
 import com.ratel.auth.repository.DepartmentSpecification;
+import com.ratel.auth.repository.UserRepository;
 import com.ratel.auth.service.IDepartmentService;
 import com.ratel.common.domain.TreeVo;
 import com.ratel.common.response.ResponseData;
@@ -44,10 +47,11 @@ public class DepartmentServiceImpl implements IDepartmentService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final static String UNDEFINED = "未知";
-
 	@Autowired
 	private DepartmentRepository departmentRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public ResponseData queryDepartmentTree() {
@@ -115,21 +119,11 @@ public class DepartmentServiceImpl implements IDepartmentService {
 			department.setpId(departmentId);
 		}
 		DepartmentSpecification sd = new DepartmentSpecification(department);
-		list = departmentRepository.findAll(sd);
+		list = departmentRepository.findAll(sd, new Sort(Direction.DESC, "createTime"));
 		return list;
 
 	}
 
-	/**
-	 * @Title queryDepartmentPage
-	 * @author :Stephen
-	 * @Description
-	 * @date 2019年1月3日 上午11:25:45
-	 * @param currentPage
-	 * @param pagesize
-	 * @param pId
-	 * @return
-	 */
 	@Override
 	public ResponseData queryDepartmentPage(Integer currentPage, Integer pagesize, String pId, String name,
 			String code) {
@@ -143,12 +137,160 @@ public class DepartmentServiceImpl implements IDepartmentService {
 			department.setCode(code);
 			DepartmentSpecification pcs = new DepartmentSpecification(department);
 			Page<Department> page = departmentRepository.findAll(pcs, pageAble);
+			List<Department> list = page.getContent();
+			// 需要对分页查询的部门进行负责人名字封装
+			// TODO 应该写成批量查询，而不是这样一个一个的查
+			for (Department departmentVo : list) {
+				departmentVo.setLealPersonName(userRepository.findOne(departmentVo.getLealPerson()).getName());
+			}
 			return new ResponseData(ResponseMsg.SUCCESS, page);
 		} catch (Exception e) {
 			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询部门组织列表错误：" + e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
 		}
 
+	}
+
+	@Transactional
+	@Override
+	public ResponseData addDepartment(Department department) {
+		try {
+			department.setCreateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			Department departmentVo = departmentRepository.save(department);
+			return new ResponseData(ResponseMsg.SUCCESS, departmentVo);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "新增部门时错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	@Transactional
+	@Override
+	public ResponseData updateDepartment(Department department) {
+		try {
+			Department departmentVo = departmentRepository.findOne(department.getId());
+			if (null == departmentVo) {
+				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "编辑部门id：" + department.getId() + "时已不存在");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "该单位已不存在");
+			}
+			departmentVo.setName(department.getName());
+			departmentVo.setCode(department.getCode());
+			departmentVo.setLealPerson(department.getLealPerson());
+			departmentVo.setPlane(department.getPlane());
+			departmentVo.setTelphone(department.getTelphone());
+			departmentVo.setAddress(department.getAddress());
+			departmentVo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			Department departmentDo = departmentRepository.save(departmentVo);
+			return new ResponseData(ResponseMsg.SUCCESS, departmentDo);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "编辑部门时错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	@Transactional
+	@Override
+	public ResponseData delDepartment(List<String> ids) {
+		try {
+			departmentRepository.delInBatch(ids);
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "删除部门时错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	@Override
+	public ResponseData checkNameOrCode(String pId, String name, String code, Integer method, String id) {
+		try {
+			ResponseData res = null;
+			switch (method) {
+			case 0:
+				res = StringUtil.isEmpty(name) ? checkCode(pId, code) : checkName(pId, name);
+				break;
+			case 1:
+				res = StringUtil.isEmpty(name) ? checkCode(pId, code, id) : checkName(pId, name, id);
+				break;
+			default:
+				res = new ResponseData(ResponseMsg.FAILED.getCode(), "操作方式异常");
+				break;
+			}
+			return res;
+		} catch (Exception e) {
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	/**
+	 * @Title checkName
+	 * @author :stephen
+	 * @Description 新增部门检测名称是否已用
+	 * @date 2019年1月5日 下午10:44:45
+	 * @param pId
+	 *            上级部门id
+	 * @param name
+	 *            名称
+	 * @return ResponseData
+	 */
+	private ResponseData checkName(String pId, String name) {
+		List<Department> list = departmentRepository.checkName(name, pId);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该名称已被使用");
+	}
+
+	/**
+	 * @Title checkName
+	 * @author :stephen
+	 * @Description 编辑部门检测名称是否已用
+	 * @date 2019年1月5日 下午10:45:34
+	 * @param pId
+	 *            上级部门id
+	 * @param name
+	 *            ResponseData
+	 * @param id
+	 *            本部门id
+	 * @return ResponseData
+	 */
+	private ResponseData checkName(String pId, String name, String id) {
+		List<Department> list = departmentRepository.checkName(name, pId, id);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该名称已被使用");
+	}
+
+	/**
+	 * @Title checkCode
+	 * @author :stephen
+	 * @Description 新增部门检测代码是否已用
+	 * @date 2019年1月5日 下午10:44:04
+	 * @param pId
+	 *            上级部门id
+	 * @param code
+	 *            代码
+	 * @return ResponseData
+	 */
+	private ResponseData checkCode(String pId, String code) {
+		List<Department> list = departmentRepository.checkCode(code, pId);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该编码已被使用");
+	}
+
+	/**
+	 * @Title checkCode
+	 * @author :stephen
+	 * @Description 新增部门检测代码是否已用
+	 * @date 2019年1月5日 下午10:45:32
+	 * @param pId
+	 *            上级部门id
+	 * @param code
+	 *            代码
+	 * @param id
+	 *            本部门id
+	 * @return ResponseData
+	 */
+	private ResponseData checkCode(String pId, String code, String id) {
+		List<Department> list = departmentRepository.checkCode(code, pId, id);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该编码已被使用");
 	}
 
 }

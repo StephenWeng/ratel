@@ -50,6 +50,9 @@ public class Resource {
 	@ApiModelProperty(value = "排序字段")
 	private int sortCol;//
 
+	@ApiModelProperty(value = "图标样式")
+	private String icon;//
+
 	@Id
 	@GenericGenerator(name = "idGenerator", strategy = "uuid")
 	@GeneratedValue(generator = "idGenerator")
@@ -96,6 +99,15 @@ public class Resource {
 
 	public void setSortCol(int sortCol) {
 		this.sortCol = sortCol;
+	}
+
+	@Column(name = "ICON")
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
 }
