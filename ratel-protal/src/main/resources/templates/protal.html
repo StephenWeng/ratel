@@ -16,8 +16,6 @@
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<el-row type="flex" class="row-bg" justify="end">
-				  			<el-col :span="16">用户</el-col>
-				  			<el-col :span="4">
 						  		<el-dropdown size="mini" split-button type="primary" @command="userInformationCommand">待办事项
 								  	<el-dropdown-menu slot="dropdown">
 								    	<el-dropdown-item class="clearfix"> 评论
@@ -25,15 +23,13 @@
 								    	</el-dropdown-item>
 								  	</el-dropdown-menu>
 								</el-dropdown>
-				  			</el-col>
-						  	<el-col :span="4">
-						  		<el-dropdown size="mini" split-button type="primary" @command="userInformationCommand">操作
+						  		<el-dropdown class ="right" size="mini" split-button type="primary" @command="userInformationCommand">
+						  		{{userInformationForm.name}}
 								  	<el-dropdown-menu slot="dropdown">
-								    	<el-dropdown-item command="0">个人信息</el-dropdown-item>
+								    	<el-dropdown-item command="0">信息</el-dropdown-item>
 								    	<el-dropdown-item command="1">注销</el-dropdown-item>
 								  	</el-dropdown-menu>
 								</el-dropdown>
-						  	</el-col>
 						</el-row>
 				  	</el-col>
 				</el-row>
@@ -43,17 +39,17 @@
 		    	<el-aside id="aside" width="200px;">
 		    		<el-switch v-model="isCollapse" 
 		    			on-value="true" off-value="false"
-					    active-color="#B7B9BC" inactive-color="#409EFF">
+					    active-color="#0A0922" inactive-color="#409EFF">
 					</el-switch>
 		    		<el-row class="tac">
 						<el-menu :collapse="isCollapse">
 					      	<el-submenu :index="resource.id" v-for="resource in resourcesList">
 					        	<template slot="title">
-					          		<i :class="resource.icon"></i>
-					          		<span>{{resource.name}}</span>
+					          		<i :class="resource.icon" style="color:white;"></i>
+					          		<span style="color:white;">{{resource.name}}</span>
 					        	</template>
 					          	<el-menu-item @click="ifram(childResource.url)" :index="childResource.id" v-for="childResource in resource.child">
-					          	<i :class="childResource.icon"></i>{{childResource.name}}
+					          	<i :class="childResource.icon" style="color:white;"></i>{{childResource.name}}
 					          	</el-menu-item>
 					      	</el-submenu>
 					    </el-menu>
@@ -62,12 +58,12 @@
 		    	<!-- 页面正中，切换页面区域 -->
 		    	<el-container>
 		      		<el-main id='main'>
-		      			<el-breadcrumb separator-class="el-icon-arrow-right">
+		      			<!-- <el-breadcrumb separator-class="el-icon-arrow-right">
 						  	<el-breadcrumb-item>首页</el-breadcrumb-item>
 						  	<el-breadcrumb-item>活动管理</el-breadcrumb-item>
 						  	<el-breadcrumb-item>活动列表</el-breadcrumb-item>
 						  	<el-breadcrumb-item>活动详情</el-breadcrumb-item>
-						</el-breadcrumb>
+						</el-breadcrumb> -->
 		      			<iframe id="mainFrame" scrolling="auto" style="width:100%;height:100%;">   
 						</iframe>
 		      		</el-main>
@@ -80,14 +76,12 @@
 		    	</el-container>
 		  	</el-container>
 		</el-container>
-		
-		
 		<!-- 个人信息弹出框 -->
-		<el-dialog title="个人信息" :visible.sync="userInformationVisible" width="30%" :before-close="userInformationHandleClose">
+		<el-dialog title="信息" :visible.sync="userInformationVisible" width="30%" :before-close="userInformationHandleClose">
 		  	<el-tabs type="border-card" @tab-click="handleTabsClick" v-model="activeName">
 		  		<!-- 展示个人信息tab -->
 			  	<el-tab-pane name="information">
-			    	<span slot="label"><i class="el-icon-document"></i>信息</span>
+			    	<span slot="label"><i class="el-icon-document"></i>详情</span>
 			    	<el-card class="box-card">
 					  	<div class="text item">
 					    	昵称：{{userInformationForm.name}}
@@ -183,6 +177,9 @@
 			</el-tabs>
 		</el-dialog>
 	</div> 
+	<!-- <div class="background">
+	    <canvas class="meteor" id="canvas" height="100%" width="100%"></canvas>
+	</div> -->
 </body>
   	<script>
 	var vm=new Vue({
@@ -305,6 +302,7 @@
 		methods:{
 			init:function(){
 				vm.userResources();//获取用户的资源，生成左侧菜单栏
+				vm.personalInformation();
 				$("#mainFrame").attr("src",'/users/index?timestamp='+new Date().getTime());
 			},
 			userResources:function(){
@@ -398,6 +396,7 @@
 		  		          	contentType: 'application/json; charset=utf-8',
 		  		          	success: function (res) {
 		  		        	  	if(res.rspCode=="000000"){
+		  		        	  		vm.personalInformation();//修改完成后重新查询用户信息
 			  		        	  	that.$notify.success({
 				  		        	  	title: '编辑信息',
 				  		        	  	message: '操作成功',

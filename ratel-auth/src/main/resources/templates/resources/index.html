@@ -3,22 +3,18 @@
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head"></head>
-<div id="test">
-	<p @click="test()">资源管理</p>
+<div class="content">
+    <div class="login-panel">大多分为</div>
+</div>
+<div class="background">
+    <canvas class="meteor" id="canvas" height="179" width="1349"></canvas>
 </div>
 <script>
 /*<![CDATA[*/
-var vm=new Vue({
-		el:'#test',
-		data() {
-			return {
-			}
-		},
-		methods:{
-			test:function(){
-				alert("test");
-			}
-		}
-	})
+(function(global){
+    global.onload = function(){
+        Meteor.init();
+    }
+})(this)
 /*]]>*/
 </script>
