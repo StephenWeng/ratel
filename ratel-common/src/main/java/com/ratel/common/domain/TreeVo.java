@@ -27,6 +27,8 @@ public class TreeVo {
 
 	private List<TreeVo> children;// 下级集合
 
+	private boolean isLeaf;// 是否为叶子节点
+
 	/**
 	 * @return id
 	 */
@@ -67,6 +69,20 @@ public class TreeVo {
 	 */
 	public void setChildren(List<TreeVo> children) {
 		this.children = children;
+	}
+
+	/**
+	 * @return isLeaf
+	 */
+	public boolean isLeaf() {
+		return isLeaf;
+	}
+
+	/**
+	 * @param isLeaf 要设置的 isLeaf
+	 */
+	public void setLeaf(boolean isLeaf) {
+		this.isLeaf = isLeaf;
 	}
 
 }

@@ -16,6 +16,10 @@
 			<el-tree class="filter-tree" :data="treeData" :props="defaultProps"
 		  	accordion :filter-node-method="filterNode" ref="departmentTree" 
 		  	@node-click="clickNode">
+		  		<span class="custom-tree-node" slot-scope="{ node, data }"><span>
+                <i class="el-icon-ratel-apartment"></i>{{ node.label }}
+            </span>              
+        </span>
 			</el-tree>
 	  	</el-col>
 	  	<el-col :span="18">
