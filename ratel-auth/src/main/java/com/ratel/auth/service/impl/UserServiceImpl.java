@@ -9,17 +9,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ratel.auth.domain.Email;
 import com.ratel.auth.domain.User;
+import com.ratel.auth.repository.DepartmentRepository;
 import com.ratel.auth.repository.UserRepository;
+import com.ratel.auth.repository.UserSpecification;
+import com.ratel.auth.service.IDepartmentService;
 import com.ratel.auth.service.IEmailService;
 import com.ratel.auth.service.IUserService;
 import com.ratel.auth.utils.JwtTokenUtil;
 import com.ratel.common.constant.CommonConst;
 import com.ratel.common.domain.Encrypt;
+import com.ratel.common.domain.TreeVo;
 import com.ratel.common.response.ResponseData;
 import com.ratel.common.response.ResponseMsg;
 import com.ratel.common.utils.CookieUtil;
@@ -46,6 +54,11 @@ public class UserServiceImpl implements IUserService {
 	private UserRepository userRepository;
 
 	@Autowired
+	private DepartmentRepository departmentRepository;
+	@Autowired
+	private IDepartmentService departmentService;
+
+	@Autowired
 	private IEmailService emailService;
 
 	@Value("${jwt.expiration}")
@@ -54,41 +67,104 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
-	/**
-	 * @Title test
-	 * @author :Stephen
-	 * @Description
-	 * @date 2018年12月13日 下午4:37:36
-	 * @return
-	 */
 	@Override
-	public ResponseData test() {
-		return null;
+	public ResponseData queryUserTree() {
+		try {
+			ResponseData departmentRes = departmentService.queryDepartmentTree();
+			if (!ResponseMsg.SUCCESS.getCode().equals(departmentRes.getRspCode())) {
+				return departmentRes;
+			}
+			List<TreeVo> tree = (List<TreeVo>) departmentRes.getData();
+			List<TreeVo> list = tree.get(0).getChildren();
+			return new ResponseData(ResponseMsg.SUCCESS, list);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询部门组织机构树错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
+		}
 	}
 
-	/**
-	 * @Title page
-	 * @author :Stephen
-	 * @Description
-	 * @date 2018年12月13日 下午4:37:36
-	 * @param current
-	 * @param pageSize
-	 * @return
-	 */
 	@Override
-	public ResponseData page(Integer current, Integer pageSize) {
-		// Pageable pageable = new PageRequest(current, pageSize);
-		// UserSpecification pcs = new UserSpecification(new User());
-		// Page page = userRepository.findAll(pcs, pageable);
-		// return new ResponseData(ResponseMsg.SUCCESS, page);
-		User user = new User();
-		user.setAccount("1");
-		user.setName("撒打算");
-		user.setPassword("12312");
-		user.setGender(0);
-		user.setAge(21);
-		userRepository.save(user);
-		return new ResponseData(ResponseMsg.SUCCESS);
+	public ResponseData queryUserPage(Integer currentPage, Integer pagesize, User userDo) {
+		try {
+			Pageable pageAble = new PageRequest(currentPage, pagesize, Direction.DESC, "createTime");
+			// 当传入的departmentId为空时，查询最顶层组织的id
+			String departmentId = userDo.getDepartmentId();
+			userDo.setDepartmentId(StringUtil.isNotBlank(departmentId) ? departmentId
+					: departmentRepository.queryTopDepartment().get(0).getId());
+			userDo.setIsDeleted(0);
+			UserSpecification pcs = new UserSpecification(userDo);
+			Page<User> page = userRepository.findAll(pcs, pageAble);
+			return new ResponseData(ResponseMsg.SUCCESS, page);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询部门组织列表错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	@Transactional
+	@Override
+	public ResponseData addUser(User user) {
+		try {
+			user.setEmail(StringUtil.email2Lower(user.getEmail()));
+			user.setCreateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			user.setIsDeleted(0);
+			// 生成随机密码，并发送至邮箱
+			String randomPwd = StringUtil.randomStr(8);
+			Encrypt encrypt = MD5Util.generate(randomPwd);
+			// 将新密码发送至邮件
+			boolean hasSend = emailService.sendSimpleEmail(new Email(user.getEmail(), "", "新增用户",
+					user.getName() + "，您好！您的初始密码是：" + randomPwd + "，请及时上线进行修改。"));
+			if (!hasSend) {
+				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "新增用户，账号为：" + user.getAccount()
+						+ "发送初始密码邮件时失败");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "邮件发送失败");
+			}
+			user.setPassword(encrypt.getMd5Passwd());
+			User userVo = userRepository.save(user);
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "新增用户，账号为：" + user.getAccount());
+			return new ResponseData(ResponseMsg.SUCCESS, userVo);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "新增用户时错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	@Transactional
+	@Override
+	public ResponseData updateUser(User user) {
+		try {
+			User userDo = userRepository.findByUserAccount(user.getAccount());
+			if (null == userDo) {
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "该用户已不存在");
+			}
+			userDo.setName(user.getName());
+			userDo.setDepartmentId(user.getDepartmentId());
+			userDo.setGender(user.getGender());
+			userDo.setEmail(user.getEmail());
+			userDo.setTelphone(user.getTelphone());
+			userDo.setAddress(user.getAddress());
+			userDo.setBirthDay(user.getBirthDay());
+			user.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			User userVo = userRepository.save(userDo);
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "更新用户信息成功，账号为：" + user.getAccount());
+			return new ResponseData(ResponseMsg.SUCCESS, userVo);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "更新用户时错误，用户账号：" + user.getAccount() + "错误信息："
+					+ e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	@Transactional
+	@Override
+	public ResponseData delUsers(List<String> ids) {
+		try {
+			userRepository.delInBatch(ids);
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "批量删除用户时错误：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
 	}
 
 	/**
@@ -293,6 +369,44 @@ public class UserServiceImpl implements IUserService {
 		}
 	}
 
+	@Transactional
+	@Override
+	public ResponseData reset(String id) {
+		try {
+			// 邮箱后半段转小写
+			User userDo = userRepository.findOne(id);
+			if (null == userDo) {
+				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号id：" + id + "密码时找不到账号");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号错误！");
+			}
+			// 1.生成随机8位数的新密码
+			String randomPwd = StringUtil.randomStr(8);
+			// 2.密码加密
+			Encrypt encrypt = MD5Util.generate(randomPwd);
+			// 3.将新密码发送至邮件
+			boolean hasSend = emailService.sendSimpleEmail(new Email(userDo.getEmail(), "", "重置密码",
+					userDo.getName() + "，您好！您的密码已重置，密码是：" + randomPwd + "，请及时上线进行修改。"));
+			if (!hasSend) {
+				// 如果没有发送成功，则操作失败
+				logger.error(
+						DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + userDo.getAccount() + "密码时邮件发送失败");
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "邮件发送失败，请稍后重试!");
+			}
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + userDo.getAccount() + "密码，发送至邮件成功");
+			/*
+			 * 4.新密码存入数据库
+			 */
+			userDo.setPassword(encrypt.getMd5Passwd());
+			userDo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			userRepository.save(userDo);
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号：" + userDo.getAccount() + "密码成功");
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "重置账号id：" + id + "密码时系统异常：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
+		}
+	}
+
 	@Override
 	public ResponseData resetSelf(User user) {
 		try {
@@ -366,6 +480,146 @@ public class UserServiceImpl implements IUserService {
 					+ e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");
 		}
+	}
+
+	/**
+	 * @Title checkOnly
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月11日 下午4:08:35
+	 * @param name
+	 * @param account
+	 * @param email
+	 * @param method
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public ResponseData checkOnly(String name, String account, String email, Integer method, String id) {
+		try {
+			ResponseData res = null;
+			switch (method) {
+			case 0:
+				// 新增
+				if (StringUtil.isNotBlank(name)) {
+					// 昵称验证
+					res = checkName(name);
+				} else if (StringUtil.isNotBlank(account)) {
+					// 账号验证
+					res = checkAccount(account);
+				} else if (StringUtil.isNotBlank(email)) {
+					// 邮箱验证
+					res = checkEmail(StringUtil.email2Lower(email));
+				}
+				break;
+			case 1:
+				// 修改
+				if (StringUtil.isNotBlank(name)) {
+					// 昵称验证
+					res = checkName(name, id);
+				} else if (StringUtil.isNotBlank(account)) {
+					// 账号验证
+					res = checkAccount(account, id);
+				} else if (StringUtil.isNotBlank(email)) {
+					// 邮箱验证
+					res = checkEmail(StringUtil.email2Lower(email), id);
+				}
+				break;
+			default:
+				res = new ResponseData(ResponseMsg.FAILED.getCode(), "操作方式异常");
+				break;
+			}
+			return res;
+		} catch (Exception e) {
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	/**
+	 * @Title checkName
+	 * @author :Stephen
+	 * @Description 新增用户时，昵称是否唯一
+	 * @date 2019年1月11日 下午4:15:41
+	 * @param name 昵称
+	 * @return ResponseData
+	 */
+	private ResponseData checkName(String name) {
+		List<User> list = userRepository.checkName(name);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该名称已被使用");
+	}
+
+	/**
+	 * @Title checkName
+	 * @author :Stephen
+	 * @Description 编辑用户时，昵称是否唯一
+	 * @date 2019年1月11日 下午4:15:38
+	 * @param name 昵称
+	 * @param id   用户id
+	 * @return ResponseData
+	 */
+	private ResponseData checkName(String name, String id) {
+		List<User> list = userRepository.checkName(name, id);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该名称已被使用");
+	}
+
+	/**
+	 * @Title checkAccount
+	 * @author :Stephen
+	 * @Description 新增用户时，账号是否唯一
+	 * @date 2019年1月11日 下午4:15:36
+	 * @param account 账号
+	 * @return ResponseData
+	 */
+	private ResponseData checkAccount(String account) {
+		List<User> list = userRepository.checkAccount(account);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该账号已被使用");
+	}
+
+	/**
+	 * @Title checkAccount
+	 * @author :Stephen
+	 * @Description 编辑用户时，账号是否唯一
+	 * @date 2019年1月11日 下午4:15:34
+	 * @param account 账号
+	 * @param id      用户id
+	 * @return ResponseData
+	 */
+	private ResponseData checkAccount(String account, String id) {
+		List<User> list = userRepository.checkAccount(account, id);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该账号已被使用");
+	}
+
+	/**
+	 * @Title checkEmail
+	 * @author :Stephen
+	 * @Description 新增用户时，邮箱是否唯一
+	 * @date 2019年1月11日 下午4:15:31
+	 * @param email 邮箱
+	 * @return ResponseData
+	 */
+	private ResponseData checkEmail(String email) {
+		List<User> list = userRepository.checkEmail(email);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该邮箱已被使用");
+	}
+
+	/**
+	 * @Title checkEmail
+	 * @author :Stephen
+	 * @Description 编辑用户时，邮箱是否唯一
+	 * @date 2019年1月11日 下午4:15:22
+	 * @param email 邮箱
+	 * @param id    用户id
+	 * @return ResponseData
+	 */
+	private ResponseData checkEmail(String email, String id) {
+		List<User> list = userRepository.checkEmail(email, id);
+		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
+				: new ResponseData(ResponseMsg.FAILED.getCode(), "该邮箱已被使用");
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.ratel.auth.web;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.MediaType;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ratel.auth.domain.User;
 import com.ratel.auth.service.IUserService;
 import com.ratel.common.response.ResponseData;
-import com.ratel.common.response.ResponseMsg;
 import com.ratel.common.web.BaseController;
 
 /**
@@ -35,16 +36,78 @@ public class UserController extends BaseController {
 	@Autowired
 	private IUserService userService;
 
+	/**
+	 * @Title queryUserTree
+	 * @author :Stephen
+	 * @Description 查询用户树，没有顶层组织
+	 * @date 2019年1月11日 上午10:29:04
+	 * @return ResponseData
+	 */
 	@ResponseBody
-	@RequestMapping(value = "/a", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseData find(@ModelAttribute User user) {
-		return new ResponseData(ResponseMsg.SUCCESS, user.getName());
+	@RequestMapping(value = "/tree", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData queryUserTree() {
+		return userService.queryUserTree();
 	}
 
+	/**
+	 * 
+	 * @Title queryUserPage
+	 * @author :Stephen
+	 * @Description 分页查询用户信息
+	 * @date 2019年1月11日 上午10:12:15
+	 * @param currentPage  当前页
+	 * @param pagesize     每页个数
+	 * @param departmentId 部门id
+	 * @param userDo       可能包含 昵称，账号，邮箱
+	 * @return ResponseData
+	 */
 	@ResponseBody
-	@RequestMapping(value = "/page", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseData page(@RequestParam("current") Integer current, @RequestParam("pageSize") Integer pageSize) {
-		return userService.page(current, pageSize);
+	@RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData queryUserPage(@RequestParam("currentPage") Integer currentPage,
+			@RequestParam("pagesize") Integer pagesize, @ModelAttribute User userDo) {
+		return userService.queryUserPage(currentPage - 1, pagesize, userDo);
+	}
+
+	/**
+	 * @Title addUser
+	 * @author :Stephen
+	 * @Description 新增用户，密码通过邮箱发送
+	 * @date 2019年1月11日 下午2:34:11
+	 * @param user 用户对象
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/users", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData addUser(@RequestBody User user) {
+		return userService.addUser(user);
+	}
+
+	/**
+	 * @Title updateUser
+	 * @author :Stephen
+	 * @Description 更新用户信息
+	 * @date 2019年1月11日 下午2:41:43
+	 * @param user 用户对象
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/users", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData updateUser(@RequestBody User user) {
+		return userService.updateUser(user);
+	}
+
+	/**
+	 * @Title delUsers
+	 * @author :Stephen
+	 * @Description 删除用户
+	 * @date 2019年1月11日 下午2:45:31
+	 * @param ids 用户id集合
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/users", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData delUsers(@RequestBody List<String> ids) {
+		return userService.delUsers(ids);
 	}
 
 	/**
@@ -60,6 +123,8 @@ public class UserController extends BaseController {
 	public ResponseData queryActiveUser() {
 		return userService.queryUser(this.getUserAccount());
 	}
+
+	/*************************** 以下为登陆和找回密码接口 *********************************/
 
 	/**
 	 *
@@ -119,6 +184,20 @@ public class UserController extends BaseController {
 	}
 
 	/**
+	 * @Title reset
+	 * @author :Stephen
+	 * @Description 重置用户密码
+	 * @date 2019年1月11日 下午5:00:06
+	 * @param id 用户id
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/reset", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData reset(@RequestParam("id") String id) {
+		return userService.reset(id);
+	}
+
+	/**
 	 * @Title resetSelf
 	 * @author :Stephen
 	 * @Description 用户首页重置密码
@@ -160,6 +239,26 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/email", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData checkEmail(@RequestBody User user) {
 		return userService.checkEmail(user);
+	}
+
+	/**
+	 * @Title checkOnly
+	 * @author :Stephen
+	 * @Description 检测新增或修改时，昵称，账号，邮箱唯一性
+	 * @date 2019年1月11日 下午4:06:17
+	 * @param name    昵称
+	 * @param account 账号
+	 * @param email   邮箱
+	 * @param method  0:新增 1：修改
+	 * @param id      修改时需要传入用户id
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/check", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData checkOnly(@RequestParam("name") String name, @RequestParam("account") String account,
+			@RequestParam("email") String email, @RequestParam("method") Integer method,
+			@RequestParam("id") String id) {
+		return userService.checkOnly(name, account, email, method, id);
 	}
 
 }

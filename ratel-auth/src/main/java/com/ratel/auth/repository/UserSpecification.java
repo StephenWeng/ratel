@@ -51,8 +51,20 @@ public class UserSpecification implements Specification<User> {
 		if (StringUtil.isNotBlank(user.getName())) {
 			predicates.add(cb.like(cb.lower(root.get("name")), "%" + user.getName().toLowerCase() + "%"));
 		}
+		if (StringUtil.isNotBlank(user.getAccount())) {
+			predicates.add(cb.like(cb.lower(root.get("account")), "%" + user.getAccount().toLowerCase() + "%"));
+		}
+		if (StringUtil.isNotBlank(user.getEmail())) {
+			predicates.add(cb.like(cb.lower(root.get("email")), "%" + user.getEmail().toLowerCase() + "%"));
+		}
 		if (StringUtil.isNotBlank(user.getId())) {
 			predicates.add(cb.equal(root.get("id"), user.getId()));
+		}
+		if (StringUtil.isNotBlank(user.getDepartmentId())) {
+			predicates.add(cb.equal(root.get("departmentId"), user.getDepartmentId()));
+		}
+		if (StringUtil.isNotBlank(user.getIsDeleted() + "")) {
+			predicates.add(cb.equal(root.get("isDeleted"), user.getIsDeleted() + ""));
 		}
 		return this.andTogether(predicates, cb);
 	}
