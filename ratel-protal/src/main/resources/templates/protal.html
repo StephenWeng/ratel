@@ -39,10 +39,10 @@
 		    	<el-aside id="aside" width="200px;">
 		    		<el-switch v-model="isCollapse" 
 		    			on-value="true" off-value="false"
-					    active-color="#0A0922" inactive-color="#409EFF">
+					    active-color="#7E1212" inactive-color="#409EFF">
 					</el-switch>
 		    		<el-row class="tac">
-						<el-menu :collapse="isCollapse">
+						<el-menu :collapse="isCollapse" background-color="#253266" text-color="#03BCD1" active-text-color="#ffd04b">
 					      	<el-submenu :index="resource.id" v-for="resource in resourcesList">
 					        	<template slot="title">
 					          		<i :class="resource.icon" style="color:white;"></i>
@@ -147,7 +147,8 @@
 					  	</el-form-item>
 					  	<el-form-item label="地址：" prop="address">
 					    	<el-input type="textarea" v-model="userInformationForm.address"
-					    	 clearable prefix-icon="el-icon-location-outline"></el-input>
+					    	 clearable></el-input>
+					    	 
 					  	</el-form-item>
 					  	<el-form-item>
 					  		<el-button size="small" @click="personalInformation">重置</el-button>

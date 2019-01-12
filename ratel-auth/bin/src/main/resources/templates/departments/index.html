@@ -4,12 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head">
 	<style type="text/css">
-		.el-tree{
-			margin-top: 10px !important;
-		}
-		.el-form-item{
-			margin-bottom: 5px !important;
-		}
+		
 	</style>
 </head>
 <div id="department" style="width:100%;height:100%;">
@@ -21,17 +16,21 @@
 			<el-tree class="filter-tree" :data="treeData" :props="defaultProps"
 		  	accordion :filter-node-method="filterNode" ref="departmentTree" 
 		  	@node-click="clickNode">
+		  		<span class="custom-tree-node" slot-scope="{ node, data }"><span>
+                <i class="el-icon-ratel-apartment"></i>{{ node.label }}
+            </span>              
+        </span>
 			</el-tree>
 	  	</el-col>
 	  	<el-col :span="18">
 	  		<el-row>
 	  			<el-col :span="18">
-			  		<el-form :inline="true" ref="departmentForm" :rules="departmentRules" :model="departmentForm">
+			  		<el-form :inline="true" ref="queryForm" :rules="queryRules" :model="queryForm">
 					  	<el-form-item label="名称：" prop="name">
-					    	<el-input size="small" v-model="departmentForm.name" clearable></el-input>
+					    	<el-input size="small" v-model="queryForm.name" clearable></el-input>
 					  	</el-form-item>
 					  	<el-form-item label="代码：" prop="code">
-					    	<el-input size="small" v-model="departmentForm.code" clearable></el-input>
+					    	<el-input size="small" v-model="queryForm.code" clearable></el-input>
 					  	</el-form-item>
 					  	<el-form-item>
 						    <el-button size="small" type="primary" @click="query">查询</el-button>
@@ -41,27 +40,55 @@
 				</el-col>
 				<el-col :span="6">
 					<el-button-group class="right">
-					  	<el-button size="small" type="primary" icon="el-icon-plus"></el-button>
-					  	<el-button size="small" type="primary" icon="el-icon-edit" :disabled="handelEdit"></el-button>
-					  	<el-button size="small" type="primary" icon="el-icon-delete" :disabled="isDeling || handelDel"></el-button>
+					  	<el-button size="small" type="primary" icon="el-icon-plus" @click="add"></el-button>
+					  	<el-button size="small" type="primary" icon="el-icon-edit" :disabled="handelEdit" @click="edit"></el-button>
+					  	<el-button size="small" type="primary" icon="el-icon-delete" :disabled="isDeling || handelDel" @click="del"></el-button>
 					</el-button-group>
 				</el-col>
 			</el-row>
-	  		<el-table :data="departmentList" stripe border :height="tableHeight" style="width: 100%">
+	  		<el-table :data="departmentList" stripe border :height="tableHeight" style="width: 100%"
+	  		 @selection-change="changeFun">
      			<el-table-column type="selection" width="50"></el-table-column>
-     			<el-table-column label="序号" width="50" align="center">
+     			<!-- <el-table-column label="序号" width="50" align="center">
      				<template scope="scope">
      					<span>{{scope.$index+(currentPage - 1) * pagesize + 1}} </span>
      				</template>
-     			</el-table-column>
-    			<el-table-column prop="name" label="名称" width="180"></el-table-column>
-    			<el-table-column prop="code" label="代码" width="180"></el-table-column>
-    			<el-table-column prop="address" label="地址" width="180"></el-table-column>
-    			<el-table-column prop="lealPerson" label="负责人" width="180"></el-table-column>
-    			<el-table-column prop="plane" label="座机" width="180"></el-table-column>
-    			<el-table-column prop="telphone" label="电话" width="180"></el-table-column>
-    			<el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
-    			<el-table-column prop="address" label="地址"></el-table-column>
+     			</el-table-column> -->
+     			<el-table-column type="expand" width="50">
+			      	<template slot-scope="props">
+			        	<el-form label-position="left" inline class="demo-table-expand">
+			          		<el-form-item label="单位名称：">
+			            		<span>{{ props.row.name }}</span>
+			          		</el-form-item>
+			          		<el-form-item label="单位编码：">
+			            		<span>{{ props.row.code }}</span>
+			          		</el-form-item>
+			          		<el-form-item label="负责人：">
+			            		<span>{{ props.row.lealPersonName }}</span>
+			          		</el-form-item>
+			          		<el-form-item label="单位地址：">
+			            		<span>{{ props.row.address}}</span>
+			          		</el-form-item>
+			          		<el-form-item label="单位座机：">
+			            		<span>{{ props.row.plane}}</span>
+			          		</el-form-item>
+			          		<el-form-item label="移动电话：">
+			            		<span>{{ props.row.telphone}}</span>
+			          		</el-form-item>
+			          		<el-form-item label="创建时间：">
+			            		<span>{{ props.row.createTime}}</span>
+			          		</el-form-item>
+			          		<el-form-item label="更新时间：">
+			            		<span>{{ props.row.updateTime}}</span>
+			          		</el-form-item>
+			        	</el-form>
+			      	</template>
+			    </el-table-column>
+    			<el-table-column prop="name" label="名称" min-width="20%"></el-table-column>
+    			<el-table-column prop="code" label="编码" min-width="20%"></el-table-column>
+    			<el-table-column prop="lealPersonName" label="负责人" min-width="20%"></el-table-column>
+    			<el-table-column prop="plane" label="座机" min-width="20%"></el-table-column>
+    			<el-table-column prop="telphone" label="电话"></el-table-column>
   			</el-table>
   			<el-pagination
                    @size-change="handleSizeChange"
@@ -74,6 +101,45 @@
            </el-pagination>
 	  	</el-col>
 	</el-row>
+	
+	<!-- 新增/编辑组织机构弹出框 -->
+	<el-dialog :title="dialogTitle" :visible.sync="departmentVisible" width="30%" :before-close="departmentHandleClose">
+		<el-form :model="departmentForm" :rules="departmentRules" ref="departmentForm" :label-position="labelPosition" label-width="100px">
+		  	<el-form-item label="名称：" prop="name">
+		    	<el-input clearable v-model="departmentForm.name"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="编码：" prop="code">
+		    	<el-input clearable v-model="departmentForm.code"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="上级单位：" prop="pName">
+		    	<el-input disabled v-model="departmentForm.pName"></el-input>
+		  	</el-form-item>
+		  	<el-form-item v-if='false' label="上级单位id：" prop="pId">
+		    	<el-input v-model="departmentForm.pId"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="负责人：" prop="lealPersonName">
+		    	<el-input clearable v-model="departmentForm.lealPersonName"></el-input>
+		  	</el-form-item>
+		  	<el-form-item v-if='false' label="负责人id：" prop="lealPerson">
+		    	<el-input v-model="departmentForm.lealPerson"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="座机：" prop="plane">
+		    	<el-input clearable v-model="departmentForm.plane"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="移动电话：" prop="telphone">
+		    	<el-input clearable v-model="departmentForm.telphone"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="地址：" prop="address">
+		    	<el-input clearable v-model="departmentForm.address"></el-input>
+		  	</el-form-item>
+		  	<el-form-item>
+		  		<el-button size="small" @click="close('departmentForm')">取消</el-button>
+		    	<el-button type="primary" size="small" @click="submit" :disabled="isSubmiting">确定</el-button>
+		  	</el-form-item>
+		</el-form>
+	</el-dialog>
+	
+	
 </div>
 <script>
 /*<![CDATA[*/
@@ -86,7 +152,54 @@ var vm=new Vue({
       	}
     },
 	data() {
+    	//检测名称是否在本级唯一
+	    var checkName= (rule, value, callback) => {
+        	$.ajax({
+	          	url: '/departments/check?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	data:{
+	          		'name':value,
+	          		'code':'',
+	          		'pId':vm.departmentForm.pId,
+	          		'method':vm.method,
+	          		'id':vm.multipleSelection.length>0?(vm.multipleSelection)[0].id:''
+	          	},
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		if(res.rspCode!="000000"){
+	          			callback(new Error(res.rspMsg));
+	          		}else{
+	          			callback();
+	          		}
+	          	}
+	    	});
+	    };
+	  //检测代码是否在本级唯一
+	    var checkCode= (rule, value, callback) => {
+        	$.ajax({
+	          	url: '/departments/check?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	data:{
+	          		'name':'',
+	          		'code':value,
+	          		'pId':vm.departmentForm.pId,
+	          		'method':vm.method,
+	          		'id':vm.multipleSelection.length>0?(vm.multipleSelection)[0].id:''
+	          	},
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		if(res.rspCode!="000000"){
+	          			callback(new Error(res.rspMsg));
+	          		}else{
+	          			callback();
+	          		}
+	          	}
+	    	});
+	    };
 		return {
+			labelPosition: 'right',//表单对齐方式
 			tableHeight:490,//table高
 			filterText: '',//树过滤字段
 	        treeData: [],//树结构数据
@@ -101,11 +214,11 @@ var vm=new Vue({
             pagesize:10,    //    每页的数据
             departmentList: [],//部门数据集合
             totalSize:0,//总共数据个数
-            departmentForm:{
+            queryForm:{
             	name:'',
             	code:''
             },
-            departmentRules:{
+            queryRules:{
             	name:[
             		{ validator: checkNoSpecialCharacters, trigger: 'blur' }
 				],
@@ -116,6 +229,46 @@ var vm=new Vue({
 			isDeling:false,//是否正在删除
 			handelDel:true,//删除按钮是否禁用，至少选中一个的时候才能删除
 			handelEdit:true,//编辑按钮是否禁用，只能选中一个的时候才能编辑
+			multipleSelection:[],//复选框被选中的对象
+			//弹出框相关数据
+			method:0,//0：增加  1：编辑
+			isSubmiting:false,//是否正在提交
+			departmentVisible:false,//是否可见
+			dialogTitle:'新增单位',//弹出框title
+			departmentForm:{
+				name:'',
+				code:'',
+				pName:'',
+				pId:'',
+				lealPerson:'',
+				lealPersonName:'',
+				plane:'',
+				telphone:'',
+				address:'',
+			},
+			departmentRules:{
+				name:[
+					{ required: true, message: '请输入名称', trigger: 'change' },
+	            	{ validator: checkEmpty, trigger: 'blur' },
+            		{ validator: checkNoSpecialCharacters, trigger: 'blur' },
+            		{ validator: checkName, trigger: 'blur' }
+				],
+				code:[
+					{ required: true, message: '请输入编码', trigger: 'change' },
+	            	{ validator: checkEmpty, trigger: 'blur' },
+            		{ validator: checkNoSpecialCharacters, trigger: 'blur' },
+            		{ validator: checkCode, trigger: 'blur' }
+				],
+				lealPersonName:[
+					{ required: true, message: '请选择负责人', trigger: 'change' },
+				],
+				plane:[
+            		{ validator: checkPlanePhone, trigger: 'blur' }
+				],
+				telphone:[
+					{ validator: checkPhone, trigger: 'blur' }
+				]
+			}
 		}
 	},
 	methods:{
@@ -154,7 +307,7 @@ var vm=new Vue({
 	    clickNode:function(node){
 	    	//避免用户点击节点本来就是当前节点
 	    	if(!vm.activeNode.id || node.id !=vm.activeNode.id){
-	    		this.$refs['departmentForm'].resetFields();
+	    		this.$refs['queryForm'].resetFields();
 	    		vm.activeNode=node;
 		    	this.pagesize = 10;
 		    	this.currentPage = 1;
@@ -172,7 +325,7 @@ var vm=new Vue({
         	vm.queryDepartmentList();
         },
         query:function(){
-        	this.$refs['departmentForm'].validate((valid) => {
+        	this.$refs['queryForm'].validate((valid) => {
 	          	if (valid) {
 	          		vm.queryDepartmentList();
 	          	}
@@ -189,8 +342,8 @@ var vm=new Vue({
 	          		'currentPage':vm.currentPage,//当前页
 	          		'pagesize':vm.pagesize,//当前页个数
 	          		'pId':vm.activeNode.id?vm.activeNode.id:'',//当前点击节点
-	          		'name':vm.departmentForm.name,
-	          		'code':vm.departmentForm.code
+	          		'name':vm.queryForm.name,
+	          		'code':vm.queryForm.code
 	          	},
 	          	contentType: 'application/json; charset=utf-8',
 	          	success: function (res) {
@@ -207,11 +360,226 @@ var vm=new Vue({
 	          	}
 	    	});
         },
+        //判断按钮组禁用情况
+        changeFun(val){
+        	this.multipleSelection = val; // 返回的是选中的列的数组集合
+        	if(this.multipleSelection.length==1){
+        		//只选了一个的时候编辑和删除可用
+        		this.handelDel=false;
+        		this.handelEdit=false;
+        	}else if(this.multipleSelection.length>1){
+        		//多选时编辑按钮不可用
+        		this.handelDel=false;
+        		this.handelEdit=true;
+        	}else{
+        		this.handelDel=true;
+        		this.handelEdit=true;
+        	}
+        },
       	//重置查询form
 		resetForm:function(){
-			this.$refs['departmentForm'].resetFields();
+			this.$refs['queryForm'].resetFields();
 			vm.queryDepartmentList();
-		}
+		},
+		add(){
+			this.departmentVisible=true;
+			this.dialogTitle='新增单位';
+			this.method=0;
+			if(vm.activeNode.id){
+				//当前点击了树节点则按照树节点数据来
+				vm.departmentForm.pName=vm.activeNode.label;
+				vm.departmentForm.pId=vm.activeNode.id;
+			}else{
+				//未点击树节点则是默认第一个节点
+				vm.departmentForm.pName=(vm.treeData)[0].label;
+				vm.departmentForm.pId=(vm.treeData)[0].id;
+			}
+			vm.departmentForm.name='';
+			vm.departmentForm.code='';
+			vm.departmentForm.lealPersonName='';
+			vm.departmentForm.lealPerson='';
+			vm.departmentForm.plane='';
+			vm.departmentForm.telphone='';
+			vm.departmentForm.address='';
+		},
+		edit(){
+			vm.departmentForm.name=(vm.multipleSelection)[0].name;
+			vm.departmentForm.code=(vm.multipleSelection)[0].code;
+			vm.departmentForm.lealPersonName=(vm.multipleSelection)[0].lealPersonName;
+			vm.departmentForm.lealPerson=(vm.multipleSelection)[0].lealPerson;
+			vm.departmentForm.plane=(vm.multipleSelection)[0].plane;
+			vm.departmentForm.telphone=(vm.multipleSelection)[0].telphone;
+			vm.departmentForm.address=(vm.multipleSelection)[0].address;
+			if(vm.activeNode.id){
+				//当前点击了树节点则按照树节点数据来
+				vm.departmentForm.pName=vm.activeNode.label;
+				vm.departmentForm.pId=vm.activeNode.id;
+			}else{
+				//未点击树节点则是默认第一个节点
+				vm.departmentForm.pName=(vm.treeData)[0].label;
+				vm.departmentForm.pId=(vm.treeData)[0].id;
+			}
+			this.departmentVisible=true;
+			this.dialogTitle='编辑单位';
+			this.method=1;
+		},
+		del(){
+			this.isDeling=true;
+			var that=this;
+			var arr=[];
+			for (var i = 0; i < this.multipleSelection.length; i++) {
+				arr.push((this.multipleSelection)[i].id);
+			}
+			var json=JSON.stringify(arr);
+			$.ajax({
+	          	url: '/departments/departments?timestamp='+new Date().getTime(),
+	          	type: 'DELETE',
+	          	data:json,
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		vm.isDeling=false;
+	          		//列表刷新
+	          		vm.queryDepartmentList();
+	        	  	if(res.rspCode=="000000"){
+		          		//树删除节点
+		          		var node=vm.activeNode.id?vm.activeNode:(vm.treeData)[0];
+		          		for(var i in arr){
+		          			var id=arr[i];
+		          			for(var j in node.children){
+		          				var children=(node.children)[j];
+		          				if(children.id==id){
+		          					node.children.splice(j, 1); 
+		          				}
+		          			}
+		          		}
+ 		        	  	that.$notify.success({
+	  		        	  	title: '删除单位',
+	  		        	  	message: '操作成功',
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '删除单位',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	} 
+	          	}
+	    	});
+		},
+		//表单提交
+		submit(){
+			this.$refs['departmentForm'].validate((valid) => {
+	          	if (valid) {
+	          		this.isSubmiting=true;
+	          		var data={};
+	          		data.name=vm.departmentForm.name;
+	          		data.code=vm.departmentForm.code;
+	          		data.pId=vm.departmentForm.pId;
+	          		data.lealPerson=vm.departmentForm.lealPerson;
+	          		data.plane=vm.departmentForm.plane;
+	          		data.telphone=vm.departmentForm.telphone;
+	          		data.address=vm.departmentForm.address;
+	          		if(vm.method==1){
+	          			data.id=(vm.multipleSelection)[0].id;
+	          		}
+			    	var json=JSON.stringify(data);
+			    	if(vm.method==0){
+						//新增
+			    		vm.addSub(this,json);
+					}else if(vm.method==1){
+						//编辑
+						vm.updateSub(this,json);
+					}
+	          	}
+	        });
+		},
+		//新增提交
+		addSub(that,json){
+			$.ajax({
+	          	url: '/departments/departments?timestamp='+new Date().getTime(),
+	          	type: 'POST',
+	          	data:json,
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		vm.isSubmiting=false;
+	        	  	if(res.rspCode=="000000"){
+	        	  		//列表刷新
+		          		vm.queryDepartmentList();
+		          		//树删除节点
+		          		var node=vm.activeNode.id?vm.activeNode:(vm.treeData)[0];
+		          		var treeNode={};
+		          		treeNode.id=res.data.id;
+		          		treeNode.label=res.data.name;
+		          		treeNode.children=[];
+		          		node.children.push(treeNode);
+	        	  		vm.close('departmentForm');
+ 		        	  	that.$notify.success({
+	  		        	  	title: '新增单位',
+	  		        	  	message: '操作成功',
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	}else{
+	        	  		that.$notify.error({
+  		        	  	title: '新增单位',
+  		        	  	message: res.rspMsg,
+  		        	  	position: 'bottom-right'
+  		        	});
+	        	  	} 
+	          	}
+	    	});
+		},
+		//编辑提交
+		updateSub(that,json){
+			$.ajax({
+	          	url: '/departments/departments?timestamp='+new Date().getTime(),
+	          	type: 'PUT',
+	          	data:json,
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		vm.isSubmiting=false;
+	        	  	if(res.rspCode=="000000"){
+	        	  		//列表刷新
+		          		vm.queryDepartmentList();
+		          		//树删除节点
+		          		var node=vm.activeNode.id?vm.activeNode:(vm.treeData)[0];
+		          		for(var i in node.children){
+		          			var child=(node.children)[i];
+		          			if(child.id==res.data.id){
+		          				child.label=res.data.name;
+		          				break;
+		          			}
+		          		}
+	        	  		vm.close('departmentForm');
+ 		        	  	that.$notify.success({
+	  		        	  	title: '编辑单位',
+	  		        	  	message: '操作成功',
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	}else{
+	        	  		that.$notify.error({
+  		        	  	title: '编辑单位',
+  		        	  	message: res.rspMsg,
+  		        	  	position: 'bottom-right'
+  		        	});
+	        	  	} 
+	          	}
+	    	});
+		},
+		departmentHandleClose(done){
+			this.$confirm('确认关闭？').then(_ => {
+	            done();
+	            this.$refs['departmentForm'].resetFields();
+	        }).catch(_ => {});
+		},
+		//取消关闭部门新增/修改对话框
+	    close:function(formName){
+	    	this.$refs[formName].resetFields();
+	    	vm.departmentVisible = false;
+	    },
 	}
 })
 /* 页面加载时触发事件 */

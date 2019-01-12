@@ -80,8 +80,10 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 递归将部门数据处理为树形结构
 	 * @date 2019年1月2日 下午9:41:06
-	 * @param pId  上级部门id
-	 * @param list 部门数据集合
+	 * @param pId
+	 *            上级部门id
+	 * @param list
+	 *            部门数据集合
 	 * @return List<TreeVo>
 	 */
 	private List<TreeVo> recursionDepartments(String pId, List<Department> list) {
@@ -106,7 +108,8 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 根据部门id查询下级单位，当传入参数为空时，查询全部
 	 * @date 2019年1月2日 下午9:32:44
-	 * @param departmentId 部门id
+	 * @param departmentId
+	 *            部门id
 	 * @return List<Department>
 	 */
 	@Override
@@ -135,12 +138,6 @@ public class DepartmentServiceImpl implements IDepartmentService {
 			department.setCode(code);
 			DepartmentSpecification pcs = new DepartmentSpecification(department);
 			Page<Department> page = departmentRepository.findAll(pcs, pageAble);
-			List<Department> list = page.getContent();
-			// 需要对分页查询的部门进行负责人名字封装
-			// TODO 应该写成批量查询，而不是这样一个一个的查
-			for (Department departmentVo : list) {
-				departmentVo.setLealPersonName(userRepository.findOne(departmentVo.getLealPerson()).getName());
-			}
 			return new ResponseData(ResponseMsg.SUCCESS, page);
 		} catch (Exception e) {
 			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询部门组织列表错误：" + e.getMessage());
@@ -173,7 +170,6 @@ public class DepartmentServiceImpl implements IDepartmentService {
 			}
 			departmentVo.setName(department.getName());
 			departmentVo.setCode(department.getCode());
-			departmentVo.setLealPerson(department.getLealPerson());
 			departmentVo.setPlane(department.getPlane());
 			departmentVo.setTelphone(department.getTelphone());
 			departmentVo.setAddress(department.getAddress());
@@ -224,8 +220,10 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 新增部门检测名称是否已用
 	 * @date 2019年1月5日 下午10:44:45
-	 * @param pId  上级部门id
-	 * @param name 名称
+	 * @param pId
+	 *            上级部门id
+	 * @param name
+	 *            名称
 	 * @return ResponseData
 	 */
 	private ResponseData checkName(String pId, String name) {
@@ -239,9 +237,12 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 编辑部门检测名称是否已用
 	 * @date 2019年1月5日 下午10:45:34
-	 * @param pId  上级部门id
-	 * @param name ResponseData
-	 * @param id   本部门id
+	 * @param pId
+	 *            上级部门id
+	 * @param name
+	 *            ResponseData
+	 * @param id
+	 *            本部门id
 	 * @return ResponseData
 	 */
 	private ResponseData checkName(String pId, String name, String id) {
@@ -255,8 +256,10 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 新增部门检测代码是否已用
 	 * @date 2019年1月5日 下午10:44:04
-	 * @param pId  上级部门id
-	 * @param code 代码
+	 * @param pId
+	 *            上级部门id
+	 * @param code
+	 *            代码
 	 * @return ResponseData
 	 */
 	private ResponseData checkCode(String pId, String code) {
@@ -270,9 +273,12 @@ public class DepartmentServiceImpl implements IDepartmentService {
 	 * @author :stephen
 	 * @Description 新增部门检测代码是否已用
 	 * @date 2019年1月5日 下午10:45:32
-	 * @param pId  上级部门id
-	 * @param code 代码
-	 * @param id   本部门id
+	 * @param pId
+	 *            上级部门id
+	 * @param code
+	 *            代码
+	 * @param id
+	 *            本部门id
 	 * @return ResponseData
 	 */
 	private ResponseData checkCode(String pId, String code, String id) {

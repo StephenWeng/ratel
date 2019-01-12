@@ -58,7 +58,7 @@ function createDepartmentRadarEcharts(id,treeData){
 	            label: {
 	                show: true,
 	                position: 'outside',
-	                color: 'black',
+	                color: '#3EC79B',
 	                formatter: function(params) {
 	                    var percent = 0;
 	                    var total = 0;
@@ -82,7 +82,7 @@ function createDepartmentRadarEcharts(id,treeData){
 	    data: data
 	}];
 	option = {
-	    backgroundColor: '#D3DBE3',
+	    backgroundColor: '#0B112B',
 	    tooltip: {
 	        show: false
 	    },

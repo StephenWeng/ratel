@@ -2,11 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-<head th:include="common/header :: head">
-	<style type="text/css">
-		
-	</style>
-</head>
+<head th:include="common/header :: head"></head>
 <div id="department" style="width:100%;height:100%;">
 	<el-row :gutter="20">
 	  	<el-col :span="6">
@@ -63,12 +59,6 @@
 			          		<el-form-item label="单位编码：">
 			            		<span>{{ props.row.code }}</span>
 			          		</el-form-item>
-			          		<el-form-item label="负责人：">
-			            		<span>{{ props.row.lealPersonName }}</span>
-			          		</el-form-item>
-			          		<el-form-item label="单位地址：">
-			            		<span>{{ props.row.address}}</span>
-			          		</el-form-item>
 			          		<el-form-item label="单位座机：">
 			            		<span>{{ props.row.plane}}</span>
 			          		</el-form-item>
@@ -81,12 +71,14 @@
 			          		<el-form-item label="更新时间：">
 			            		<span>{{ props.row.updateTime}}</span>
 			          		</el-form-item>
+			          		<el-form-item label="单位地址：">
+			            		<span>{{ props.row.address}}</span>
+			          		</el-form-item>
 			        	</el-form>
 			      	</template>
 			    </el-table-column>
     			<el-table-column prop="name" label="名称" min-width="20%"></el-table-column>
     			<el-table-column prop="code" label="编码" min-width="20%"></el-table-column>
-    			<el-table-column prop="lealPersonName" label="负责人" min-width="20%"></el-table-column>
     			<el-table-column prop="plane" label="座机" min-width="20%"></el-table-column>
     			<el-table-column prop="telphone" label="电话"></el-table-column>
   			</el-table>
@@ -116,12 +108,6 @@
 		  	</el-form-item>
 		  	<el-form-item v-if='false' label="上级单位id：" prop="pId">
 		    	<el-input v-model="departmentForm.pId"></el-input>
-		  	</el-form-item>
-		  	<el-form-item label="负责人：" prop="lealPersonName">
-		    	<el-input clearable v-model="departmentForm.lealPersonName"></el-input>
-		  	</el-form-item>
-		  	<el-form-item v-if='false' label="负责人id：" prop="lealPerson">
-		    	<el-input v-model="departmentForm.lealPerson"></el-input>
 		  	</el-form-item>
 		  	<el-form-item label="座机：" prop="plane">
 		    	<el-input clearable v-model="departmentForm.plane"></el-input>
@@ -240,8 +226,6 @@ var vm=new Vue({
 				code:'',
 				pName:'',
 				pId:'',
-				lealPerson:'',
-				lealPersonName:'',
 				plane:'',
 				telphone:'',
 				address:'',
@@ -259,9 +243,6 @@ var vm=new Vue({
             		{ validator: checkNoSpecialCharacters, trigger: 'blur' },
             		{ validator: checkCode, trigger: 'blur' }
 				],
-				lealPersonName:[
-					{ required: true, message: '请选择负责人', trigger: 'change' },
-				],
 				plane:[
             		{ validator: checkPlanePhone, trigger: 'blur' }
 				],
@@ -273,7 +254,7 @@ var vm=new Vue({
 	},
 	methods:{
 		init:function(){
-			vm.tableHeight=$("#department").height()-142;
+			vm.tableHeight=getWinHeight()-112;
 			vm.queryTreeData();
 			vm.queryDepartmentList();
 		},
@@ -396,8 +377,6 @@ var vm=new Vue({
 			}
 			vm.departmentForm.name='';
 			vm.departmentForm.code='';
-			vm.departmentForm.lealPersonName='';
-			vm.departmentForm.lealPerson='';
 			vm.departmentForm.plane='';
 			vm.departmentForm.telphone='';
 			vm.departmentForm.address='';
@@ -405,8 +384,6 @@ var vm=new Vue({
 		edit(){
 			vm.departmentForm.name=(vm.multipleSelection)[0].name;
 			vm.departmentForm.code=(vm.multipleSelection)[0].code;
-			vm.departmentForm.lealPersonName=(vm.multipleSelection)[0].lealPersonName;
-			vm.departmentForm.lealPerson=(vm.multipleSelection)[0].lealPerson;
 			vm.departmentForm.plane=(vm.multipleSelection)[0].plane;
 			vm.departmentForm.telphone=(vm.multipleSelection)[0].telphone;
 			vm.departmentForm.address=(vm.multipleSelection)[0].address;
@@ -469,7 +446,6 @@ var vm=new Vue({
 	          		data.name=vm.departmentForm.name;
 	          		data.code=vm.departmentForm.code;
 	          		data.pId=vm.departmentForm.pId;
-	          		data.lealPerson=vm.departmentForm.lealPerson;
 	          		data.plane=vm.departmentForm.plane;
 	          		data.telphone=vm.departmentForm.telphone;
 	          		data.address=vm.departmentForm.address;

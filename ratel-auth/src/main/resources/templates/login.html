@@ -2,16 +2,8 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-<head th:include="common/header :: head">
-	<style>
-	    .whiteLabel .el-form-item__label{
-	        color: white;
-	    }
-	    .whiteForm{
-	    	margin-right: 10px;
-	    }
-	</style>
-</head>
+<head th:include="common/header :: head"></head>
+<link rel="stylesheet" th:href="@{/css/user/login.css}"></link>
 <body>
 	<div id="firstId">
 		<!-- 首页主区域 -->
@@ -68,7 +60,7 @@
 			    	placeholder="请输入邮箱" clearable prefix-icon="el-icon-message" :disabled="isReset"></el-input>
 			  	</el-form-item>
 			  	<el-form-item>
-			    	<el-button @click="sendSecurityCode();" size="small" type="info" :disabled="isReset || isSendCode">{{securityBtnValue}}</el-button>
+			    	<el-button @click="sendSecurityCode();"style="background-color: white;" size="small" type="info" :disabled="isReset || isSendCode">{{securityBtnValue}}</el-button>
 			  	</el-form-item>
 			  	<el-form-item label="验证：" prop="securityCode">
 			    	<el-input  v-model="emailForm.securityCode"
