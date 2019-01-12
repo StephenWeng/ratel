@@ -1,5 +1,5 @@
-/**  
-* @描述 
+/**
+* @描述
 * @文件名:TreeVo.java
 * @版权:Copyright 2018 版权所有：平头哥
 * @描述:TreeVo.java
@@ -29,6 +29,8 @@ public class TreeVo {
 
 	private boolean isLeaf;// 是否为叶子节点
 
+	private String className;// 图标样式
+
 	/**
 	 * @return id
 	 */
@@ -37,7 +39,8 @@ public class TreeVo {
 	}
 
 	/**
-	 * @param id 要设置的 id
+	 * @param id
+	 *            要设置的 id
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -51,7 +54,8 @@ public class TreeVo {
 	}
 
 	/**
-	 * @param label 要设置的 label
+	 * @param label
+	 *            要设置的 label
 	 */
 	public void setLabel(String label) {
 		this.label = label;
@@ -65,7 +69,8 @@ public class TreeVo {
 	}
 
 	/**
-	 * @param children 要设置的 children
+	 * @param children
+	 *            要设置的 children
 	 */
 	public void setChildren(List<TreeVo> children) {
 		this.children = children;
@@ -79,10 +84,19 @@ public class TreeVo {
 	}
 
 	/**
-	 * @param isLeaf 要设置的 isLeaf
+	 * @param isLeaf
+	 *            要设置的 isLeaf
 	 */
 	public void setLeaf(boolean isLeaf) {
 		this.isLeaf = isLeaf;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 }

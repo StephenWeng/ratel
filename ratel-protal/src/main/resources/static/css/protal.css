@@ -236,4 +236,9 @@
 	.el-button--primary>span,i{
 		color:white;
 	}
+	
+	/* 标签样式 */
+	.el-tag{
+    	margin-right: 3px;
+	}
   

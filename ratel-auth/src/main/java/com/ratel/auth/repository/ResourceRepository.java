@@ -40,4 +40,26 @@ public interface ResourceRepository
 	@Query("select t from Resource t where t.id in(:ids)")
 	public List<Resource> queryResources(@Param("ids") List<String> paramList);
 
+	/**
+	 * @Title queryTopResource
+	 * @author :stephen
+	 * @Description 查询顶级的资源对象
+	 * @date 2019年1月13日 下午8:58:43
+	 * @return List<Resource>
+	 */
+	@Query("select t from Resource t where t.pId is null")
+	public List<Resource> queryTopResource();
+
+	/**
+	 * @Title queryResourcesByPid
+	 * @author :stephen
+	 * @Description 根据资源上级找到所有下级
+	 * @date 2019年1月13日 下午8:57:19
+	 * @param pId
+	 *            上级资源id
+	 * @return List<Resource>
+	 */
+	@Query("select t from Resource t where t.pId =:pId")
+	public List<Resource> queryResourcesByPid(@Param("pId") String pId);
+
 }

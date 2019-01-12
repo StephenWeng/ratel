@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+<head th:include="common/header :: head"></head>
+<div id="role" style="width:100%;height:100%;margin-left: 5px;margin-right: 5px;">
+	<el-row>
+		<el-col :span="18">
+	  		<el-form :inline="true" ref="queryForm" :rules="queryRules" :model="queryForm">
+			  	<el-form-item label="名称：" prop="name">
+			    	<el-input size="small" v-model="queryForm.name" clearable></el-input>
+			  	</el-form-item>
+			  	<el-form-item>
+				    <el-button size="small" type="primary" @click="query">查询</el-button>
+				    <el-button size="small" @click="resetForm">重置</el-button>
+				</el-form-item>
+			</el-form>
+		</el-col>
+		<el-col :span="6">
+			<el-button-group class="right">
+			  	<el-button size="small" type="primary" icon="el-icon-plus" title="新增" @click="add"></el-button>
+			  	<el-button size="small" type="primary" icon="el-icon-edit" title="编辑" :disabled="handelEdit" @click="edit"></el-button>
+			  	<el-button size="small" type="primary" icon="el-icon-delete" title="删除" :disabled="isDeling || handelDel" @click="del"></el-button>
+			</el-button-group>
+		</el-col>
+	</el-row>
+	<el-table :data="roleList" stripe border :height="tableHeight" style="width: 100%"
+	 @selection-change="changeFun">
+ 		<el-table-column type="selection" min-width="25%"></el-table-column>
+ 		<el-table-column label="序号" width="50" align="center">
+			<template scope="scope">
+				<span>{{scope.$index+(currentPage - 1) * pagesize + 1}} </span>
+			</template>
+		</el-table-column>
+		<el-table-column prop="name" label="名称" min-width="25%"></el-table-column>
+		<el-table-column prop="tags" label="资源项">
+			<template scope="scope">
+				<el-tag v-for="resource in scope.row.resources" type="warning" size="mini">
+				  {{resource.name}}
+				</el-tag>
+			</template>
+		</el-table-column>
+	</el-table>
+	<el-pagination
+       @size-change="handleSizeChange"
+       @current-change="handleCurrentChange"
+       :current-page="currentPage"
+       :page-sizes="[5, 10, 20, 40]" 
+       :page-size="pagesize" 
+       layout="total, sizes, prev, pager, next, jumper"
+       :total="totalSize" class="right">
+	</el-pagination>
+	
+	<!-- 新增/编辑角色弹出框 -->
+	<el-dialog :title="dialogTitle" :visible.sync="roleVisible" width="30%" :before-close="roleHandleClose">
+		<el-form :model="roleForm" :rules="roleRules" ref="roleForm" :label-position="labelPosition" label-width="100px">
+		  	<el-form-item label="名称：" prop="name">
+		    	<el-input v-model="roleForm.name"
+		    	clearable prefix-icon="el-icon-ratel-nicheng"></el-input>
+		  	</el-form-item>
+		  	<el-form-item>
+		  		<el-button size="small" @click="close('roleForm')">取消</el-button>
+		    	<el-button type="primary" size="small" @click="submit" :disabled="isSubmiting">确定</el-button>
+		  	</el-form-item>
+		</el-form>
+	</el-dialog>
+	
+</div>
+<script>
+/*<![CDATA[*/
+var vm=new Vue({
+	el:'#role',
+	data(){
+		//检测名称是否唯一
+	    var checkName= (rule, value, callback) => {
+        	$.ajax({
+	          	url: '/roles/check?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	data:{
+	          		'name':value,
+	          		'method':vm.method,
+	          		'id':vm.multipleSelection.length>0?(vm.multipleSelection)[0].id:''
+	          	},
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		if(res.rspCode!="000000"){
+	          			callback(new Error(res.rspMsg));
+	          		}else{
+	          			callback();
+	          		}
+	          	}
+	    	});
+	    };
+		return {
+			labelPosition: 'right',//表单对齐方式
+			tableHeight:490,//table高
+			handelDel:true,//删除按钮是否禁用，至少选中一个的时候才能删除
+			handelEdit:true,//编辑按钮是否禁用，只能选中一个的时候才能编辑
+			isDeling:false,
+			multipleSelection:[],//复选框被选中的对象
+			//表格数据
+	        currentPage:1, //初始页
+            pagesize:10,    //    每页的数据
+            roleList: [],//部门数据集合
+            totalSize:0,//总共数据个数
+            queryForm:{
+            	name:''
+            },
+            queryRules:{
+            	name:[
+	            	{ validator: checkNoSpecialCharacters, trigger: 'blur' }
+				]
+			},
+			//弹出框数据
+			roleVisible:false,//是否可见
+			dialogTitle:'新增角色',//弹出框title
+			method:0,//0：增加  1：编辑
+			isSubmiting:false,//是否正在提交
+			roleForm:{
+				name:'',
+				resources:''
+			},
+			roleRules:{
+				name:[
+					{ required: true, message: '请输入名称', trigger: 'change' },
+	            	{ validator: checkEmpty, trigger: 'blur' },
+	            	{ validator: checkNoSpecialCharacters, trigger: 'blur' },
+	            	{ validator: checkName, trigger: 'blur' }
+				]
+			}
+		}
+	},
+	methods:{
+		init:function(){
+			vm.tableHeight=getWinHeight()-112;
+			vm.queryRoleList();
+		},
+		//查询角色
+		queryRoleList(){
+			var that=this;
+			$.ajax({
+	          	url: '/roles/roles?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	data:{
+	          		'currentPage':vm.currentPage,//当前页
+	          		'pagesize':vm.pagesize,//当前页个数
+	          		'name':vm.queryForm.name
+	          	},
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.roleList=res.data.content;
+	        	  		vm.totalSize=res.data.totalElements;
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '查询角色',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
+		},
+		//弹出框相关方法
+		add(){
+			this.roleVisible=true;
+			this.dialogTitle='新增角色';
+			this.method=0;
+			vm.roleForm.name='';
+		},
+		edit(){
+			this.roleVisible=true;
+			this.dialogTitle='编辑角色';
+			this.method=1;
+			vm.roleForm.name=(vm.multipleSelection)[0].name;
+		},
+		del(){
+			this.$confirm('此操作将永久删除角色, 是否继续?', '提示', {
+		    	confirmButtonText: '确定',
+		        cancelButtonText: '取消',
+		        type: 'warning'
+			}).then(() => {
+				this.isDeling=true;
+				var that=this;
+				var arr=[];
+				for (var i = 0; i < this.multipleSelection.length; i++) {
+					arr.push((this.multipleSelection)[i].id);
+				}
+				var json=JSON.stringify(arr);
+				$.ajax({
+		          	url: '/roles/roles?timestamp='+new Date().getTime(),
+		          	type: 'DELETE',
+		          	data:json,
+		          	dataType : 'json', 
+		          	contentType: 'application/json; charset=utf-8',
+		          	success: function (res) {
+		          		vm.isDeling=false;
+		          		//列表刷新
+		          		vm.queryRoleList();
+		        	  	if(res.rspCode=="000000"){
+	 		        	  	that.$notify.success({
+		  		        	  	title: '删除角色',
+		  		        	  	message: '操作成功',
+		  		        	  	position: 'bottom-right'
+		  		        	});
+		        	  	}else{
+		        	  		that.$notify.error({
+		  		        	  	title: '删除角色',
+		  		        	  	message: res.rspMsg,
+		  		        	  	position: 'bottom-right'
+		  		        	});
+		        	  	} 
+		          	}
+		    	});
+		    }).catch(() => {
+		    	this.$message({
+		        	type: 'info',
+		            message: '已取消删除'
+		        });          
+		    });
+		},
+        submit(){
+        	this.$refs['roleForm'].validate((valid) => {
+	          	if (valid) {
+	          		this.isSubmiting=true;
+	          		var data=vm.roleForm;
+	          		if(vm.method==1){
+	          			data.id=(vm.multipleSelection)[0].id;
+	          		}
+			    	var json=JSON.stringify(data);
+			    	if(vm.method==0){
+						//新增
+			    		vm.addSub(this,json);
+					}else if(vm.method==1){
+						//编辑
+						vm.updateSub(this,json);
+					}
+	          	}
+	        });
+        },
+      	//新增提交
+		addSub(that,json){
+			$.ajax({
+	          	url: '/roles/roles?timestamp='+new Date().getTime(),
+	          	type: 'POST',
+	          	data:json,
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		vm.isSubmiting=false;
+	        	  	if(res.rspCode=="000000"){
+	        	  		//列表刷新
+		          		vm.queryRoleList();
+	        	  		vm.close('roleForm');
+ 		        	  	that.$notify.success({
+	  		        	  	title: '新增角色',
+	  		        	  	message: '操作成功',
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '新增角色',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	} 
+	          	}
+	    	});
+		},
+		//编辑提交
+		updateSub(that,json){
+			$.ajax({
+	          	url: '/roles/roles?timestamp='+new Date().getTime(),
+	          	type: 'PUT',
+	          	data:json,
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		vm.isSubmiting=false;
+	        	  	if(res.rspCode=="000000"){
+	        	  		//列表刷新
+		          		vm.queryRoleList();
+	        	  		vm.close('roleForm');
+ 		        	  	that.$notify.success({
+	  		        	  	title: '编辑角色',
+	  		        	  	message: '操作成功',
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '编辑角色',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	} 
+	          	}
+	    	});
+		},
+		//取消关闭部门新增/修改对话框
+	    close:function(formName){
+	    	this.$refs[formName].resetFields();
+	    	vm.roleVisible = false;
+	    },
+        roleHandleClose(done){
+			this.$confirm('确认关闭？').then(_ => {
+	            done();
+	            this.$refs['roleForm'].resetFields();
+	        }).catch(_ => {});
+		},
+		//判断按钮组禁用情况
+        changeFun(val){
+        	this.multipleSelection = val; // 返回的是选中的列的数组集合
+        	if(this.multipleSelection.length==1){
+        		//只选了一个的时候编辑和删除可用
+        		this.handelDel=false;
+        		this.handelEdit=false;
+        	}else if(this.multipleSelection.length>1){
+        		//多选时编辑按钮不可用
+        		this.handelDel=false;
+        		this.handelEdit=true;
+        	}else{
+        		this.handelDel=true;
+        		this.handelEdit=true;
+        	}
+        },
+        query:function(){
+        	this.$refs['queryForm'].validate((valid) => {
+	          	if (valid) {
+	          		vm.queryRoleList();
+	          	}
+	        });
+        },
+      	//重置查询form
+		resetForm:function(){
+			this.$refs['queryForm'].resetFields();
+			vm.queryRoleList();
+		},
+     	// 初始页currentPage、初始每页数据数pagesize和数据data
+        handleSizeChange: function (size) {
+        	this.pagesize = size;
+        	vm.queryRoleList();
+        },
+        //改变当前页
+        handleCurrentChange: function(currentPage){
+        	this.currentPage = currentPage;
+        	vm.queryRoleList();
+        }
+	}
+})
+/* 页面加载时触发事件 */
+window.onload=function(){ 
+	vm.init();
+}
+/*]]>*/
+</script>

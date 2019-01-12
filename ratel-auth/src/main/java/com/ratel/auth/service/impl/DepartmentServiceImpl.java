@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ratel.auth.domain.Department;
 import com.ratel.auth.repository.DepartmentRepository;
 import com.ratel.auth.repository.DepartmentSpecification;
-import com.ratel.auth.repository.UserRepository;
 import com.ratel.auth.service.IDepartmentService;
 import com.ratel.common.domain.TreeVo;
 import com.ratel.common.response.ResponseData;
@@ -49,9 +48,6 @@ public class DepartmentServiceImpl implements IDepartmentService {
 
 	@Autowired
 	private DepartmentRepository departmentRepository;
-
-	@Autowired
-	private UserRepository userRepository;
 
 	@Override
 	public ResponseData queryDepartmentTree() {

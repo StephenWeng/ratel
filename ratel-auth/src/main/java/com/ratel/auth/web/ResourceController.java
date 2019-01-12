@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ratel.auth.service.IResourceService;
 import com.ratel.common.response.ResponseData;
+import com.ratel.common.response.ResponseMsg;
 import com.ratel.common.web.BaseController;
 
 /**
@@ -50,6 +51,12 @@ public class ResourceController extends BaseController {
 	@RequestMapping(value = "/myResources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseData queryResources() {
 		return resourceService.queryResourcesByAccount(this.getUserAccount());
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/a", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData a() {
+		return new ResponseData(ResponseMsg.SUCCESS, resourceService.queryResourceTree(null));
 	}
 
 }

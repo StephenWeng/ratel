@@ -9,6 +9,9 @@
 */
 package com.ratel.auth.service;
 
+import java.util.List;
+
+import com.ratel.common.domain.TreeVo;
 import com.ratel.common.response.ResponseData;
 
 /**
@@ -31,5 +34,16 @@ public interface IResourceService {
 	 * @return ResponseData
 	 */
 	public ResponseData queryResourcesByAccount(String account);
+
+	/**
+	 * @Title queryResourceTree
+	 * @author :stephen
+	 * @Description 获取资源树
+	 * @date 2019年1月13日 下午8:23:16
+	 * @param ids
+	 *            资源id以,相连。若为空，则查询全部资源。需要注意，如若用户有下级资源id，那么上级资源id必须存在
+	 * @return List<TreeVo>
+	 */
+	public List<TreeVo> queryResourceTree(String ids);
 
 }

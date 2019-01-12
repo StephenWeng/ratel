@@ -89,7 +89,7 @@
                    :page-sizes="[5, 10, 20, 40]" 
                    :page-size="pagesize" 
                    layout="total, sizes, prev, pager, next, jumper"
-                   :total="totalSize">
+                   :total="totalSize" class="right">
            </el-pagination>
 	  	</el-col>
 	</el-row>
@@ -401,41 +401,52 @@ var vm=new Vue({
 			this.method=1;
 		},
 		del(){
-			this.isDeling=true;
-			var that=this;
-			var arr=[];
-			for (var i = 0; i < this.multipleSelection.length; i++) {
-				arr.push((this.multipleSelection)[i].id);
-			}
-			var json=JSON.stringify(arr);
-			$.ajax({
-	          	url: '/departments/departments?timestamp='+new Date().getTime(),
-	          	type: 'DELETE',
-	          	data:json,
-	          	dataType : 'json', 
-	          	contentType: 'application/json; charset=utf-8',
-	          	success: function (res) {
-	          		vm.isDeling=false;
-	          		//列表刷新
-	          		vm.queryDepartmentList();
-	        	  	if(res.rspCode=="000000"){
-		          		//树删除节点
-		          		var node=vm.activeNode.id?vm.activeNode:(vm.treeData)[0];
-		          		delNode_tree(node,arr);
- 		        	  	that.$notify.success({
-	  		        	  	title: '删除单位',
-	  		        	  	message: '操作成功',
-	  		        	  	position: 'bottom-right'
-	  		        	});
-	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '删除单位',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-	  		        	});
-	        	  	} 
-	          	}
-	    	});
+			this.$confirm('此操作将永久删除用户, 是否继续?', '提示', {
+		    	confirmButtonText: '确定',
+		        cancelButtonText: '取消',
+		        type: 'warning'
+			}).then(() => {
+				this.isDeling=true;
+				var that=this;
+				var arr=[];
+				for (var i = 0; i < this.multipleSelection.length; i++) {
+					arr.push((this.multipleSelection)[i].id);
+				}
+				var json=JSON.stringify(arr);
+				$.ajax({
+		          	url: '/departments/departments?timestamp='+new Date().getTime(),
+		          	type: 'DELETE',
+		          	data:json,
+		          	dataType : 'json', 
+		          	contentType: 'application/json; charset=utf-8',
+		          	success: function (res) {
+		          		vm.isDeling=false;
+		          		//列表刷新
+		          		vm.queryDepartmentList();
+		        	  	if(res.rspCode=="000000"){
+			          		//树删除节点
+			          		var node=vm.activeNode.id?vm.activeNode:(vm.treeData)[0];
+			          		delNode_tree(node,arr);
+	 		        	  	that.$notify.success({
+		  		        	  	title: '删除单位',
+		  		        	  	message: '操作成功',
+		  		        	  	position: 'bottom-right'
+		  		        	});
+		        	  	}else{
+		        	  		that.$notify.error({
+		  		        	  	title: '删除单位',
+		  		        	  	message: res.rspMsg,
+		  		        	  	position: 'bottom-right'
+		  		        	});
+		        	  	} 
+		          	}
+		    	});
+			}).catch(() => {
+		    	this.$message({
+		        	type: 'info',
+		            message: '已取消删除'
+		        });          
+		    });
 		},
 		//表单提交
 		submit(){

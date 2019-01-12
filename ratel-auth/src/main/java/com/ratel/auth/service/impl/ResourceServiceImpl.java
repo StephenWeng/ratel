@@ -26,6 +26,7 @@ import com.ratel.auth.repository.UserRepository;
 import com.ratel.auth.repository.UserResourceRepository;
 import com.ratel.auth.service.IResourceService;
 import com.ratel.auth.vo.ResourceVo;
+import com.ratel.common.domain.TreeVo;
 import com.ratel.common.response.ResponseData;
 import com.ratel.common.response.ResponseMsg;
 import com.ratel.common.utils.DateUtils;
@@ -137,29 +138,64 @@ public class ResourceServiceImpl implements IResourceService {
 		return list;
 	}
 
-	// var a={};
-	// a.id='a';
-	// a.name="基础管理";
-	// a.childList=[];
-	// var a1={};
-	// var a11={};
-	// a11.id='a11';
-	// a11.name='用户管理';
-	// var a12={};
-	// a12.id='a12';
-	// a12.name='部门管理';
-	// a.childList.push(a11);
-	// a.childList.push(a12);
-	//
-	// var a21={};
-	// a21.id='a21';
-	// a21.name='资源管理';
-	// var a22={};
-	// a22.id='a22';
-	// a22.name='资源分配';
-	// a.childList.push(a21);
-	// a.childList.push(a22);
-	// vm.resourcesList.push(a);
-	// console.log(vm.resourcesList);
+	/**
+	 * @Title queryResourceTree
+	 * @author :stephen
+	 * @Description
+	 * @date 2019年1月13日 下午8:26:28
+	 * @param ids
+	 * @return
+	 */
+	@Override
+	public List<TreeVo> queryResourceTree(String ids) {
+		try {
+			List<TreeVo> list = new ArrayList<TreeVo>();
+			if (StringUtil.isEmpty(ids) || ids.split(",").length == 0) {
+				// 传入id为空，需要查询全部资源
+				List<Resource> topResources = resourceRepository.queryTopResource();
+				for (Resource resource : topResources) {
+					TreeVo vo = new TreeVo();
+					vo.setId(resource.getId());
+					vo.setLabel(resource.getName());
+					vo.setClassName(resource.getIcon());
+					// 递归查询下级
+					vo.setChildren(recursionResource(resource.getId()));
+					list.add(vo);
+				}
+			} else {
+				// 需要过滤查询资源
+			}
+			return list;
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取资源树失败：" + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * @Title recursionResource
+	 * @author :stephen
+	 * @Description 根据上级资源id递归查询全部下级
+	 * @date 2019年1月13日 下午9:02:49
+	 * @param pId
+	 *            上级资源id
+	 * @return List<TreeVo>
+	 */
+	private List<TreeVo> recursionResource(String pId) {
+		List<TreeVo> list = new ArrayList<TreeVo>();
+		List<Resource> children = resourceRepository.queryResourcesByPid(pId);
+		if (children.size() > 0) {
+			for (Resource resource : children) {
+				TreeVo vo = new TreeVo();
+				vo.setId(resource.getId());
+				vo.setLabel(resource.getName());
+				vo.setClassName(resource.getIcon());
+				// 递归查询下级
+				vo.setChildren(recursionResource(resource.getId()));
+				list.add(vo);
+			}
+		}
+		return list;
+	}
 
 }

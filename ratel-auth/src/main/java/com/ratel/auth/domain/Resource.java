@@ -53,6 +53,12 @@ public class Resource {
 	@ApiModelProperty(value = "图标样式")
 	private String icon;//
 
+	@ApiModelProperty(value = "请求操作类型")
+	private String requestMethod;// POST PUT GET DELETE
+
+	@ApiModelProperty(value = "功能")
+	private Integer function;// 标题-0，页面-1，按钮-2
+
 	@Id
 	@GenericGenerator(name = "idGenerator", strategy = "uuid")
 	@GeneratedValue(generator = "idGenerator")
@@ -108,6 +114,24 @@ public class Resource {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+	@Column(name = "REQUEST_METHOD")
+	public String getRequestMethod() {
+		return requestMethod;
+	}
+
+	public void setRequestMethod(String requestMethod) {
+		this.requestMethod = requestMethod;
+	}
+
+	@Column(name = "FUNCTION")
+	public Integer getFunction() {
+		return function;
+	}
+
+	public void setFunction(Integer function) {
+		this.function = function;
 	}
 
 }
