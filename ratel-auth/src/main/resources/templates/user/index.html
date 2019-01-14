@@ -333,8 +333,8 @@ var vm=new Vue({
 	          	contentType: 'application/json; charset=utf-8',
 	          	success: function (res) {
 	        	  	if(res.rspCode=="000000"){
-	        	  		vm.treeData=res.data;
-	        	  		createDepartmentRadarEcharts('initializationState',res.data);
+	        	  		vm.treeData=res.data.treeData;
+	        	  		createDepartmentRadarEcharts('initializationState',res.data.treeData,res.data.numData);
 	        	  	}else{
 	        	  		that.$notify.error({
 	  		        	  	title: '组织机构树',

@@ -1,10 +1,14 @@
 package com.ratel.auth.service.impl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.transform.Transformers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +50,9 @@ import com.ratel.common.utils.StringUtil;
 @Service
 public class UserServiceImpl implements IUserService {
 
+	@Autowired
+	EntityManager entityManager;
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final static int MAX_SECURITY_CODE_INDATE = 3;// 重置密码验证码最大有效期3小时
@@ -67,6 +74,7 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ResponseData queryUserTree() {
 		try {
@@ -76,7 +84,14 @@ public class UserServiceImpl implements IUserService {
 			}
 			List<TreeVo> tree = (List<TreeVo>) departmentRes.getData();
 			List<TreeVo> list = tree.get(0).getChildren();
-			return new ResponseData(ResponseMsg.SUCCESS, list);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("treeData", list);// 树数据
+			String sql = "select d.name name,count(u.id) value from user u, departments d where u.DEPARTMENT_ID = d.ID and d.pId IS NOT NULL and u.ISDELETED=0 GROUP BY d.name";
+
+			List<Map<String, Object>> numData = entityManager.createNativeQuery(sql).unwrap(org.hibernate.Query.class)
+					.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP).list();
+			map.put("numData", numData);// 人数数据
+			return new ResponseData(ResponseMsg.SUCCESS, map);
 		} catch (Exception e) {
 			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询部门组织机构树错误：" + e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常!");

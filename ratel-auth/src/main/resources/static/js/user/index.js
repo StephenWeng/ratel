@@ -1,7 +1,7 @@
-function createDepartmentRadarEcharts(id,treeData){
+function createDepartmentRadarEcharts(id,treeData,userNum){
 	var myChart = echarts.init(document.getElementById(id));
 	var scaleData=[];
-	var scaleData=getAllDepartment(scaleData,treeData);//获取全部的部门结构
+	var scaleData=getAllDepartment(scaleData,treeData,userNum);//获取全部的部门结构
 	var rich = {
 	    white: {
 	        color: '#ddd',
@@ -67,7 +67,7 @@ function createDepartmentRadarEcharts(id,treeData){
 	                    }
 	                    percent = ((params.value / total) * 100).toFixed(0);
 	                    if(params.name !== '') {
-	                        return params.name;
+	                        return params.name+'：'+params.value+'人';
 	                    }else {
 	                        return '';
 	                    }
@@ -101,20 +101,23 @@ function createDepartmentRadarEcharts(id,treeData){
     }
 }
 
-function getAllDepartment(scaleData,treeData){
+function getAllDepartment(scaleData,treeData,userNum){
 	if(treeData && treeData.length>0){
 		for(var i=0;i<treeData.length;i++){
 			var scale={};
 			var data=treeData[i];
 			scale.name=data.label;
+			scale.value=0;
+			for(var j=0;j<userNum.length;j++){
+				var user=userNum[j];
+				if(user.name==scale.name){
+					scale.value=user.value;
+					break;
+				}
+			}
 			scaleData.push(scale);
-			getAllDepartment(scaleData,data.children);
+			getAllDepartment(scaleData,data.children,userNum);
 		}
-	}
-	//为每个scale的value值赋值
-	for(var i=0;i<scaleData.length;i++){
-		var scale=scaleData[i];
-		scale.value=100/scaleData.length;
 	}
 	return scaleData;
 }
