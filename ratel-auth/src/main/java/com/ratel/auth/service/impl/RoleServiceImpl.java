@@ -110,7 +110,7 @@ public class RoleServiceImpl implements IRoleService {
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "该角色已不存在");
 			}
 			roleVo.setName(role.getName());
-			roleVo.setResourceIds("");
+			roleVo.setResourceIds(role.getResourceIds());
 			roleVo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
 			Role roleDo = roleRepository.save(roleVo);
 			return new ResponseData(ResponseMsg.SUCCESS, roleDo);

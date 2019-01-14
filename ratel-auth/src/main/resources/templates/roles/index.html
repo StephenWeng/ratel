@@ -3,6 +3,22 @@
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head"></head>
+<style>
+	.custom-tree-node {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-right: 8px;
+  }
+  .gold>span{
+  	color:#ffd04b !important;
+  }
+  .red>span{
+  	color:red !important;
+  }
+</style>
 <div id="role" style="width:100%;height:100%;margin-left: 5px;margin-right: 5px;">
 	<el-row>
 		<el-col :span="18">
@@ -52,11 +68,28 @@
 	</el-pagination>
 	
 	<!-- 新增/编辑角色弹出框 -->
-	<el-dialog :title="dialogTitle" :visible.sync="roleVisible" width="30%" :before-close="roleHandleClose">
+	<el-dialog :title="dialogTitle" :visible.sync="roleVisible" width="40%" :before-close="roleHandleClose">
 		<el-form :model="roleForm" :rules="roleRules" ref="roleForm" :label-position="labelPosition" label-width="100px">
 		  	<el-form-item label="名称：" prop="name">
 		    	<el-input v-model="roleForm.name"
 		    	clearable prefix-icon="el-icon-ratel-nicheng"></el-input>
+		  	</el-form-item>
+		  	<el-form-item label="资源：" style="max-height: 100px;overflow: auto;">
+		    		<el-tag closable @close="removeTag(resource)" v-for="resource in roleForm.checkedResources" type="warning" size="mini">
+					  {{resource.name}}
+					</el-tag>
+		  	</el-form-item>
+		  	<el-form-item label="选择：" >
+		    	<el-tree :data="treeData" :props="props" accordion ref="resourceTree" 
+		    	:expand-on-click-node="false">
+			  		<span class="custom-tree-node" slot-scope="{ node, data }">
+				  		<span><i :class="data.className"></i>{{ data.label }}</span> 
+				  		<span>
+				        	<el-button v-if="roleForm.checkedResourceIds.indexOf(data.id)<0" class="gold" size="mini" type="text" @click="() => append(data)">添加</el-button>
+				            <el-button v-if="roleForm.checkedResourceIds.indexOf(data.id)>-1" class="red" size="mini" type="text" @click="() => remove(data)">移除</el-button>
+	        			</span>             
+	        		</span>
+				</el-tree>
 		  	</el-form-item>
 		  	<el-form-item>
 		  		<el-button size="small" @click="close('roleForm')">取消</el-button>
@@ -119,7 +152,8 @@ var vm=new Vue({
 			isSubmiting:false,//是否正在提交
 			roleForm:{
 				name:'',
-				resources:''
+				checkedResources:[],//已选择的资源的名称集合
+		        checkedResourceIds:[]//已选择的资源的id集合
 			},
 			roleRules:{
 				name:[
@@ -128,13 +162,41 @@ var vm=new Vue({
 	            	{ validator: checkNoSpecialCharacters, trigger: 'blur' },
 	            	{ validator: checkName, trigger: 'blur' }
 				]
-			}
+			},
+			treeData: [],//树结构数据
+	        //树节点默认格式
+	        props: {
+	          children: 'children',
+	          label: 'label',
+	          className:'className'
+	        }
 		}
 	},
 	methods:{
 		init:function(){
 			vm.tableHeight=getWinHeight()-112;
-			vm.queryRoleList();
+			vm.queryRoleList();//查询列表数据
+			vm.queryTreeData();//查询资源树
+		},
+		queryTreeData:function(){
+			var that=this;
+			$.ajax({
+	          	url: '/resources/tree?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.treeData=res.data;
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '资源树',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
 		},
 		//查询角色
 		queryRoleList(){
@@ -169,12 +231,18 @@ var vm=new Vue({
 			this.dialogTitle='新增角色';
 			this.method=0;
 			vm.roleForm.name='';
+			vm.roleForm.checkedResources=[];//已选择的资源的名称集合
+			vm.roleForm.checkedResourceIds=[];
 		},
 		edit(){
 			this.roleVisible=true;
 			this.dialogTitle='编辑角色';
 			this.method=1;
 			vm.roleForm.name=(vm.multipleSelection)[0].name;
+			vm.roleForm.checkedResources=(vm.multipleSelection)[0].resources;//已选择的资源的名称集合
+			for(var i=0;i<(vm.multipleSelection)[0].resources.length;i++){
+				vm.roleForm.checkedResourceIds.push(((vm.multipleSelection)[0].resources)[i].id);
+			}
 		},
 		del(){
 			this.$confirm('此操作将永久删除角色, 是否继续?', '提示', {
@@ -229,6 +297,11 @@ var vm=new Vue({
 	          		if(vm.method==1){
 	          			data.id=(vm.multipleSelection)[0].id;
 	          		}
+	          		var resourceIds="";
+	          		for(var i=0;i<vm.roleForm.checkedResourceIds.length;i++){
+        				resourceIds=resourceIds+(vm.roleForm.checkedResourceIds)[i]+",";
+	          		}
+	          		data.resourceIds=resourceIds;
 			    	var json=JSON.stringify(data);
 			    	if(vm.method==0){
 						//新增
@@ -298,11 +371,62 @@ var vm=new Vue({
 	          	}
 	    	});
 		},
-		//取消关闭部门新增/修改对话框
-	    close:function(formName){
-	    	this.$refs[formName].resetFields();
-	    	vm.roleVisible = false;
-	    },
+		//选择资源树时触发事件
+		append(node){
+			//获取全部上级
+			var parentNodes=getAllParentNode(vm.treeData,node.id);
+			//逐个添加
+			for(var i=0;i<parentNodes.length;i++){
+				if(vm.roleForm.checkedResourceIds.indexOf(parentNodes[i].id)<0){
+					var resource={};
+					resource.name=parentNodes[i].label;
+					resource.id=parentNodes[i].id;
+					vm.roleForm.checkedResources.push(resource);
+					vm.roleForm.checkedResourceIds.push(parentNodes[i].id);
+				}
+			}
+			//本资源添加
+			var resource={};
+			resource.name=node.label;
+			resource.id=node.id;
+			vm.roleForm.checkedResources.push(resource);
+			vm.roleForm.checkedResourceIds.push(node.id);
+		},
+		//删除tab
+		removeTag(resource){
+			var node={};
+			node.id=resource.id;
+			node.label=resource.name;
+			vm.remove(node);
+		},
+		remove(node){
+			this.$confirm('此操作将移除本项资源及所有下级资源, 是否继续?', '提示', {
+	          confirmButtonText: '确定',
+	          cancelButtonText: '取消',
+	          type: 'warning'
+		    }).then(() => {
+	        	var childNodes=getAllChildNode(vm.treeData,node.id);
+	        	//删除全部下级
+	        	for(var i=0;i<childNodes.length;i++){
+	        		vm.roleForm.checkedResourceIds.remove(childNodes[i].id);
+	        		vm.roleForm.checkedResources.removeTreeNode(childNodes[i]);
+		     	}
+	        	//删除本级
+	        	vm.roleForm.checkedResourceIds.remove(node.id);
+	        	vm.roleForm.checkedResources.removeTreeNode(node);
+				this.$message({
+					showClose: true,
+		        	type: 'success',
+		            message: '资源已移除'
+		        }); 
+		     }).catch(() => {
+	        	this.$message({
+		    		showClose: true,
+		        	type: 'info',
+		            message: '已取消'
+		        });      
+		    });
+		},
         roleHandleClose(done){
 			this.$confirm('确认关闭？').then(_ => {
 	            done();
@@ -346,7 +470,12 @@ var vm=new Vue({
         handleCurrentChange: function(currentPage){
         	this.currentPage = currentPage;
         	vm.queryRoleList();
-        }
+        },
+      	//取消关闭部门新增/修改对话框
+	    close:function(formName){
+	    	this.$refs[formName].resetFields();
+	    	vm.roleVisible = false;
+	    }
 	}
 })
 /* 页面加载时触发事件 */

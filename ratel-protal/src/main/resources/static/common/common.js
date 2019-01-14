@@ -110,4 +110,107 @@ function delNode_tree(node,ids){
 	}
 }
 
+/**
+ * 获取所有上级父节点node，不包含本级
+ * @param treeData 所有树节点数据
+ * @param id 本级id
+ * @returns
+ */
+function getAllParentNode(treeData,id){
+	var childNode=[];
+	if(treeData && treeData.length>0){
+		for(var i=0;i<treeData.length;i++){
+			var menuNode=treeData[i];
+			if(id===menuNode.id){
+				return childNode;
+			}
+			if(menuNode && menuNode.children.length>0){
+				for(var j=0;j<menuNode.children.length;j++){
+					var pageNode=(menuNode.children)[j];
+					if(id===pageNode.id){
+						childNode.push(menuNode);
+						return childNode;
+					}
+					if(pageNode && pageNode.children.length>0){
+						for(var z=0;z<pageNode.children.length;z++){
+							var btnNode=(pageNode.children)[z];
+							if(id===btnNode.id){
+								childNode.push(pageNode);
+								childNode.push(menuNode);
+								return childNode;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return childNode;
+}
+
+/**
+ * 获取所有子节点node，不包含本级
+ * @param treeData 所有树节点数据
+ * @param id 本级id
+ * @returns
+ */
+function getAllChildNode(treeData,id){
+	var childNode=[];
+	if(treeData && treeData.length>0){
+		for(var i=0;i<treeData.length;i++){
+			var menuNode=treeData[i];
+			if(id===menuNode.id){
+				if(menuNode && menuNode.children.length>0){
+					for(var j=0;j<menuNode.children.length;j++){
+						var pageNode=(menuNode.children)[j];
+						childNode.push(pageNode);
+						if(pageNode && pageNode.children.length>0){
+							for(var z=0;z<pageNode.children.length;z++){
+								var btnNode=(pageNode.children)[z];
+								childNode.push(btnNode);
+							}
+						}
+					}
+				}
+			}
+			if(menuNode && menuNode.children.length>0){
+				for(var j=0;j<menuNode.children.length;j++){
+					var pageNode=(menuNode.children)[j];
+					if(id===pageNode.id){
+						if(pageNode && pageNode.children.length>0){
+							for(var z=0;z<pageNode.children.length;z++){
+								var btnNode=(pageNode.children)[z];
+								childNode.push(btnNode);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return childNode;
+}
+
+Array.prototype.remove = function(val) { 
+	var index = this.indexOf(val); 
+	if (index > -1) { 
+		this.splice(index, 1); 
+	} 
+	return this;
+};
+
+Array.prototype.removeTreeNode = function(node) {
+	var index=-1;
+	for(var i=0;i<this.length;i++){
+		if(this[i].id===node.id){
+			index=i;
+			break;
+		}
+	}
+	if (index > -1) { 
+		this.splice(index, 1); 
+	} 
+	return this;
+};
+
 /*********************************************公共方法***********************************************************/

@@ -131,6 +131,7 @@ public class ResourceServiceImpl implements IResourceService {
 				}
 			}
 		}
+		Collections.sort(list);
 		return list;
 	}
 

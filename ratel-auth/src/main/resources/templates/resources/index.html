@@ -9,10 +9,9 @@
 			<el-tree class="filter-tree" :data="treeData" :props="props"
 		  	accordion ref="resourceTree" 
 		  	@node-click="clickNode">
-		  		<span class="custom-tree-node" slot-scope="{ node, data }"><span>
-                <i :class="data.className"></i>{{ node.label }}
-            </span>              
-        </span>
+		  		<span class="custom-tree-node" slot-scope="{ node, data }">
+			  		<span><i :class="data.className"></i>{{ node.label }}</span>              
+        		</span>
 			</el-tree>
 	  	</el-col>
 	  	<el-col :span="18" v-if="initializationState">
@@ -35,7 +34,12 @@
      				</template>
     			</el-table-column>
     			<el-table-column prop="requestMethod" label="操作类型" min-width="25%"></el-table-column>
-    			<el-table-column prop="icon" label="图标" ></el-table-column>
+    			<el-table-column prop="icon" label="图标" >
+    				<template scope="scope">
+     					<span><i :class="scope.row.icon"></i>{{scope.row.icon}} </span>
+     				</template>
+    				
+    			</el-table-column>
   			</el-table>
 	  	</el-col>
 	</el-row>
