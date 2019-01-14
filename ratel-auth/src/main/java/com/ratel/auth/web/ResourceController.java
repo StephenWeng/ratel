@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,10 +54,31 @@ public class ResourceController extends BaseController {
 		return resourceService.queryResourcesByAccount(this.getUserAccount());
 	}
 
+	/**
+	 * @Title queryResourceTree
+	 * @author :Stephen
+	 * @Description 获取资源树
+	 * @date 2019年1月14日 上午11:08:48
+	 * @return ResponseData
+	 */
 	@ResponseBody
-	@RequestMapping(value = "/a", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseData a() {
+	@RequestMapping(value = "/tree", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData queryResourceTree() {
 		return new ResponseData(ResponseMsg.SUCCESS, resourceService.queryResourceTree(null));
+	}
+
+	/**
+	 * @Title queryResource
+	 * @author :Stephen
+	 * @Description 查询下级资源集合，不分页
+	 * @date 2019年1月14日 上午11:28:31
+	 * @param pId 上级资源id
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData queryResource(@RequestParam("pId") String pId) {
+		return resourceService.queryResource(pId);
 	}
 
 }

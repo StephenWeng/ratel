@@ -58,8 +58,7 @@ public class ResourceServiceImpl implements IResourceService {
 	 * @author :技术部-文章
 	 * @Description 查询用户的菜单列表
 	 * @date 2018年12月31日 下午2:06:57
-	 * @param account
-	 *            用户账号
+	 * @param account 用户账号
 	 * @return ResponseData
 	 */
 	@Override
@@ -94,8 +93,7 @@ public class ResourceServiceImpl implements IResourceService {
 	 * @author :技术部-文章
 	 * @Description 资源菜单按层级关系排序
 	 * @date 2018年12月31日 下午2:25:42
-	 * @param list
-	 *            资源菜单集合
+	 * @param list 资源菜单集合
 	 * @return List<ResourceVo>
 	 */
 	private List<ResourceVo> sortResources(List<Resource> resources) {
@@ -117,10 +115,8 @@ public class ResourceServiceImpl implements IResourceService {
 	 * @author :技术部-文章
 	 * @Description 递归获取下级资源菜单
 	 * @date 2018年12月31日 下午2:32:46
-	 * @param pResource
-	 *            当前资源菜单
-	 * @param resources
-	 *            资源菜单集合
+	 * @param pResource 当前资源菜单
+	 * @param resources 资源菜单集合
 	 * @return List<ResourceVo>
 	 */
 	private List<ResourceVo> getChildList(Resource pResource, List<Resource> resources) {
@@ -177,8 +173,7 @@ public class ResourceServiceImpl implements IResourceService {
 	 * @author :stephen
 	 * @Description 根据上级资源id递归查询全部下级
 	 * @date 2019年1月13日 下午9:02:49
-	 * @param pId
-	 *            上级资源id
+	 * @param pId 上级资源id
 	 * @return List<TreeVo>
 	 */
 	private List<TreeVo> recursionResource(String pId) {
@@ -196,6 +191,25 @@ public class ResourceServiceImpl implements IResourceService {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * @Title queryResource
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月14日 上午11:30:05
+	 * @param pId
+	 * @return
+	 */
+	@Override
+	public ResponseData queryResource(String pId) {
+		try {
+			List<Resource> children = resourceRepository.queryResourcesByPid(pId);
+			return new ResponseData(ResponseMsg.SUCCESS, children);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询" + pId + "的下级资源时系统异常：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
 	}
 
 }

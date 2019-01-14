@@ -3,18 +3,129 @@
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head"></head>
-<div class="content">
-    <div class="login-panel">大多分为</div>
-</div>
-<div class="background">
-    <canvas class="meteor" id="canvas" height="179" width="1349"></canvas>
+<div id="resource" style="width:100%;height:100%;">
+	<el-row :gutter="20">
+	  	<el-col :span="6">
+			<el-tree class="filter-tree" :data="treeData" :props="props"
+		  	accordion ref="resourceTree" 
+		  	@node-click="clickNode">
+		  		<span class="custom-tree-node" slot-scope="{ node, data }"><span>
+                <i :class="data.className"></i>{{ node.label }}
+            </span>              
+        </span>
+			</el-tree>
+	  	</el-col>
+	  	<el-col :span="18" v-if="initializationState">
+	  		<div id="initializationState"></div>
+	  	</el-col>
+	  	<el-col :span="18" v-if="!initializationState">
+	  		<el-table :data="resourceList" stripe border :height="tableHeight" style="width: 100%">
+	  			<el-table-column label="序号" width="50" align="center">
+     				<template scope="scope">
+     					<span>{{scope.$index+1}} </span>
+     				</template>
+     			</el-table-column>
+    			<el-table-column prop="name" label="名称" min-width="15%"></el-table-column>
+    			<el-table-column prop="url" label="链接地址" min-width="35%"></el-table-column>
+    			<el-table-column prop="function" label="类型" min-width="25%">
+    				<template scope="scope">
+     					<span v-if="scope.row.function==0">菜单 </span>
+     					<span v-if="scope.row.function==1">页面 </span>
+     					<span v-if="scope.row.function==2">按钮 </span>
+     				</template>
+    			</el-table-column>
+    			<el-table-column prop="requestMethod" label="操作类型" min-width="25%"></el-table-column>
+    			<el-table-column prop="icon" label="图标" ></el-table-column>
+  			</el-table>
+	  	</el-col>
+	</el-row>
 </div>
 <script>
 /*<![CDATA[*/
-(function(global){
-    global.onload = function(){
-        Meteor.init();
-    }
-})(this)
+var vm=new Vue({
+	el:'#resource',
+	data() {
+		return {
+			initializationState:true,//是否为初始化状态右侧表格则不显示东西
+			labelPosition: 'right',//表单对齐方式
+			tableHeight:490,//table高
+	        treeData: [],//树结构数据
+	        //树节点默认格式
+	        props: {
+	          children: 'children',
+	          label: 'label',
+	          className:'className'
+	        },
+	        activeNode:{},//当前单击的树节点
+	        //表格数据
+            resourceList: [],//部门数据集合
+		}
+	},
+	methods:{
+		init:function(){
+			vm.tableHeight=getWinHeight()-50;
+			document.getElementById("initializationState").style.height= getWinHeight() +"px";
+			vm.queryTreeData();
+		},
+		//查询组织机构树
+		queryTreeData:function(){
+			var that=this;
+			$.ajax({
+	          	url: '/resources/tree?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.treeData=res.data;
+	        	  		createRoleRelationEcharts('initializationState',res.data);
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '资源树',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
+		},
+	    //单击树节点事件
+	    clickNode:function(node){
+	    	vm.activeNode=node;
+	    	vm.queryResourceList();
+	    	vm.initializationState=false;
+	    },
+        //分页查询数据
+        queryResourceList() {
+            var that=this;
+			$.ajax({
+	          	url: '/resources/resources?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	data:{
+	          		'pId':vm.activeNode.id//当前点击节点
+	          	},
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.resourceList=res.data;
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '查询资源',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
+        }
+	}
+})
+/* 页面加载时触发事件 */
+window.onload=function(){ 
+	vm.init();
+}
 /*]]>*/
 </script>
+<!-- 引入页面js-->
+<script th:src="@{/js/resources/index.js}"></script> 

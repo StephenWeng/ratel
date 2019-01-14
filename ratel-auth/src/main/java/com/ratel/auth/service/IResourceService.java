@@ -29,8 +29,7 @@ public interface IResourceService {
 	 * @author :技术部-文章
 	 * @Description 查询用户的菜单列表
 	 * @date 2018年12月31日 下午2:06:57
-	 * @param account
-	 *            用户账号
+	 * @param account 用户账号
 	 * @return ResponseData
 	 */
 	public ResponseData queryResourcesByAccount(String account);
@@ -40,10 +39,19 @@ public interface IResourceService {
 	 * @author :stephen
 	 * @Description 获取资源树
 	 * @date 2019年1月13日 下午8:23:16
-	 * @param ids
-	 *            资源id以,相连。若为空，则查询全部资源。需要注意，如若用户有下级资源id，那么上级资源id必须存在
+	 * @param ids 资源id以,相连。若为空，则查询全部资源。需要注意，如若用户有下级资源id，那么上级资源id必须存在
 	 * @return List<TreeVo>
 	 */
 	public List<TreeVo> queryResourceTree(String ids);
+
+	/**
+	 * @Title queryResource
+	 * @author :Stephen
+	 * @Description 查询下级资源集合，不分页
+	 * @date 2019年1月14日 上午11:28:31
+	 * @param pId 上级资源id
+	 * @return ResponseData
+	 */
+	public ResponseData queryResource(String pId);
 
 }
