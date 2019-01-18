@@ -87,6 +87,9 @@ public class User {
 	@ApiModelProperty(value = "重置密码验证码产生时间，有效期3个小时")
 	private Date securityCodeCreateTime;
 
+	@ApiModelProperty(value = "角色ids")
+	private String roleIds;// 拥有的角色id
+
 	@Id
 	@GenericGenerator(name = "idGenerator", strategy = "uuid")
 	@GeneratedValue(generator = "idGenerator")
@@ -96,8 +99,7 @@ public class User {
 	}
 
 	/**
-	 * @param id
-	 *            要设置的 id
+	 * @param id 要设置的 id
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -109,8 +111,7 @@ public class User {
 	}
 
 	/**
-	 * @param name
-	 *            要设置的 name
+	 * @param name 要设置的 name
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -122,8 +123,7 @@ public class User {
 	}
 
 	/**
-	 * @param password
-	 *            要设置的 password
+	 * @param password 要设置的 password
 	 */
 	public void setPassword(String password) {
 		this.password = password;
@@ -135,8 +135,7 @@ public class User {
 	}
 
 	/**
-	 * @param departmentId
-	 *            要设置的 departmentId
+	 * @param departmentId 要设置的 departmentId
 	 */
 	public void setDepartmentId(String departmentId) {
 		this.departmentId = departmentId;
@@ -148,8 +147,7 @@ public class User {
 	}
 
 	/**
-	 * @param age
-	 *            要设置的 age
+	 * @param age 要设置的 age
 	 */
 	public void setAge(Integer age) {
 		this.age = age;
@@ -161,8 +159,7 @@ public class User {
 	}
 
 	/**
-	 * @param gender
-	 *            要设置的 gender
+	 * @param gender 要设置的 gender
 	 */
 	public void setGender(Integer gender) {
 		this.gender = gender;
@@ -175,8 +172,7 @@ public class User {
 	}
 
 	/**
-	 * @param createTime
-	 *            要设置的 createTime
+	 * @param createTime 要设置的 createTime
 	 */
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
@@ -189,8 +185,7 @@ public class User {
 	}
 
 	/**
-	 * @param updateTime
-	 *            要设置的 updateTime
+	 * @param updateTime 要设置的 updateTime
 	 */
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
@@ -202,8 +197,7 @@ public class User {
 	}
 
 	/**
-	 * @param account
-	 *            要设置的 account
+	 * @param account 要设置的 account
 	 */
 	public void setAccount(String account) {
 		this.account = account;
@@ -215,8 +209,7 @@ public class User {
 	}
 
 	/**
-	 * @param telphone
-	 *            要设置的 telphone
+	 * @param telphone 要设置的 telphone
 	 */
 	public void setTelphone(String telphone) {
 		this.telphone = telphone;
@@ -228,8 +221,7 @@ public class User {
 	}
 
 	/**
-	 * @param address
-	 *            要设置的 address
+	 * @param address 要设置的 address
 	 */
 	public void setAddress(String address) {
 		this.address = address;
@@ -241,8 +233,7 @@ public class User {
 	}
 
 	/**
-	 * @param isDeleted
-	 *            要设置的 isDeleted
+	 * @param isDeleted 要设置的 isDeleted
 	 */
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
@@ -273,8 +264,7 @@ public class User {
 	}
 
 	/**
-	 * @param birthDay
-	 *            要设置的 birthDay
+	 * @param birthDay 要设置的 birthDay
 	 */
 	public void setBirthDay(Date birthDay) {
 		this.birthDay = birthDay;
@@ -286,11 +276,25 @@ public class User {
 	}
 
 	/**
-	 * @param email
-	 *            要设置的 email
+	 * @param email 要设置的 email
 	 */
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	/**
+	 * @return roleIds
+	 */
+	@Column(name = "ROLE")
+	public String getRoleIds() {
+		return roleIds;
+	}
+
+	/**
+	 * @param roleIds 要设置的 roleIds
+	 */
+	public void setRoleIds(String roleIds) {
+		this.roleIds = roleIds;
 	}
 
 }

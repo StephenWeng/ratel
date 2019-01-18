@@ -44,6 +44,9 @@ public interface RoleRepository
 	@Query("delete from Role t where t.id in (:ids)")
 	public int delInBatch(@Param("ids") List<String> ids);
 
+	@Query("select t from Role t where t.id in(:ids)")
+	public List<Role> queryRoles(@Param("ids") List<String> ids);
+
 	@Query("select t from Role t where t.name=:name")
 	public List<Role> checkName(@Param("name") String name);
 

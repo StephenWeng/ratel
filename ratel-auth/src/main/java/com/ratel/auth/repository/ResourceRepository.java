@@ -37,7 +37,7 @@ import com.ratel.auth.domain.Resource;
 public interface ResourceRepository
 		extends QueryByExampleExecutor<Resource>, CrudRepository<Resource, String>, JpaSpecificationExecutor<Resource> {
 
-	@Query("select t from Resource t where t.id in(:ids)")
+	@Query("select t from Resource t where t.id in(:ids) group by t.id")
 	public List<Resource> queryResources(@Param("ids") List<String> paramList);
 
 	/**
@@ -55,8 +55,7 @@ public interface ResourceRepository
 	 * @author :stephen
 	 * @Description 根据资源上级找到所有下级
 	 * @date 2019年1月13日 下午8:57:19
-	 * @param pId
-	 *            上级资源id
+	 * @param pId 上级资源id
 	 * @return List<Resource>
 	 */
 	@Query("select t from Resource t where t.pId =:pId")

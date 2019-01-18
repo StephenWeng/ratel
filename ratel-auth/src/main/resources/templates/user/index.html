@@ -43,9 +43,9 @@
 				</el-col>
 				<el-col :span="6">
 					<el-button-group class="right">
-					  	<el-button size="small" type="primary" icon="el-icon-plus" @click="add" title="新增"></el-button>
-					  	<el-button size="small" type="primary" icon="el-icon-edit" :disabled="handelEdit" @click="edit" title="编辑"></el-button>
-					  	<el-button size="small" type="primary" icon="el-icon-delete" :disabled="isDeling || handelDel" @click="del" title="删除"></el-button>
+					  	<el-button v-if="resourceCodes.indexOf('USER_ADD')>-1" size="small" type="primary" icon="el-icon-plus" @click="add" title="新增"></el-button>
+					  	<el-button v-if="resourceCodes.indexOf('USER_EDIT')>-1" size="small" type="primary" icon="el-icon-edit" :disabled="handelEdit" @click="edit" title="编辑"></el-button>
+					  	<el-button v-if="resourceCodes.indexOf('USER_DEL')>-1" size="small" type="primary" icon="el-icon-delete" :disabled="isDeling || handelDel" @click="del" title="删除"></el-button>
 					</el-button-group>
 				</el-col>
 			</el-row>
@@ -101,7 +101,8 @@
     			<el-table-column prop="address" label="地址"></el-table-column>
     			<el-table-column label="操作" align="right" min-width="25%">
 			      	<template slot-scope="scope">
-			        	<el-button size="mini"  type="warning" @click="resetPwd(scope.$index, scope.row)">重置密码</el-button>
+			        	<el-button size="mini" v-if="resourceCodes.indexOf('USER_RESET')>-1" type="warning" @click="resetPwd(scope.$index, scope.row)">重置密码</el-button>
+			        	<el-button size="mini" v-if="resourceCodes.indexOf('USER_ROLE')>-1" type="warning" @click="impower(scope.$index, scope.row)">授权</el-button>
 			      	</template>
 			    </el-table-column>
   			</el-table>
@@ -158,6 +159,20 @@
 		    	<el-button type="primary" size="small" @click="submit" :disabled="isSubmiting">确定</el-button>
 		  	</el-form-item>
 		</el-form>
+	</el-dialog>
+	
+	
+	<el-dialog title="人员授权" style="text-align: center" :visible.sync="impowerVisible" width="45%" :before-close="impowerHandleClose">
+		<el-transfer style="text-align: left; display: inline-block"
+	      filterable :titles="['未选角色', '已选角色']"
+	      :format="{noChecked: '${total}',hasChecked: '${checked}/${total}'}" 
+	      :data="allRoles" v-model="checkedRoles">
+	      	<span slot-scope="{ option }">{{ option.label }}</span>
+	    </el-transfer>
+	    <div slot="footer" class="dialog-footer">
+          	<el-button size="small" @click="impowerVisible=false">取消</el-button>
+		    <el-button type="primary" size="small" @click="editRole">确定</el-button>
+        </div>
 	</el-dialog>
 	
 	
@@ -243,6 +258,7 @@ var vm=new Vue({
 	    	});
 	    };
 		return {
+			resourceCodes:[],//拥有资源编码集合
 			initializationState:true,//是否为初始化状态右侧表格则不显示东西
 			labelPosition: 'right',//表单对齐方式
 			tableHeight:490,//table高
@@ -315,13 +331,64 @@ var vm=new Vue({
 	          	telphone:[
 	          		{ validator: checkPhone, trigger: 'blur' }
 	          	]
-			}
+			},
+			//人员授权相关数据
+			impowerVisible:false,
+			editRole_user:{},//正在修改角色的用户
+			allRoles:[],//全部角色
+			checkedRoles: []//已选择的角色
 		}
 	},
 	methods:{
 		init:function(){
+			vm.queryResourceCodes();//查询用户权限编码
 			document.getElementById("initializationState").style.height= getWinHeight() +"px";
 			vm.queryTreeData();
+			vm.queryAllRoles();
+		},
+		//查询用户权限编码
+		queryResourceCodes(){
+			$.ajax({
+	        	url: '/resources/myResources?timestamp='+new Date().getTime(),
+	        	type: 'GET',
+	        	dataType : 'json', 
+	        	contentType: 'application/json; charset=utf-8',
+	        	success: function (res) {
+	      	  		if(res.rspCode=="000000"){
+	      	  			vm.resourceCodes=tidyResourceCodes(res.data);
+	      	  		}else{
+	      	  			vm.resourceCodes=[];
+	      	  		}
+	        	}
+	  		});
+		},
+		//查询全部角色
+		queryAllRoles:function(){
+			$.ajax({
+	          	url: '/roles/allRoles?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		//element的穿梭框固定了对象属性
+	        	  		if(res.data){
+	        	  			for(var i=0;i<res.data.length;i++){
+		        	  			var role={};
+		        	  			role.key=(res.data)[i].id;
+		        	  			role.label=(res.data)[i].name;
+		        	  			vm.allRoles.push(role);
+		        	  		}
+	        	  		}
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '查询角色',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
 		},
 		//查询组织机构树
 		queryTreeData:function(){
@@ -620,6 +687,86 @@ var vm=new Vue({
 			this.$confirm('确认关闭？').then(_ => {
 	            done();
 	            this.$refs['userForm'].resetFields();
+	        }).catch(_ => {});
+		},
+		//人员授权
+		impower(index, row){
+			vm.checkedRoles=[];
+			var that=this;
+			$.ajax({
+	          	url: '/roles/singleRoles?timestamp='+new Date().getTime(),
+	          	type: 'GET',
+	          	dataType : 'json', 
+	          	data:{
+	          		'account':row.account
+	          	},
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.impowerVisible=true;
+	        	  		vm.editRole_user=row;
+	        	  		//element的穿梭框固定了对象属性
+	        	  		if(res.data){
+	        	  			for(var i=0;i<res.data.length;i++){
+		        	  			vm.checkedRoles.push((res.data)[i].id);
+		        	  		}
+	        	  		}
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '查询已有角色',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+  		        		});
+	        	  	}
+	          	}
+	    	});
+		},
+		//确认编辑用户角色
+		editRole(){
+			var that=this;
+			var data={};
+      		data.account=vm.editRole_user.account;
+      		data.name=vm.editRole_user.name;
+      		data.password=vm.editRole_user.password;
+      		var roleIds='';
+      		if(vm.checkedRoles){
+      			for(var i=0;i<vm.checkedRoles.length;i++){
+          			var roleId=(vm.checkedRoles)[i];
+					roleIds=roleIds+roleId+",";
+          		}
+      		}
+      		data.roleIds=roleIds;
+	    	var json=JSON.stringify(data);
+			$.ajax({
+	          	url: '/users/role?timestamp='+new Date().getTime(),
+	          	type: 'PUT',
+	          	data:json,
+	          	dataType : 'json', 
+	          	contentType: 'application/json; charset=utf-8',
+	          	success: function (res) {
+	          		vm.isSubmiting=false;
+	        	  	if(res.rspCode=="000000"){
+	        	  		vm.checkedRoles=[];
+	        	  		vm.impowerVisible=false;
+	        	  		that.$notify.success({
+	  		        	  	title: '用户授权',
+	  		        	  	message: '操作成功',
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	}else{
+	        	  		that.$notify.error({
+	  		        	  	title: '用户授权',
+	  		        	  	message: res.rspMsg,
+	  		        	  	position: 'bottom-right'
+	  		        	});
+	        	  	} 
+	          	}
+	    	});
+		},
+		impowerHandleClose(done){
+			this.$confirm('确认关闭？').then(_ => {
+	            done();
+	            vm.checkedRoles=[];
 	        }).catch(_ => {});
 		},
 		//取消关闭部门新增/修改对话框

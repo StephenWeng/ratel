@@ -159,7 +159,7 @@ public class UserServiceImpl implements IUserService {
 			userDo.setTelphone(user.getTelphone());
 			userDo.setAddress(user.getAddress());
 			userDo.setBirthDay(user.getBirthDay());
-			user.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			userDo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
 			User userVo = userRepository.save(userDo);
 			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "更新用户信息成功，账号为：" + user.getAccount());
 			return new ResponseData(ResponseMsg.SUCCESS, userVo);
@@ -635,6 +635,33 @@ public class UserServiceImpl implements IUserService {
 		List<User> list = userRepository.checkEmail(email, id);
 		return list.size() == 0 ? new ResponseData(ResponseMsg.SUCCESS)
 				: new ResponseData(ResponseMsg.FAILED.getCode(), "该邮箱已被使用");
+	}
+
+	/**
+	 * @Title updateRole
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月18日 下午4:57:29
+	 * @param user
+	 * @return
+	 */
+	@Override
+	public ResponseData updateRole(User user) {
+		try {
+			User userDo = userRepository.findByUserAccount(user.getAccount());
+			if (null == userDo) {
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "该用户已不存在");
+			}
+			userDo.setUpdateTime(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS));
+			userDo.setRoleIds(user.getRoleIds());
+			User userVo = userRepository.save(userDo);
+			logger.info(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "更新用户角色信息成功，账号为：" + user.getAccount());
+			return new ResponseData(ResponseMsg.SUCCESS, userVo);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "更新用户角色时错误，用户账号：" + user.getAccount()
+					+ "错误信息：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
 	}
 
 }

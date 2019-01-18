@@ -25,6 +25,8 @@ public class ResourceVo implements Comparable<ResourceVo> {
 
 	private String name;// 名称
 
+	private String code;// 编码
+
 	private String url;// 连接地址
 
 	private String pId;// 父级id
@@ -48,11 +50,12 @@ public class ResourceVo implements Comparable<ResourceVo> {
 	 * @param url
 	 * @param child
 	 */
-	public ResourceVo(String id, String name, String url, String pId, int sortCol, List<ResourceVo> child,
+	public ResourceVo(String id, String name, String code, String url, String pId, int sortCol, List<ResourceVo> child,
 			String icon) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.code = code;
 		this.url = url;
 		this.pId = pId;
 		this.sortCol = sortCol;
@@ -114,6 +117,20 @@ public class ResourceVo implements Comparable<ResourceVo> {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+	/**
+	 * @return code
+	 */
+	public String getCode() {
+		return code;
+	}
+
+	/**
+	 * @param code 要设置的 code
+	 */
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	/**

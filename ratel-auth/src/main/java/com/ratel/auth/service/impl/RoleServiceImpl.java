@@ -25,14 +25,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ratel.auth.domain.Role;
+import com.ratel.auth.domain.User;
 import com.ratel.auth.repository.ResourceRepository;
 import com.ratel.auth.repository.RoleRepository;
 import com.ratel.auth.repository.RoleSpecification;
+import com.ratel.auth.repository.UserRepository;
 import com.ratel.auth.service.IRoleService;
 import com.ratel.auth.vo.RoleVo;
 import com.ratel.common.response.ResponseData;
 import com.ratel.common.response.ResponseMsg;
 import com.ratel.common.utils.DateUtils;
+import com.ratel.common.utils.StringUtil;
 
 /**
  * @文件名:RoleServiceImpl.java
@@ -49,6 +52,9 @@ public class RoleServiceImpl implements IRoleService {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private ResourceRepository resourceRepository;
@@ -158,6 +164,51 @@ public class RoleServiceImpl implements IRoleService {
 			return res;
 		} catch (Exception e) {
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	/**
+	 * @Title queryAllRoles
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月18日 下午3:40:45
+	 * @return
+	 */
+	@Override
+	public ResponseData queryAllRoles() {
+		try {
+			List<Role> list = (List<Role>) roleRepository.findAll();
+			return new ResponseData(ResponseMsg.SUCCESS, list);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询全部角色时：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+
+		}
+	}
+
+	/**
+	 * @Title queryRolesByAccount
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月18日 下午4:17:43
+	 * @param account
+	 * @return
+	 */
+	@Override
+	public ResponseData queryRolesByAccount(String account) {
+		try {
+			List<Role> list = new ArrayList<Role>();
+			User userDo = userRepository.findByUserAccount(account);
+			String roleIds = userDo.getRoleIds();// 角色id
+			if (StringUtil.isEmpty(roleIds)) {
+				return new ResponseData(ResponseMsg.SUCCESS, list);
+			}
+			list = roleRepository.queryRoles(Arrays.asList(roleIds.split(",")));
+			return new ResponseData(ResponseMsg.SUCCESS, list);
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询角色时：" + e.getMessage());
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+
 		}
 	}
 

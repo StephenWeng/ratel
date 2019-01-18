@@ -45,23 +45,46 @@ public class RoleController extends BaseController {
 	private IRoleService roleService;
 
 	/**
-	 * @Title queryDepartmentPage
+	 * @Title queryRolePage
 	 * @author :stephen
 	 * @Description
 	 * @date 2019年1月13日 下午7:17:56
-	 * @param currentPage
-	 *            每页个数
-	 * @param pagesize
-	 *            当前页
-	 * @param name
-	 *            名称
+	 * @param currentPage 每页个数
+	 * @param pagesize    当前页
+	 * @param name        名称
 	 * @return ResponseData
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/roles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseData queryDepartmentPage(@RequestParam("currentPage") Integer currentPage,
+	public ResponseData queryRolePage(@RequestParam("currentPage") Integer currentPage,
 			@RequestParam("pagesize") Integer pagesize, @RequestParam("name") String name) {
 		return roleService.queryRolePage(currentPage - 1, pagesize, name);
+	}
+
+	/**
+	 * @Title queryAllRoles
+	 * @author :stephen
+	 * @Description 查询全部角色
+	 * @date 2019年1月18日 下午3:39:56
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/allRoles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData queryAllRoles() {
+		return roleService.queryAllRoles();
+	}
+
+	/**
+	 * @Title querySingleRoles
+	 * @author :stephen
+	 * @Description 查询某用户拥有的角色
+	 * @date 2019年1月18日 下午3:39:56
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/singleRoles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData querySingleRoles() {
+		return roleService.queryRolesByAccount(this.getUserAccount());
 	}
 
 	/**
@@ -69,8 +92,7 @@ public class RoleController extends BaseController {
 	 * @author :stephen
 	 * @Description 新增角色
 	 * @date 2019年1月13日 下午7:17:56
-	 * @param role
-	 *            角色对象
+	 * @param role 角色对象
 	 * @return ResponseData
 	 */
 	@ResponseBody
@@ -84,8 +106,7 @@ public class RoleController extends BaseController {
 	 * @author :stephen
 	 * @Description 编辑角色
 	 * @date 2019年1月13日 下午7:17:56
-	 * @param role
-	 *            角色对象
+	 * @param role 角色对象
 	 * @return ResponseData
 	 */
 	@ResponseBody
@@ -99,8 +120,7 @@ public class RoleController extends BaseController {
 	 * @author :stephen
 	 * @Description 删除角色
 	 * @date 2019年1月13日 下午7:17:56
-	 * @param ids
-	 *            角色id集合
+	 * @param ids 角色id集合
 	 * @return ResponseData
 	 */
 	@ResponseBody
@@ -114,12 +134,9 @@ public class RoleController extends BaseController {
 	 * @author :stephen
 	 * @Description 检测新增或修改时，角色名唯一性
 	 * @date 2019年1月13日 下午8:01:37
-	 * @param name
-	 *            角色名
-	 * @param method
-	 *            0:新增 1：修改
-	 * @param id
-	 *            修改时需要传入角色id
+	 * @param name   角色名
+	 * @param method 0:新增 1：修改
+	 * @param id     修改时需要传入角色id
 	 * @return ResponseData
 	 */
 	@ResponseBody

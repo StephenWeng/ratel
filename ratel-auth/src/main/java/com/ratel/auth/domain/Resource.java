@@ -41,6 +41,10 @@ public class Resource {
 	@ApiModelProperty(value = "资源名称")
 	private String name;
 
+	@NotNull(message = "资源编码不能为空")
+	@ApiModelProperty(value = "资源编码")
+	private String code;
+
 	@ApiModelProperty(value = "资源链接地址")
 	private String url;
 
@@ -132,6 +136,15 @@ public class Resource {
 
 	public void setFunction(Integer function) {
 		this.function = function;
+	}
+
+	@Column(name = "CODE")
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 }

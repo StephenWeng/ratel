@@ -7,6 +7,31 @@ var telphoneReg=/^[1][3,4,5,7,8][0-9]{9}$/;//手机号验证
 var planePhoneReg=/^(0[0-9]{2,3}\-)([2-9][0-9]{6,7})+(\-[0-9]{1,4})?$/;;//座机号验证
 var onlyENCn=/^[\u4e00-\u9fa5a-z]+$/gi;//只能输入汉字和英文字母
 var specialCharactersReg=/^[\w.\-\u4e00-\u9fa5]+$/;//不能包含特殊字符或空格
+/*
+ * 2.个人资源代码集合
+ */
+function tidyResourceCodes(resources){
+	var resourceCodes=[];
+	if(resources && resources.length>0){
+		for(var i=0;i<resources.length;i++){
+			var resource=resources[i];
+			resourceCodes.push(resource.code);
+			if(resource.child && resource.child.length>0){
+				for(var j=0;j<resource.child.length;j++){
+					var childResource=(resource.child)[j];
+					resourceCodes.push(childResource.code);
+					if(childResource.child && childResource.child.length>0){
+						for(var z=0;z<childResource.child.length;z++){
+							var btnResource=(childResource.child)[z];
+							resourceCodes.push(btnResource.code);
+						}
+					}
+				}
+			}
+		}
+	}
+	return resourceCodes;
+}
 /*********************************************公共对象***********************************************************/
 
 /*********************************************公共方法***********************************************************/

@@ -3,6 +3,8 @@
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 <head th:include="common/header :: head"></head>
+<!-- 图标 -->
+<link rel="icon" type="image/x-icon" th:href="@{/bitbug_favicon.ico}"></link>
 <body>
 	<div id="protal">
 		<el-container>
@@ -304,7 +306,7 @@
 			init:function(){
 				vm.userResources();//获取用户的资源，生成左侧菜单栏
 				vm.personalInformation();
-				$("#mainFrame").attr("src",'/users/index?timestamp='+new Date().getTime());
+				vm.ifram('/users/index');
 			},
 			userResources:function(){
 				var that=this;

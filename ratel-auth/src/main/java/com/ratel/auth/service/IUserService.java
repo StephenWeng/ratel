@@ -60,6 +60,16 @@ public interface IUserService {
 	public ResponseData updateUser(User user);
 
 	/**
+	 * @Title updateRole
+	 * @author :Stephen
+	 * @Description 更新用户角色信息
+	 * @date 2019年1月18日 下午4:56:13
+	 * @param user 用户对象
+	 * @return ResponseData
+	 */
+	public ResponseData updateRole(User user);
+
+	/**
 	 * @Title delUsers
 	 * @author :Stephen
 	 * @Description 删除用户

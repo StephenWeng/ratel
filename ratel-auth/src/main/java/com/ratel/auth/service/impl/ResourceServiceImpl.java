@@ -10,6 +10,7 @@
 package com.ratel.auth.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,11 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ratel.auth.domain.Resource;
+import com.ratel.auth.domain.Role;
 import com.ratel.auth.domain.User;
-import com.ratel.auth.domain.UserResources;
 import com.ratel.auth.repository.ResourceRepository;
+import com.ratel.auth.repository.RoleRepository;
 import com.ratel.auth.repository.UserRepository;
-import com.ratel.auth.repository.UserResourceRepository;
 import com.ratel.auth.service.IResourceService;
 import com.ratel.auth.vo.ResourceVo;
 import com.ratel.common.domain.TreeVo;
@@ -51,7 +52,7 @@ public class ResourceServiceImpl implements IResourceService {
 	private UserRepository userRepository;
 
 	@Autowired
-	private UserResourceRepository userResourceRepository;
+	private RoleRepository roleRepository;
 
 	/**
 	 * @Title queryResources
@@ -69,16 +70,24 @@ public class ResourceServiceImpl implements IResourceService {
 				logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "查询账号：" + account + "菜单时找不到账号");
 				return new ResponseData(ResponseMsg.FAILED.getCode(), "账号不存在，请联系管理员！");
 			}
-			String userId = userDo.getId();
-			List<UserResources> userResources = userResourceRepository.findByUserid(userId);
-			List<String> ids = new ArrayList<String>();
-			for (UserResources userResource : userResources) {
-				ids.add(userResource.getResourceId());
+			// 找到对应角色
+			List<String> roleIds = StringUtil.isEmpty(userDo.getRoleIds()) ? new ArrayList<String>()
+					: Arrays.asList(userDo.getRoleIds().split(","));
+			if (null == roleIds || roleIds.size() == 0) {
+				return new ResponseData(ResponseMsg.SUCCESS);
 			}
-			List<Resource> list = resourceRepository.queryResources(ids);
-			if (null == list || list.size() == 0) {
-				return new ResponseData(ResponseMsg.FAILED.getCode(), "用户无资源菜单");
+			// 根据角色找到资源id集合
+			List<String> resourceIds = new ArrayList<String>();
+			List<Role> roles = roleRepository.queryRoles(roleIds);
+			for (Role role : roles) {
+				if (!StringUtil.isEmpty(role.getResourceIds())) {
+					resourceIds.addAll(Arrays.asList(role.getResourceIds().split(",")));
+				}
 			}
+			if (null == resourceIds || resourceIds.size() == 0) {
+				return new ResponseData(ResponseMsg.SUCCESS);
+			}
+			List<Resource> list = resourceRepository.queryResources(resourceIds);
 			List<ResourceVo> res = sortResources(list);
 			return new ResponseData(ResponseMsg.SUCCESS, res);
 		} catch (Exception e) {
@@ -100,8 +109,8 @@ public class ResourceServiceImpl implements IResourceService {
 		List<ResourceVo> list = new ArrayList<ResourceVo>();
 		for (Resource resource : resources) {
 			if (StringUtil.isEmpty(resource.getpId())) {
-				ResourceVo vo = new ResourceVo(resource.getId(), resource.getName(), resource.getUrl(),
-						resource.getpId(), resource.getSortCol(), getChildList(resource, resources),
+				ResourceVo vo = new ResourceVo(resource.getId(), resource.getName(), resource.getCode(),
+						resource.getUrl(), resource.getpId(), resource.getSortCol(), getChildList(resource, resources),
 						resource.getIcon());
 				list.add(vo);
 			}
@@ -124,9 +133,9 @@ public class ResourceServiceImpl implements IResourceService {
 		if (null != resources && resources.size() >= 0) {
 			for (Resource resource : resources) {
 				if (pResource.getId().equals(resource.getpId())) {
-					ResourceVo vo = new ResourceVo(resource.getId(), resource.getName(), resource.getUrl(),
-							resource.getpId(), resource.getSortCol(), getChildList(resource, resources),
-							resource.getIcon());
+					ResourceVo vo = new ResourceVo(resource.getId(), resource.getName(), resource.getCode(),
+							resource.getUrl(), resource.getpId(), resource.getSortCol(),
+							getChildList(resource, resources), resource.getIcon());
 					list.add(vo);
 				}
 			}
@@ -145,6 +154,7 @@ public class ResourceServiceImpl implements IResourceService {
 	 */
 	@Override
 	public List<TreeVo> queryResourceTree(String ids) {
+		// TODO 查询资源树时应该查询当前用户拥有的资源进行过滤
 		try {
 			List<TreeVo> list = new ArrayList<TreeVo>();
 			if (StringUtil.isEmpty(ids) || ids.split(",").length == 0) {

@@ -34,9 +34,9 @@
 		</el-col>
 		<el-col :span="6">
 			<el-button-group class="right">
-			  	<el-button size="small" type="primary" icon="el-icon-plus" title="新增" @click="add"></el-button>
-			  	<el-button size="small" type="primary" icon="el-icon-edit" title="编辑" :disabled="handelEdit" @click="edit"></el-button>
-			  	<el-button size="small" type="primary" icon="el-icon-delete" title="删除" :disabled="isDeling || handelDel" @click="del"></el-button>
+			  	<el-button v-if="resourceCodes.indexOf('ROLE_ADD')>-1" size="small" type="primary" icon="el-icon-plus" title="新增" @click="add"></el-button>
+			  	<el-button v-if="resourceCodes.indexOf('ROLE_EDIT')>-1" size="small" type="primary" icon="el-icon-edit" title="编辑" :disabled="handelEdit" @click="edit"></el-button>
+			  	<el-button v-if="resourceCodes.indexOf('ROLE_DEL')>-1" size="small" type="primary" icon="el-icon-delete" title="删除" :disabled="isDeling || handelDel" @click="del"></el-button>
 			</el-button-group>
 		</el-col>
 	</el-row>
@@ -126,6 +126,7 @@ var vm=new Vue({
 	    	});
 	    };
 		return {
+			resourceCodes:[],//拥有资源编码集合
 			labelPosition: 'right',//表单对齐方式
 			tableHeight:490,//table高
 			handelDel:true,//删除按钮是否禁用，至少选中一个的时候才能删除
@@ -174,9 +175,26 @@ var vm=new Vue({
 	},
 	methods:{
 		init:function(){
+			vm.queryResourceCodes();//查询用户权限编码
 			vm.tableHeight=getWinHeight()-112;
 			vm.queryRoleList();//查询列表数据
 			vm.queryTreeData();//查询资源树
+		},
+		//查询用户权限编码
+		queryResourceCodes(){
+			$.ajax({
+	        	url: '/resources/myResources?timestamp='+new Date().getTime(),
+	        	type: 'GET',
+	        	dataType : 'json', 
+	        	contentType: 'application/json; charset=utf-8',
+	        	success: function (res) {
+	      	  		if(res.rspCode=="000000"){
+	      	  			vm.resourceCodes=tidyResourceCodes(res.data);
+	      	  		}else{
+	      	  			vm.resourceCodes=[];
+	      	  		}
+	        	}
+	  		});
 		},
 		queryTreeData:function(){
 			var that=this;

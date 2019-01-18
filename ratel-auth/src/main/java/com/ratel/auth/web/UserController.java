@@ -97,6 +97,20 @@ public class UserController extends BaseController {
 	}
 
 	/**
+	 * @Title updateRole
+	 * @author :Stephen
+	 * @Description 更新用户角色信息
+	 * @date 2019年1月18日 下午4:56:13
+	 * @param user 用户对象
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/role", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData updateRole(@RequestBody User user) {
+		return userService.updateRole(user);
+	}
+
+	/**
 	 * @Title delUsers
 	 * @author :Stephen
 	 * @Description 删除用户
