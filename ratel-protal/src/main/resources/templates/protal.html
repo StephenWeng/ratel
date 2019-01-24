@@ -5,6 +5,41 @@
 <head th:include="common/header :: head"></head>
 <!-- 图标 -->
 <link rel="icon" type="image/x-icon" th:href="@{/bitbug_favicon.ico}"></link>
+<style>
+	.round_icon{
+		width: 40px;
+  		height: 40px;
+  		display: flex;
+  		border-radius: 50%;
+  		align-items: center;
+  		justify-content: center;
+  		overflow: hidden;
+	}
+	.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+    margin:0 auto;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+</style>
 <body>
 	<div id="protal">
 		<el-container>
@@ -12,9 +47,7 @@
 		  	<el-header>
 		  		<el-row>
 				  	<el-col :span="12">
-				  		<el-row type="flex" class="row-bg" justify="end">
-						  	<el-col :span="24">平头哥图标</el-col>
-						</el-row>
+						<img class="left round_icon" :src="iconUrl" :title="userInformationForm.name"/>
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<el-row type="flex" class="row-bg" justify="end">
@@ -29,6 +62,7 @@
 						  		{{userInformationForm.name}}
 								  	<el-dropdown-menu slot="dropdown">
 								    	<el-dropdown-item command="0">信息</el-dropdown-item>
+								    	<el-dropdown-item command="2">头像</el-dropdown-item>
 								    	<el-dropdown-item command="1">注销</el-dropdown-item>
 								  	</el-dropdown-menu>
 								</el-dropdown>
@@ -179,10 +213,18 @@
 			  	</el-tab-pane>
 			</el-tabs>
 		</el-dialog>
+	
+		<!-- 头像管理弹出框 -->
+		<el-dialog title="头像" :visible.sync="iconVisible" width="30%" :before-close="iconHandleClose">
+			<el-upload class="avatar-uploader" :show-file-list="false"
+  				action="/users/icon"
+  				:on-success="handleAvatarSuccess"
+  				:before-upload="beforeAvatarUpload">
+  				<img v-if="imageUrl" :src="imageUrl" class="avatar">
+  				<i v-else class="el-icon-plus avatar-uploader-icon"></i>
+			</el-upload>
+		</el-dialog>
 	</div> 
-	<!-- <div class="background">
-	    <canvas class="meteor" id="canvas" height="100%" width="100%"></canvas>
-	</div> -->
 </body>
   	<script>
 	var vm=new Vue({
@@ -253,6 +295,7 @@
   		    	});
 		    };
 			return {
+				iconUrl:'/users/icon',//头像请求地址
 				labelPosition: 'right',//表单对齐方式
 				bottomDialogVisible: false,//底部平头哥联系方式弹出框
 				isCollapse: true,//默认收起左侧菜单栏
@@ -299,7 +342,12 @@
 		            	{ validator: validatePass2, trigger: 'blur' }
 					],
 				},
-				resourcesList:[]//用户资源集合
+				resourcesList:[],//用户资源集合
+				//头像管理相关数据
+				iconVisible:false,
+				 imageUrl: '',
+				 dialogImageUrl: '',
+			        dialogVisible: false
 			}
 		},
 		methods:{
@@ -338,6 +386,10 @@
 				}else if(command==1){
 					//注销
 					vm.logout();
+				}else if(command==2){
+					//头像管理
+					vm.iconVisible=true;
+					vm.imageUrl="/users/icon";
 				}
 			},
 			//个人信息tabs关闭事件
@@ -456,7 +508,15 @@
 			},
 			//注销码方法
 			logout:function(){
-				
+				$.ajax({
+  		          	url: '/users/logout?timestamp='+new Date().getTime(),
+  		          	type: 'GET',
+  		          	dataType : 'json', 
+  		          	contentType: 'application/json; charset=utf-8',
+  		          	success: function (res) {
+  		          		window.location.href="/ratel/login";
+  		          	}
+  		    	});
 			},
 			//点击菜单，更换ifram内容
 			ifram:function(url){
@@ -466,7 +526,29 @@
 			//底部平头哥弹出框关闭事件
 			bottomHandleClose(done) {
 				done();
-		    }
+		    },
+		    //头像管理相关方法
+		  	//头像管理弹出框关闭事件
+			iconHandleClose(done){
+				done();
+			},
+			//头像上传完成后显示
+			handleAvatarSuccess(res, file) {
+		    	this.imageUrl = URL.createObjectURL(file.raw);
+		    	vm.iconUrl='/users/icon?timestamp='+new Date().getTime();
+		    },
+		    //用户上传头像前，头像格式和大小验证
+	      	beforeAvatarUpload(file) {
+	        	var isJPG = file.type === 'image/jpg' || file.type === 'image/jpeg';
+	        	var isLt2M = file.size / 1024 / 1024 < 2;
+	        	if (!isJPG) {
+	          		this.$message.error('上传头像图片只能是 JPG 格式!');
+	        	}
+	        	if (!isLt2M) {
+	          		this.$message.error('上传头像图片大小不能超过 2MB!');
+	        	}
+	        	return isJPG && isLt2M;
+	      	}
 		}
 	})
   	</script>

@@ -35,6 +35,9 @@ public class BaseController {
 	@Value("${spring.application.name}")
 	protected String appName;
 
+	@Value("${fileBathPath}")
+	protected String fileBathPath;
+
 	/**
 	 * @author wenzhang
 	 * @date:2018年2月9日 上午11:07:35

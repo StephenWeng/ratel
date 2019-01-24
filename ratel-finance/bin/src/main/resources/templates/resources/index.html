@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+<head th:include="common/header :: head"></head>
+<div class="content">
+    <div class="login-panel">大多分为</div>
+</div>
+<div class="background">
+    <canvas class="meteor" id="canvas" height="179" width="1349"></canvas>
+</div>
+<script>
+/*<![CDATA[*/
+(function(global){
+    global.onload = function(){
+        Meteor.init();
+    }
+})(this)
+/*]]>*/
+</script>

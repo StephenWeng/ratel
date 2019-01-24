@@ -275,4 +275,42 @@ public class UserController extends BaseController {
 		return userService.checkOnly(name, account, email, method, id);
 	}
 
+	/**
+	 * @Title uploadIcon
+	 * @author :Stephen
+	 * @Description 用户头像上传，用户头像保存路径在fileBathPath下，且名称与用户id一致
+	 * @date 2019年1月24日 上午10:14:45
+	 * @param user
+	 * @return ResponseData
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/icon", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData uploadIcon() {
+		return userService.uploadIcon(request(), this.getUserAccount(), fileBathPath);
+	}
+
+	/**
+	 * @Title queryActiveIcon
+	 * @author :Stephen
+	 * @Description 获取当前用户的头像文件流
+	 * @date 2019年1月24日 上午11:45:51
+	 * @return byte[] 文件流
+	 */
+	@RequestMapping(value = "/icon", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public byte[] queryActiveIcon() {
+		return userService.queryIcon(this.getUserAccount(), fileBathPath);
+	}
+
+	/**
+	 * @Title logout
+	 * @author :Stephen
+	 * @Description 退出，清楚cookid
+	 * @date 2019年1月24日 下午3:31:34
+	 * @return ResponseData
+	 */
+	@RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseData logout() {
+		return userService.logout(this.getUserAccount(), response(), request());
+	}
+
 }

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"></meta>
+  	<!-- 引入jquery -->
+	<script th:src="@{/plugins/jquery/jquery-3.3.1.js}"></script>
+	<!-- 引入vue -->
+	<script th:src="@{/plugins/vue/vue-2.5.17.js}"></script>
+	<!-- elemrnt组件引入 -->
+  	<!-- 引入样式 -->
+	<link rel="stylesheet" href="/plugins/element/index.css">
+	<!-- 引入组件库 -->
+	<script th:src="@{/plugins/element/index.js}"></script>
+	<!-- 公用库 -->
+	<script th:src="@{/common/common.js}"></script>
+	<style>
+	    #functionalZone{
+	    	border-width: 5px !important;
+	    	border-color:black !important;
+	    }
+	    .absoluteDiv{
+	    	position: absolute;
+ 			top: 30%;
+	    }
+	    .userDiv{
+ 			left:30%;
+	    }
+	    .jumpDiv{
+ 			left:33%;
+	    }
+	    .el-progress-circle{
+	    	height: 250px !important; 
+	    	width: 250px !important;
+	    }
+	    
+</style>
+</head>
+<body>
+	<div id="reset">
+		<!-- 找回密码主要区域 -->
+		<el-row type="flex" class="row-bg" justify="center">
+		  	<el-col :span="4"></el-col>
+		  	<!-- 找回密码操作区 -->
+		  	<el-col :span="16">
+		  		<!-- 步骤导航 -->
+			  	<el-steps :active="active" finish-status="success">
+				  	<el-step title="用户验证"></el-step>
+				  	<el-step title="重置密码"></el-step>
+				</el-steps>
+				<!-- 操作区 -->
+				<el-row type="flex" id="functionalZone" class="row-bg" justify="center">
+				  	<el-col :span="8"></el-col>
+				  	<el-col :span="8">
+				  		<!-- 验证用户是否存在div -->
+				  		<div v-if="active==0" class="absoluteDiv userDiv">
+				  			<el-form ref="userForm" :rules="userRules" :model="userForm" label-width="100px">
+							  	<el-form-item label="邮箱：" prop="name" title="请输入您想要修改密码的邮箱">
+							    	<el-input v-model="userForm.name" :disabled="hasChecked"
+							    	placeholder="请输入邮箱" clearable prefix-icon="el-icon-search" ></el-input>
+							  	</el-form-item>
+								<el-row type="flex" class="row-bg" justify="center">
+								  	<el-col :span="24">
+								  		<el-form-item>
+								  			<el-button size="small" type="primary" round 
+								  			@click="reset('userForm')" :loading="hasChecked" :disabled="hasChecked">确定</el-button>
+									  		<el-button size="small" round @click="resetForm('userForm')" :disabled="hasChecked">重置</el-button>
+									  	</el-form-item>
+								  	</el-col>
+								</el-row>
+							</el-form>
+				  		</div>
+				  		<!-- 等待跳转登录页面div -->
+				  		<div v-if="active==1" class="absoluteDiv jumpDiv">
+				  			<el-row type="flex" class="row-bg" justify="center">
+							  	<el-col :span="24">
+							  		<el-row type="flex" class="row-bg">
+								  		<el-progress type="circle" :percentage="percentage" :color="color" status="text">
+								  		{{totalNum}}s后，将为您跳转到登录界面
+								  		</el-progress>
+							  		</el-row>
+							  	</el-col>
+							</el-row>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="8"></el-col>
+				</el-row>
+		  	</el-col>
+		  	<el-col :span="4"></el-col>
+		</el-row>
+	</div>
+</body>
+  <script>
+  		/* 页面加载时触发事件 */
+		window.onload=function(){ 
+      		vm.init();
+  		}
+		var vm=new Vue({
+			el:'#reset',
+			data() {
+				return {
+					active: 0,
+					userForm: {
+						name:''
+					},
+					userRules:{
+						name: [
+			            	{ required: true, message: '请输入账号', trigger: 'blur' },
+			            	{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+			          	]
+					},
+					hasChecked:false,
+				    percentage:0,
+				    color:'red',
+				    totalNum:5,
+				    colorArr:['white','red','blue','#8e71c7','green']
+				}
+			},
+			methods:{
+				init:function(){
+					//设置高度
+					document.getElementById("functionalZone").style.height= (getWinHeight()-100) +"px";
+				},
+				//重设密码
+				reset:function(formName){
+					var that=this;
+					var data={};
+					data.account=vm.userForm.name;
+					var json=JSON.stringify(data); 
+					this.$refs[formName].validate((valid) => {
+			          	if (valid) {
+			          		vm.hasReset=true;
+			          		$.ajax({
+			  		          	url: '/users/reset?timestamp='+new Date().getTime(),
+			  		          	type: 'POST',
+			  		          	data:json,
+			  		          	dataType : 'json', 
+			  		          	contentType: 'application/json; charset=utf-8',
+			  		          	success: function (res) {
+			  		        	  	vm.hasReset=false;
+			  		        	  	if(res.rspCode=="000000"){ 
+			  		        	  		that.$confirm('密码已重置，请自行前往邮箱查看', '重置密码', {
+				  		                  	distinguishCancelAndClose: true,
+				  		                  	confirmButtonText: '确定',
+				  		                  	cancelButtonText: '跳转登陆页面'
+			  		                	}).then(() => {
+				  		                	vm.countdown();
+			  		                  	}).catch(action => {
+				  		                	if(action === 'cancel'){
+				  		                		window.location.href="/ratel/login";
+				  		                	}else{
+				  		                		vm.countdown();
+				  		                	}
+			  		                  	});
+			  		        	  	}else{
+			  		        	  		that.$notify.error({
+					  		        	  	title: '重置密码',
+					  		        	  	message: res.rspMsg,
+					  		        	  	position: 'bottom-right'
+					  		        	});
+			  		        	  	} 
+			  		          	}
+			  		    	});
+			          	}
+			        });
+				},
+				resetForm:function(formName){
+					this.$refs[formName].resetFields();
+					vm.hasReset=false;
+				},
+				countdown:function(){
+					vm.totalNum=5;
+					vm.active=1;
+	        	  	vm.jumpToLogin(); 
+				},
+				//倒计时跳转登录界面
+				jumpToLogin:function(){
+					while(vm.totalNum>0){
+						vm.color=vm.colorArr[5-vm.totalNum];
+						vm.percentage=(5-vm.totalNum)/5;
+						vm.totalNum--;
+						sleep(1000);
+					}
+					window.location.href="/ratel/login";
+				}
+			}
+		})
+  </script>
+</html>

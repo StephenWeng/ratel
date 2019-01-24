@@ -2,6 +2,7 @@ package com.ratel.auth.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ratel.auth.domain.User;
@@ -186,5 +187,33 @@ public interface IUserService {
 	 * @return ResponseData
 	 */
 	public ResponseData checkOnly(String name, String account, String email, Integer method, String id);
+
+	/**
+	 * @Title uploadIcon
+	 * @author :Stephen
+	 * @Description 用户头像上传
+	 * @date 2019年1月24日 上午10:14:45
+	 * @param user
+	 * @return ResponseData
+	 */
+	public ResponseData uploadIcon(HttpServletRequest request, String account, String fileBathPath);
+
+	/**
+	 * @Title queryActiveIcon
+	 * @author :Stephen
+	 * @Description 获取当前用户的头像文件流
+	 * @date 2019年1月24日 上午11:45:51
+	 * @return byte[] 文件流
+	 */
+	public byte[] queryIcon(String account, String fileBathPath);
+
+	/**
+	 * @Title logout
+	 * @author :Stephen
+	 * @Description 退出，清楚cookid
+	 * @date 2019年1月24日 下午3:31:34
+	 * @return ResponseData
+	 */
+	public ResponseData logout(String account, HttpServletResponse res, HttpServletRequest req);
 
 }

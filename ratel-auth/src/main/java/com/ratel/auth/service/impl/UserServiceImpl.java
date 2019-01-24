@@ -1,11 +1,22 @@
 package com.ratel.auth.service.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.transform.Transformers;
@@ -19,6 +30,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.ratel.auth.domain.Email;
 import com.ratel.auth.domain.User;
@@ -661,6 +674,142 @@ public class UserServiceImpl implements IUserService {
 			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "更新用户角色时错误，用户账号：" + user.getAccount()
 					+ "错误信息：" + e.getMessage());
 			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	/**
+	 * @Title uploadIcon
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月24日 上午11:32:39
+	 * @param account
+	 * @return
+	 */
+	@Override
+	public ResponseData uploadIcon(HttpServletRequest request, String account, String fileBathPath) {
+		File fileBak = null;// 之前的头像在删除前备份
+		User userDo = userRepository.findByUserAccount(account);
+		if (null == userDo) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + account + "修改头像时，找不到账号");
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "账号错误！");
+		}
+		// 旧头像备份
+		String filePath = fileBathPath + userDo.getId() + ".jpg";
+		try {
+			File fileOld = new File(filePath);
+			fileBak = new File(fileBathPath + userDo.getId() + "_bak.jpg");
+			if (null != fileOld && fileOld.exists()) {
+				fileOld.renameTo(fileBak);
+			}
+			List<MultipartFile> files = getFiles(request);
+			if (files.size() == 0) {
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "请上传文件");
+			}
+			if (files.size() > 1) {
+				return new ResponseData(ResponseMsg.FAILED.getCode(), "只能上传一个头像");
+			}
+			File file = new File(filePath);
+			MultipartFile multipartFile = files.get(0);
+			InputStream is = multipartFile.getInputStream();
+			OutputStream outStream = new FileOutputStream(file);
+			byte[] buffer = new byte[8 * 1024];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				outStream.write(buffer, 0, bytesRead);
+			}
+			fileBak.delete();
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (FileNotFoundException e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + account + "修改头像时，找不到文件");
+			File file = new File(filePath);
+			if (null != fileBak && fileBak.exists()) {
+				fileBak.renameTo(file);
+			}
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "找不到文件异常");
+		} catch (IOException e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + account + "修改头像时，文件流读写");
+			File file = new File(filePath);
+			if (null != fileBak && fileBak.exists()) {
+				fileBak.renameTo(file);
+			}
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "读写异常");
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "使用账号：" + account + "修改头像时，系统异常");
+			File file = new File(filePath);
+			if (null != fileBak && fileBak.exists()) {
+				fileBak.renameTo(file);
+			}
+			return new ResponseData(ResponseMsg.FAILED.getCode(), "系统异常");
+		}
+	}
+
+	private List<MultipartFile> getFiles(HttpServletRequest request) {
+		List<MultipartFile> files = new ArrayList<MultipartFile>();
+		MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+		Iterator<String> iter = multiRequest.getFileNames();
+		while (iter.hasNext()) {
+			// 取得上传文件
+			MultipartFile file = multiRequest.getFile(iter.next());
+			files.add(file);
+		}
+		return files;
+	}
+
+	/**
+	 * @Title queryIcon
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月24日 上午11:49:03
+	 * @param account
+	 * @param fileBathPath
+	 * @return
+	 */
+	@Override
+	public byte[] queryIcon(String account, String fileBathPath) {
+		byte[] buffer = null;
+		try {
+			User userDo = userRepository.findByUserAccount(account);
+			String userId = userDo.getId();// 文件名与用户id一致
+			String filePath = fileBathPath + userId + ".jpg";
+			File file = new File(filePath);
+			FileInputStream fis = new FileInputStream(file);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
+			byte[] b = new byte[1000];
+			int n;
+			while ((n = fis.read(b)) != -1) {
+				bos.write(b, 0, n);
+			}
+			fis.close();
+			bos.close();
+			buffer = bos.toByteArray();
+			return buffer;
+		} catch (FileNotFoundException e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取当前登录用户头像文件流时未找到对应头像");
+			return buffer;
+		} catch (IOException e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取当前登录用户头像文件流读写异常");
+			return buffer;
+		} catch (Exception e) {
+			logger.error(DateUtils.nowDate(DateUtils.YYYY_MM_DD_HHMMSS) + "获取当前登录用户头像文件流系统异常");
+			return buffer;
+		}
+	}
+
+	/**
+	 * @Title logout
+	 * @author :Stephen
+	 * @Description
+	 * @date 2019年1月24日 下午3:32:19
+	 * @param account
+	 * @return
+	 */
+	@Override
+	public ResponseData logout(String account, HttpServletResponse res, HttpServletRequest req) {
+		try {
+			CookieUtil.removeCookie(res, CommonConst.COOKIE_KEY_JWT_TOKEN);
+			return new ResponseData(ResponseMsg.SUCCESS);
+		} catch (Exception e) {
+			return new ResponseData(ResponseMsg.FAILED);
 		}
 	}
 

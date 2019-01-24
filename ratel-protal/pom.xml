@@ -13,8 +13,8 @@
 	</parent>
 	<dependencies>
 		<dependency>
-			<groupId>com.ratel</groupId>
-			<artifactId>auth</artifactId>
+			<groupId>com.ratel.finance</groupId>
+			<artifactId>ratel-finance</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
