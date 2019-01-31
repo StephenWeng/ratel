@@ -84,11 +84,7 @@ var vm=new Vue({
 	        	  		vm.treeData=res.data;
 	        	  		createRoleRelationEcharts('initializationState',res.data);
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '资源树',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("资源树", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -114,11 +110,7 @@ var vm=new Vue({
 	        	  	if(res.rspCode=="000000"){
 	        	  		vm.resourceList=res.data;
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '查询资源',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("查询资源", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});

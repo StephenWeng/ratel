@@ -380,11 +380,7 @@ var vm=new Vue({
 		        	  		}
 	        	  		}
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '查询角色',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("查询角色", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -402,11 +398,7 @@ var vm=new Vue({
 	        	  		vm.treeData=res.data.treeData;
 	        	  		createDepartmentRadarEcharts('initializationState',res.data.treeData,res.data.numData);
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '组织机构树',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("组织机构树", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -467,11 +459,7 @@ var vm=new Vue({
 	        	  		vm.userList=res.data.content;
 	        	  		vm.totalSize=res.data.totalElements;
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '查询组织',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("查询组织", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -553,11 +541,7 @@ var vm=new Vue({
 		  		        	  	position: 'bottom-right'
 		  		        	});
 		        	  	}else{
-		        	  		that.$notify.error({
-		  		        	  	title: '删除用户',
-		  		        	  	message: res.rspMsg,
-		  		        	  	position: 'bottom-right'
-		  		        	});
+		        	  		sweetAlert("删除用户", res.rspMsg, "error");
 		        	  	} 
 		          	}
 		    	});
@@ -616,11 +600,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-  		        	  	title: '新增用户',
-  		        	  	message: res.rspMsg,
-  		        	  	position: 'bottom-right'
-  		        	});
+	        	  		sweetAlert("新增用户", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});
@@ -645,11 +625,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-  		        	  	title: '编辑用户',
-  		        	  	message: res.rspMsg,
-  		        	  	position: 'bottom-right'
-  		        	});
+	        	  		sweetAlert("编辑用户", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});
@@ -673,11 +649,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '重置密码',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-	  		        	});
+	        	  		sweetAlert("重置密码", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});
@@ -711,11 +683,7 @@ var vm=new Vue({
 		        	  		}
 	        	  		}
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '查询已有角色',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("查询已有角色", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -753,11 +721,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '用户授权',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-	  		        	});
+	        	  		sweetAlert("用户授权", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});

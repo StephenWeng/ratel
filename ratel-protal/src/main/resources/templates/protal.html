@@ -367,11 +367,7 @@
   		        	  	if(res.rspCode=="000000"){
   		        	  		vm.resourcesList=res.data;
   		        	  	}else{
-  		        	  		that.$notify.error({
-		  		        	  	title: '获取资源列表',
-		  		        	  	message: res.rspMsg,
-		  		        	  	position: 'bottom-right'
-		  		        	});
+  		        	  		sweetAlert("获取资源列表", res.rspMsg, "error");
   		        	  	}
   		          	}
   		    	});
@@ -421,11 +417,7 @@
   		        	  		//性别需要转换为字符串格式
   		        	  		vm.userInformationForm.gender=res.data.gender+'';
   		        	  	}else{
-  		        	  		that.$notify.error({
-		  		        	  	title: '查询用户',
-		  		        	  	message: res.rspMsg,
-		  		        	  	position: 'bottom-right'
-		  		        	});
+  		        	  		sweetAlert("查询用户", res.rspMsg, "error");
   		        	  	}
   		          	}
   		    	});
@@ -458,11 +450,7 @@
 				  		        	  	position: 'bottom-right'
 				  		        	});
 		  		        	  	}else{
-		  		        	  		that.$notify.error({
-				  		        	  	title: '编辑信息',
-				  		        	  	message: res.rspMsg,
-				  		        	  	position: 'bottom-right'
-				  		        	});
+		  		        	  		sweetAlert("编辑信息", res.rspMsg, "error");
 		  		        	  	} 
 		  		          	}
 		  		    	});
@@ -492,11 +480,7 @@
 				  		        	  	position: 'bottom-right'
 				  		        	});
 		  		        	  	}else{
-		  		        	  		that.$notify.error({
-				  		        	  	title: '重置密码',
-				  		        	  	message: res.rspMsg,
-				  		        	  	position: 'bottom-right'
-				  		        	});
+		  		        	  		sweetAlert("重置密码", res.rspMsg, "error");
 		  		        	  	} 
 		  		          	}
 		  		    	});

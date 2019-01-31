@@ -288,11 +288,7 @@ var vm=new Vue({
 	        	  	if(res.rspCode=="000000"){
 	        	  		vm.treeData=res.data;
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '组织机构树',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("组织机构树", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -350,11 +346,7 @@ var vm=new Vue({
 	        	  		vm.departmentList=res.data.content;
 	        	  		vm.totalSize=res.data.totalElements;
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '查询组织',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("查询组织", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -451,11 +443,7 @@ var vm=new Vue({
 		  		        	  	position: 'bottom-right'
 		  		        	});
 		        	  	}else{
-		        	  		that.$notify.error({
-		  		        	  	title: '删除单位',
-		  		        	  	message: res.rspMsg,
-		  		        	  	position: 'bottom-right'
-		  		        	});
+		        	  		sweetAlert("删除单位", res.rspMsg, "error");
 		        	  	} 
 		          	}
 		    	});
@@ -515,11 +503,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-  		        	  	title: '新增单位',
-  		        	  	message: res.rspMsg,
-  		        	  	position: 'bottom-right'
-  		        	});
+	        	  		sweetAlert("新增单位", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});
@@ -547,11 +531,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-  		        	  	title: '编辑单位',
-  		        	  	message: res.rspMsg,
-  		        	  	position: 'bottom-right'
-  		        	});
+	        	  		sweetAlert("编辑单位", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});

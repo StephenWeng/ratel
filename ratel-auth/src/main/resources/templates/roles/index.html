@@ -207,11 +207,7 @@ var vm=new Vue({
 	        	  	if(res.rspCode=="000000"){
 	        	  		vm.treeData=res.data;
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '资源树',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("资源树", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -234,11 +230,7 @@ var vm=new Vue({
 	        	  		vm.roleList=res.data.content;
 	        	  		vm.totalSize=res.data.totalElements;
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '查询角色',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-  		        		});
+	        	  		sweetAlert("查询角色", res.rspMsg, "error");
 	        	  	}
 	          	}
 	    	});
@@ -292,11 +284,7 @@ var vm=new Vue({
 		  		        	  	position: 'bottom-right'
 		  		        	});
 		        	  	}else{
-		        	  		that.$notify.error({
-		  		        	  	title: '删除角色',
-		  		        	  	message: res.rspMsg,
-		  		        	  	position: 'bottom-right'
-		  		        	});
+		        	  		sweetAlert("删除角色", res.rspMsg, "error");
 		        	  	} 
 		          	}
 		    	});
@@ -351,11 +339,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '新增角色',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-	  		        	});
+	        	  		sweetAlert("新增角色", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});
@@ -380,11 +364,7 @@ var vm=new Vue({
 	  		        	  	position: 'bottom-right'
 	  		        	});
 	        	  	}else{
-	        	  		that.$notify.error({
-	  		        	  	title: '编辑角色',
-	  		        	  	message: res.rspMsg,
-	  		        	  	position: 'bottom-right'
-	  		        	});
+	        	  		sweetAlert("编辑角色", res.rspMsg, "error");
 	        	  	} 
 	          	}
 	    	});

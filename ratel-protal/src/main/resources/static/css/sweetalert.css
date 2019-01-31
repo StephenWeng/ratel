@@ -1,0 +1,10 @@
+.swal-modal {
+	background-color: #0B112B;
+	border: 3px solid white;
+}
+.swal-title,.swal-text{
+	color:#06BCD1;
+}
+.swal-button{
+	border-radius:20px;
+}

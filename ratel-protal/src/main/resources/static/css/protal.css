@@ -6,17 +6,17 @@
 	    overflow: hidden;
 	}
 	
-	/* 为所有字体设置颜色 */
+	/* 涓烘墍鏈夊瓧浣撹缃鑹� */
 	*,.el-table__empty-text{
     	color: #03BCD1;
 	}
 	
 	a:hover{
-		text-decoration:underline;  /*超链接悬浮时出现下划线*/
-		cursor:pointer;/*超链接悬浮时出现手型*/
+		text-decoration:underline;  /*瓒呴摼鎺ユ偓娴椂鍑虹幇涓嬪垝绾�*/
+		cursor:pointer;/*瓒呴摼鎺ユ偓娴椂鍑虹幇鎵嬪瀷*/
 	}
 	
-	/* 页面头部和底部样式设置 */
+	/* 椤甸潰澶撮儴鍜屽簳閮ㄦ牱寮忚缃� */
 	.el-header,.el-footer{
 	  	text-align: center;
 	  	line-height: 40px;
@@ -27,7 +27,7 @@
 	  	color:#03BCD1;
 	}
   
-  	/* 左侧菜单栏样式 */
+  	/* 宸︿晶鑿滃崟鏍忔牱寮� */
 	.el-aside {
   		background-color:#253266;
     	text-align: center;
@@ -38,7 +38,7 @@
   	}
   	
   
-  	/* 中间主要区域样式 */
+  	/* 涓棿涓昏鍖哄煙鏍峰紡 */
   	.el-main {
 	    background-color: #0C1330;
 	    padding: 0px;
@@ -105,7 +105,7 @@
 		
 	}
   
-  /* 弹出框样式 */
+  /* 寮瑰嚭妗嗘牱寮� */
   .el-dialog,.el-dialog__title,.el-collapse-item__header{
   	 color: #06BCD1;
   	 background-color: #2C3E89;
@@ -133,12 +133,12 @@
     padding: 18px 0;
   }
   
-  /* 右对齐 */
+  /* 鍙冲榻� */
   .right{
   	float:right;
   }
   
-  /* 左对齐 */
+  /* 宸﹀榻� */
   .left{
   	float:left;
   }
@@ -162,13 +162,13 @@
 		border-color:#202A52;
 	}
 	
-	/* 表格里面的单元格 */
+	/* 琛ㄦ牸閲岄潰鐨勫崟鍏冩牸 */
   	.el-table th,tr,td{
   		border-top-width:1px;
     	border-left-width:1px;
     	border-right-width:1px;
     	border-bottom-width:1px;
-    	background-color: #0B112B ;/* 背景色 */
+    	background-color: #0B112B ;/* 鑳屾櫙鑹� */
     	border-style:solid;
 		border-color:#344071 !important;
   	}
@@ -177,14 +177,14 @@
 	    border-bottom: 1px solid #344071;
 	}
 	
-	/* 偶数行背景色 */
+	/* 鍋舵暟琛岃儗鏅壊 */
 	.el-table--striped .el-table__body tr.el-table__row--striped td {
 	    background: #2D3555;
 	}
 	
-	/* 列表中的展示 */
+	/* 鍒楄〃涓殑灞曠ず */
 	.el-table__expanded-cell{
-		background-color: #0B1A5B ;/* 背景色 */
+		background-color: #0B1A5B ;/* 鑳屾櫙鑹� */
 	}
 	
 	
@@ -204,15 +204,15 @@
 	    width: 50%;
   	} 
   	
-  	/* 避免表头错位 */
+  	/* 閬垮厤琛ㄥご閿欎綅 */
   	body .el-table th.gutter{
     	display: table-cell!important;
   	}
   	
-  	/* 所有文本框样式设置 */
+  	/* 鎵�鏈夋枃鏈鏍峰紡璁剧疆 */
   	input[type="text"],input[type="password"],.el-textarea__inner,.el-message-box{
-    	color: #06BCD1;/* 字体颜色 */
-    	background-color: #0B112B ;/* 背景色 */
+    	color: #06BCD1;/* 瀛椾綋棰滆壊 */
+    	background-color: #0B112B ;/* 鑳屾櫙鑹� */
     	border-style:solid;
 		border-color:#344071;
     }
@@ -237,8 +237,10 @@
 		color:white;
 	}
 	
-	/* 标签样式 */
+	/* 鏍囩鏍峰紡 */
 	.el-tag{
     	margin-right: 3px;
 	}
+	
+	
   
