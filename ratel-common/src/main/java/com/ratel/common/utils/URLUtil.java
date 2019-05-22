@@ -137,5 +137,37 @@ public class URLUtil {
 		}
 		return ipAddress;
 	}
+	
+	public static String[] stringToStringArray(String prmString) throws Exception {
+		/*
+		 * Convert this string into an array such that another method could be invoked.
+		 */
+		int tempCounter = 1;
+		for (int i = 0; i < prmString.length(); i++) {
+			if (prmString.charAt(i) == ',') {
+				tempCounter++;
+			} // Of if
+		} // Of for i
+
+		String[] theStringArray = new String[tempCounter];
+
+		String remainString = new String(prmString) + ",";
+		for (int i = 0; i < tempCounter; i++) {
+			theStringArray[i] = remainString.substring(0, remainString.indexOf(",")).trim();
+			if (theStringArray[i].equals("")) {
+				throw new Exception("Error occurred in common.SimpleTool.stringToStringArray()."
+						+ "\n\tBlank attribute or data is not allowed as a data. " + "\n\tThe string is:" + prmString);
+			} // Of if
+				// Common.println(theStringArray[i]);
+			remainString = remainString.substring(remainString.indexOf(",") + 1);
+			// Common.println("remainString: " + remainString);
+		} // Of for i
+
+		return theStringArray;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		System.out.println(URLUtil.stringToStringArray("dasdas,dasdas,dasdasdas"));
+	}
 
 }

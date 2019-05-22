@@ -93,4 +93,11 @@ public class ViewController extends BaseController {
 		return mav;
 	}
 
+	@RequestMapping(value = "/test", method = RequestMethod.GET, name = "角色管理页面")
+	public ModelAndView toTest() {
+		ModelAndView mav = new ModelAndView("test");
+		mav.addObject("appName", appName);
+		return mav;
+	}
+
 }
