@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+<head th:include="common/header :: head"></head>
+<link href='/js/fullcalendar/fullcalendar.css' rel='stylesheet' />
+<script th:src="@{/js/fullcalendar/moment.min.js}"></script>
+<script th:src="@{/js/fullcalendar/fullcalendar-3.6.1.js}"></script>
+<script th:src="@{/js/fullcalendar/packages/core/locales/zh-cn.js}"></script>
+<div id='calendarDiv'>
+	<div class="block">
+	    <el-date-picker 
+	      v-model="selectMonth" type="month" placeholder="选择日期"  
+	      value-format="yyyy-MM-dd" @change="queryEvents()">
+	    </el-date-picker>
+ 	</div>
+ 	<div id='calendar'></div>
+</div>
+<script>
+/*<![CDATA[*/
+var vm=new Vue({
+	el:'#calendarDiv',
+	data(){
+		return{
+			selectMonth:''
+		}
+	},
+	methods:{
+		init:function(){
+			vm.selectMonth = new Date().Format("yyyy-MM-dd");
+			vm.initCalendar();
+		},
+		//初始化日历插件
+		initCalendar(){
+			$('#calendar').fullCalendar({
+		        locale:'zh-cn',
+	        	plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list' ],
+		      	header: {
+			        left: '',
+			        center: 'title',
+			        right: 'month,listMonth'
+		      	},
+		      	height : 600,  
+		      	themeSystem: 'bootstrap3',
+		      	defaultDate: vm.selectMonth,
+		      	handleWindowResize:true,//	是否随浏览器窗口大小变化而自动变化
+		      	buttonIcons: false, // show the prev/next text
+		      	weekNumbers: true,//是否在日历中显示周次(一年中的第几周)，如果设置为true，则会在月视图的左侧、周视图和日视图的左上角显示周数。
+		      	navLinks: true, // can click day/week names to navigate views
+		      	editable: true,//是否可编辑，即进行可拖动和缩放操作。
+		      	events: function(start, end, timezone, callback) {
+		  		  $.ajax({
+	    	          	url: '/calendar/events?timestamp='+new Date().getTime(),
+	    	          	type: 'GET',
+	    	          	dataType : 'json', 
+	    	          	data:{
+	    	          		'date':vm.selectMonth,//查询月
+	    	          	},
+	    	          	contentType: 'application/json; charset=utf-8',
+	    	          	success: function (res) {
+	    	        	  	if(res.rspCode=="000000"){
+	    	        	  		callback(res.data);
+	    	        	  	}
+	    	          	}
+		      		});
+		  	    },
+		      	eventClick: function(calEvent, jsEvent, view) {
+		    	  	alert("单击日历事程事件");
+		      	},
+		      	dayClick: function(date, allDay, jsEvent, view) {
+		    	  	alert("单击日历某天事件");
+		      	},
+		      	eventDragStart:function( event, jsEvent, ui, view ) { 
+		      		alert("开始拖拽");
+		      	},
+		      	eventDragStop:function( event, jsEvent, ui, view ) { 
+		      		alert("拖拽完成");
+		      	},
+		      	eventDrop:function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+		      		alert("拖拽完成1");
+		      	}
+		    });
+		},
+		//查询对应日期的事件，并渲染插件
+		queryEvents(){
+			$('#calendar').fullCalendar( 'destroy' );//摧毁原有日历
+			vm.initCalendar();//重建日历
+		}
+	}
+})
+/* 页面加载时触发事件 */
+window.onload=function(){ 
+	vm.init();
+}
+/*]]>*/
+</script>
