@@ -64,7 +64,7 @@
 		<dependency>
 		  <groupId>org.apache.ant</groupId>
 		  <artifactId>ant</artifactId>
-		  <version>1.7.1</version>
+		  <version>1.9.15</version>
 		</dependency>
 		<!-- 远程判断邮箱地址是否真实有效 -->
 		<dependency>
